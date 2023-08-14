@@ -1,0 +1,20 @@
+Package: tsoa
+Type: Package
+Title: The package is used to identify anomalies and outliers in clinical data time series.
+Version: 0.1.0
+Authors@R: person("Pekka", "Tiikkainen",
+  role = c("aut", "cre"))
+Maintainer: Pekka Tiikkainen, Bayer Pharmaceuticals
+Description: The package is used to identify anomalies in clinical time series.
+    The main goal is to flag sites whose data is different from other sites in the study
+    but also outlying individual subjects can be identified with the results generated.
+    For more details on the methodology, please check out the paper and slides from 
+    PHUSE EU Connect 2022:
+    https://phuse.s3.eu-central-1.amazonaws.com/Archive/2022/Connect/EU/Belfast/PRE_AR04.pdf
+    https://phuse.s3.eu-central-1.amazonaws.com/Archive/2022/Connect/EU/Belfast/PAP_AR04.pdf
+License: MIT + file LICENSE
+Encoding: UTF-8
+Imports:
+    tidyverse
+LazyData: true
+RoxygenNote: 7.2.1
