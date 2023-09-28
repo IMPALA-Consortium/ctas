@@ -2,9 +2,13 @@ Package: tsoa
 Type: Package
 Title: The package is used to identify anomalies and outliers in clinical data time series.
 Version: 0.1.0
-Authors@R: person("Pekka", "Tiikkainen",
-  role = c("aut", "cre"))
-Maintainer: Pekka Tiikkainen, Bayer Pharmaceuticals
+Authors@R: c(
+  person("Pekka", "Tiikkainen",
+    role = c("aut", "cre"),
+    email = "pekka.tiikkainen@bayer.com"),
+  person("Bayer Pharmaceuticals",
+    role = "cph")
+  )
 Description: The package is used to identify anomalies in clinical time series.
     The main goal is to flag sites whose data is different from other sites in the study
     but also outlying individual subjects can be identified with the results generated.
