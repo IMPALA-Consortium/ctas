@@ -7,7 +7,8 @@
 calculate_ts_features(
   this_timeseries_wide,
   this_baseline,
-  this_timeseries_features_to_calculate
+  this_timeseries_features_to_calculate,
+  subjects
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ calculate_ts_features(
 \item{this_baseline}{Whether the data in this_timeseries_wide are original or baseline-adjusted measurements.}
 
 \item{this_timeseries_features_to_calculate}{Vector of time series features to return.}
+
+\item{subjects}{Data frame with one row per study subject.}
 }
 \value{
 Data frame with time series features.

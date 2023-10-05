@@ -4,7 +4,39 @@
 \alias{check_input_data}
 \title{check_input_data}
 \usage{
-check_input_data()
+check_input_data(
+  subjects,
+  parameters,
+  data,
+  custom_timeseries,
+  timeseries_features_to_calculate,
+  default_minimum_timepoints_per_series,
+  default_minimum_subjects_per_series,
+  default_max_share_missing_timepoints_per_series,
+  default_generate_change_from_baseline,
+  autogenerate_timeseries
+)
+}
+\arguments{
+\item{subjects}{Data frame with one row per study subject.}
+
+\item{parameters}{Data frame with one row per study parameter (e.g. labs and vital signs) to process.}
+
+\item{data}{Measurements of study parameters. One row per data point.}
+
+\item{custom_timeseries}{Pre-defined time series.}
+
+\item{timeseries_features_to_calculate}{Vector of time series features to calculate.}
+
+\item{default_minimum_timepoints_per_series}{Default minimum timepoints per time series. This is used if no parameter-specific minimum is defined in parameters.}
+
+\item{default_minimum_subjects_per_series}{Default minimum of subjects per time series. This is used if no parameter-specific minimum is defined in parameters.}
+
+\item{default_max_share_missing_timepoints_per_series}{Maximum share of time points which can be missing per subject. This is used if no parameter-specific minimum is defined in parameters.}
+
+\item{default_generate_change_from_baseline}{If set TRUE, time series and their features are calculate also for change-from-baseline values.}
+
+\item{autogenerate_timeseries}{If set to TRUE, automatic definition of time series is used. If set to FALSE, custom_timeseries must have at least one time series defined.}
 }
 \value{
 no data returned

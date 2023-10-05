@@ -4,10 +4,12 @@
 \alias{calculate_own_site_simil_score}
 \title{calculate_own_site_simil_score}
 \usage{
-calculate_own_site_simil_score(this_timeseries_wide)
+calculate_own_site_simil_score(this_timeseries_wide, subjects)
 }
 \arguments{
 \item{this_timeseries_wide}{Time series data in wide format.}
+
+\item{subjects}{Data frame with one row per study subject.}
 }
 \value{
 Data frame with a feature value per subject.
