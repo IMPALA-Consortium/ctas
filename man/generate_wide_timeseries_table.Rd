@@ -8,7 +8,8 @@ generate_wide_timeseries_table(
   this_parameter_id,
   this_timepoints,
   this_subjects,
-  this_baseline
+  this_baseline,
+  data
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ generate_wide_timeseries_table(
 \item{this_subjects}{Semicolon-delimited string of subject IDs.}
 
 \item{this_baseline}{If TRUE, the values should be baseline-adjusted.}
+
+\item{data}{Measurements of study parameters. One row per data point.}
 }
 \value{
 Time series data in wide format.
