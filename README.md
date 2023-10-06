@@ -1,4 +1,3 @@
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- badges: start -->
 <!-- badges: end -->
@@ -40,9 +39,15 @@ data frames. For details on the output, please see below.
 ``` r
 
 library(tsoa)
-#> Loading required package: rlang
-#> Loading required package: stringr
-#> Loading required package: tidyr
+#> Loading required package: dplyr
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
 
 data("tsoa_data", package = "tsoa")
 
@@ -170,13 +175,13 @@ ls_tsoa
 #>  1 ts_1_autogen_o… 1     C       sd      0.111     0.633  0      all           1
 #>  2 ts_1_autogen_o… 2     C       sd      0.149     0.667  0      all           1
 #>  3 ts_1_autogen_o… 6     B       sd      0.196     0.483  0      all           2
-#>  4 ts_1_autogen_o… 7     C       sd      0.810     0.759  0.0520 all           2
+#>  4 ts_1_autogen_o… 7     C       sd      0.810     0.759  0.0452 all           2
 #>  5 ts_1_autogen_o… 8     D       sd      0.287     0.767  0      all           1
-#>  6 ts_1_autogen_o… 9     A       sd      0.889     0.967  0.0675 all           1
+#>  6 ts_1_autogen_o… 9     A       sd      0.889     0.967  0.0756 all           1
 #>  7 ts_1_autogen_o… 13    B       sd      0.287     0.767  0      all           1
 #>  8 ts_1_autogen_o… 15    B       sd      0.00466   0.238  0      all           3
-#>  9 ts_1_autogen_o… 17    C       sd      0.412     0.833  0.0100 all           1
-#> 10 ts_1_autogen_o… 18    D       sd      0.407     0.586  0.0100 all           2
+#>  9 ts_1_autogen_o… 17    C       sd      0.412     0.833  0.0174 all           1
+#> 10 ts_1_autogen_o… 18    D       sd      0.407     0.586  0.0174 all           2
 #> # … with 1,353 more rows, and abbreviated variable names ¹​pvalue_kstest_logp,
 #> #   ²​kstest_statistic, ³​fdr_corrected_pvalue_logp, ⁴​reference_group,
 #> #   ⁵​subject_count
@@ -194,12 +199,15 @@ provided where needed.
 ### timeseries_features_to_calculate
 
 Vector of features to calculate for each time series. The vector must
-contain at least one of the following feature codes: \| Feature code \|
-Description \| \| — \| — \| \| autocorr \| Auto-correlation \| \|
-average \| Average value \| \| own_site_simil_score \| Measure of
-co-clustering of time series from the same study site \| \| sd \|
-Standard deviation \| \| unique_value_count_relative \| Number of unique
-values divided by number of values available \|
+contain at least one of the following feature codes:
+
+| Feature code                | Description                                                      |
+|------------------------------------|------------------------------------|
+| autocorr                    | Auto-correlation                                                 |
+| average                     | Average value                                                    |
+| own_site_simil_score        | Measure of co-clustering of time series from the same study site |
+| sd                          | Standard deviation                                               |
+| unique_value_count_relative | Number of unique values divided by number of values available    |
 
 ### default_minimum_timepoints_per_series
 
@@ -234,11 +242,13 @@ at least one entry.
 
 Data frame with one row per study subject.
 
-Data frame columns: \| Column name \| Data type \| Data required \|
-Description \| \| — \| — \| — \| — \| \| subject_id \| chr \| Y \|
-Unique identifier for each subject \| \| country \| chr \| Y \| Country
-where the subject is enrolled. \| \| site \| chr \| Y \| Name of the
-study site. \|
+Data frame columns:
+
+| Column name | Data type | Data required | Description                            |
+|-------------|-----------|---------------|----------------------------------------|
+| subject_id  | chr       | Y             | Unique identifier for each subject     |
+| country     | chr       | Y             | Country where the subject is enrolled. |
+| site        | chr       | Y             | Name of the study site.                |
 
 ### parameters
 
@@ -246,66 +256,58 @@ Data frame with one row for each parameter that should be processed.
 Parameters are, for example, laboratory assays and vital sign
 measurements done during the course of a study.
 
-Data frame columns: \| Column name \| Data type \| Data required \|
-Description \| \| — \| — \| — \| — \| \| parameter_id \| chr \| Y \|
-Parameter identifier \| \| parameter_category_1 \| chr \| \| Top level
-category of the parameter (e.g. LB for a laboratory assay). \| \|
-parameter_category_2 \| chr \| \| Second level category of the parameter
-(e.g. General chemistry for a laboratory assay). \| \|
-parameter_category_3 \| chr \| \| Third level category of the parameter
-(e.g. Local lab for a laboratory assay). \| \| parameter_name \| chr \|
-Y \| Parameter name \| \| time_point_count_min \| int \| \| Minimum
-number of time points required for auto-generated time series. If not
-provided, global default value is used. \| \| subject_count_min \| int
-\| \| Minimum number of eligible subjects required for auto-generated
-time series. If not provided, global default value is used. \| \|
-max_share_missing \| float \| \| Maximum number of missing data points
-an eligible subject can have for auto-generated time series. If not
-provided, global default value is used. \| \|
-generate_change_from_baseline \| boolean \| \| Whether to also generate
-baseline-adjusted time series for the parameter. If not provided, global
-default value is used. \|
+Data frame columns:
+
+| Column name                   | Data type | Data required | Description                                                                                                                                       |
+|------------------|------------------|------------------|------------------|
+| parameter_id                  | chr       | Y             | Parameter identifier                                                                                                                              |
+| parameter_category_1          | chr       |               | Top level category of the parameter (e.g. LB for a laboratory assay).                                                                             |
+| parameter_category_2          | chr       |               | Second level category of the parameter (e.g. General chemistry for a laboratory assay).                                                           |
+| parameter_category_3          | chr       |               | Third level category of the parameter (e.g. Local lab for a laboratory assay).                                                                    |
+| parameter_name                | chr       | Y             | Parameter name                                                                                                                                    |
+| time_point_count_min          | int       |               | Minimum number of time points required for auto-generated time series. If not provided, global default value is used.                             |
+| subject_count_min             | int       |               | Minimum number of eligible subjects required for auto-generated time series. If not provided, global default value is used.                       |
+| max_share_missing             | float     |               | Maximum number of missing data points an eligible subject can have for auto-generated time series. If not provided, global default value is used. |
+| generate_change_from_baseline | boolean   |               | Whether to also generate baseline-adjusted time series for the parameter. If not provided, global default value is used.                          |
 
 Example for two parameters, one vital sign and one local lab. For any
 time series generated for the vital sign, at least 50 eligible subjects
 are required. For the local lab, time series with one time point only
 are acceptable. These parameter-specific properties override the
-corresponding global parameters (see above). \| parameter_id \|
-parameter_category_1 \| parameter_category_2 \| parameter_category_3 \|
-parameter_name \| time_point_count_min \| subject_count_min \|
-max_share_missing \| generate_change_from_baseline \| \| — \| — \| — \|
-— \| — \| — \| — \| — \| — \| \| dummy_param_1 \| VS \| NA \| NA \|
-DIABP \| \| 50 \| \| \| \| dummy_param_2 \| LB \| General chemistry \|
-Local lab \| Glucose \| 1 \| \| \| \|
+corresponding global parameters (see above).
+
+| parameter_id  | parameter_category_1 | parameter_category_2 | parameter_category_3 | parameter_name | time_point_count_min | subject_count_min | max_share_missing | generate_change_from_baseline |
+|--------|--------|--------|--------|--------|--------|--------|--------|--------|
+| dummy_param_1 | VS                   | NA                   | NA                   | DIABP          |                      | 50                |                   |                               |
+| dummy_param_2 | LB                   | General chemistry    | Local lab            | Glucose        | 1                    |                   |                   |                               |
 
 ### data
 
 Data frame for the data collected during the study with one row per data
 point.
 
-Data frame columns: \| Column name \| Data type \| Data required \|
-Description \| \| — \| — \| — \| — \| \| subject_id \| chr \| Y \|
-Pointer to the subject identifier in the subjects table. \| \|
-parameter_id \| chr \| Y \| Pointer to the parameter identifier in the
-parameters table. \| \| timepoint_1_name \| chr \| Y \| Name of the top
-level time point (e.g. Visit 1). \| \| timepoint_2_name \| chr \| \|
-Name of the second level time point (e.g. “30 mins after dosing”). \| \|
-timepoint_rank \| int \| Y \| Integer for ranking time points into
-chronological order. Ranking is separate for each parameter. \| \|
-result \| float \| Y \| Numerical result of the parameter. \| \|
-baseline \| float \| \| Possible baseline value for the parameter and
-the subject. This is used to calculate change-from-baseline time series.
-\|
+Data frame columns:
 
-Example of data contents: \| subject_id \| parameter_id \|
-timepoint_1_name \| timepoint_2_name \| timepoint_rank \| result \|
-baseline \| \| — \| — \| — \| — \| — \| — \| — \| \| subj_1 \|
-dummy_param_1 \| Visit 1 \| pre-dose \| 1 \| 72 \| 65 \| \| subj_1 \|
-dummy_param_1 \| Visit 1 \| post-dose \| 2 \| 81 \| 65 \| \| subj_1 \|
-dummy_param_1 \| Visit 2 \| NA \| 3 \| 69 \| 65 \| \| subj_1 \|
-dummy_param_1 \| Visit 3 \| NA \| 4 \| 70 \| 65 \| \| subj_1 \|
-dummy_param_2 \| Visit 3 \| NA \| 1 \| 85 \| 84 \| \| subj_2 \|
-dummy_param_2 \| Visit 3 \| NA \| 1 \| 102 \| 96 \|
+| Column name      | Data type | Data required | Description                                                                                                            |
+|------------------|------------------|------------------|------------------|
+| subject_id       | chr       | Y             | Pointer to the subject identifier in the subjects table.                                                               |
+| parameter_id     | chr       | Y             | Pointer to the parameter identifier in the parameters table.                                                           |
+| timepoint_1_name | chr       | Y             | Name of the top level time point (e.g. Visit 1).                                                                       |
+| timepoint_2_name | chr       |               | Name of the second level time point (e.g. “30 mins after dosing”).                                                     |
+| timepoint_rank   | int       | Y             | Integer for ranking time points into chronological order. Ranking is separate for each parameter.                      |
+| result           | float     | Y             | Numerical result of the parameter.                                                                                     |
+| baseline         | float     |               | Possible baseline value for the parameter and the subject. This is used to calculate change-from-baseline time series. |
+
+Example of data contents:
+
+| subject_id | parameter_id  | timepoint_1_name | timepoint_2_name | timepoint_rank | result | baseline |
+|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
+| subj_1     | dummy_param_1 | Visit 1          | pre-dose         | 1              | 72     | 65       |
+| subj_1     | dummy_param_1 | Visit 1          | post-dose        | 2              | 81     | 65       |
+| subj_1     | dummy_param_1 | Visit 2          | NA               | 3              | 69     | 65       |
+| subj_1     | dummy_param_1 | Visit 3          | NA               | 4              | 70     | 65       |
+| subj_1     | dummy_param_2 | Visit 3          | NA               | 1              | 85     | 84       |
+| subj_2     | dummy_param_2 | Visit 3          | NA               | 1              | 102    | 96       |
 
 ### custom_timeseries
 
@@ -321,18 +323,21 @@ that a specific time series is analyzed, this can be defined with the
 Please note: if you do not have any custom time series to process, you
 still have to provide the main function a blank data frame!
 
-Data frame columns: \| Column name \| Data type \| Data required \|
-Description \| \| — \| — \| — \| — \| \| timeseries_id \| chr \| Y \|
-Identifier for the the custom time series. \| \| parameter_id \| chr \|
-Y \| Pointer to the parameter identifier in the parameters table. \| \|
-timepoint_combo \| chr \| Y \| Semicolon-delimited string of timepoint
-ranks that the time series consists of. These must match values in the
-timepoint_rank column of the data df. \|
+Data frame columns:
+
+| Column name     | Data type | Data required | Description                                                                                                                                          |
+|------------------|------------------|------------------|------------------|
+| timeseries_id   | chr       | Y             | Identifier for the the custom time series.                                                                                                           |
+| parameter_id    | chr       | Y             | Pointer to the parameter identifier in the parameters table.                                                                                         |
+| timepoint_combo | chr       | Y             | Semicolon-delimited string of timepoint ranks that the time series consists of. These must match values in the timepoint_rank column of the data df. |
 
 In the example below, a custom time series has been defined for
 dummy_param_1. Timepoints are defined with their respective ranks in the
-*data* df. \| timeseries_id \| parameter_id \| timepoint_combo \| \| —
-\| — \| — \| \| custom_ts_1 \| dummy_param_1 \| 1;2;3;4 \|
+*data* df.
+
+| timeseries_id | parameter_id  | timepoint_combo |
+|---------------|---------------|-----------------|
+| custom_ts_1   | dummy_param_1 | 1;2;3;4         |
 
 ## Output data
 
@@ -344,55 +349,59 @@ following.
 Time series processed. Contains both the auto-generated and/or custom
 time series.
 
-Data frame columns: \| Column name \| Data type \| Description \| \| —
-\| — \| — \| \| timeseries_id \| chr \| Unique identifier for the time
-series. \| \| parameter_id \| chr \| The parameter the time series is
-for. \| \| baseline \| chr \| Whether the time series values are
-original measurements or baseline-adjusted. \| \| timepoint_combo \| chr
-\| Ranks of the time points that constitute the time series. Semicolon
-delimited string. \| \| timepoint_combo_readable \| chr \| Names of the
-time points that constitute the time series. Semicolon-delimited string.
-\| \| timepoint_count \| int \| Number of timepoints in the time series.
-\|
+Data frame columns:
+
+| Column name              | Data type | Description                                                                           |
+|------------------------|------------------------|------------------------|
+| timeseries_id            | chr       | Unique identifier for the time series.                                                |
+| parameter_id             | chr       | The parameter the time series is for.                                                 |
+| baseline                 | chr       | Whether the time series values are original measurements or baseline-adjusted.        |
+| timepoint_combo          | chr       | Ranks of the time points that constitute the time series. Semicolon delimited string. |
+| timepoint_combo_readable | chr       | Names of the time points that constitute the time series. Semicolon-delimited string. |
+| timepoint_count          | int       | Number of timepoints in the time series.                                              |
 
 ### timeseries_features
 
 Data frame with features calculated for time series.
 
-Data frame columns: \| Column name \| Data type \| Description \| \| —
-\| — \| — \| \| timeseries_id \| chr \| Unique identifier of the time
-series. Points to the timeseries table. \| \| subject_id \| chr \|
-Subject ID pointing to the input df subjects. \| \| feature \| chr \|
-Feature code. \| \| feature_value \| float \| Feature value. \|
+Data frame columns:
+
+| Column name   | Data type | Description                                                           |
+|------------------------|------------------------|------------------------|
+| timeseries_id | chr       | Unique identifier of the time series. Points to the timeseries table. |
+| subject_id    | chr       | Subject ID pointing to the input df subjects.                         |
+| feature       | chr       | Feature code.                                                         |
+| feature_value | float     | Feature value.                                                        |
 
 ### PCA_coordinates
 
 Data frame with the top two principal components for a time series.
 These are useful for the visualization of the similarity of subjects.
 
-Data frame columns: \| Column name \| Data type \| Description \| \| —
-\| — \| — \| \| timeseries_id \| chr \| Unique identifier of the time
-series. Points to the timeseries table. \| \| subject_id \| chr \|
-Subject ID pointing to the input df subjects. \| \| pc1 \| float \| The
-first principal component. \| \| pc2 \| float \| The second principal
-component. \|
+Data frame columns:
+
+| Column name   | Data type | Description                                                           |
+|------------------------|------------------------|------------------------|
+| timeseries_id | chr       | Unique identifier of the time series. Points to the timeseries table. |
+| subject_id    | chr       | Subject ID pointing to the input df subjects.                         |
+| pc1           | float     | The first principal component.                                        |
+| pc2           | float     | The second principal component.                                       |
 
 ### site_scores
 
 Biasness scores for sites. The data frame contains a row for each
 site/time series/feature combination.
 
-Data frame columns: \| Column name \| Data type \| Description \| \| —
-\| — \| — \| \| timeseries_id \| chr \| Unique identifier of the time
-series. Points to the timeseries table. \| \| site \| chr \| Study site
-for which the score has been calculated. \| \| country \| chr \| Site’s
-country. \| \| feature \| chr \| Time series feature the score is for.
-\| \| pvalue_kstest_logp \| float \| Negative logarithm of the raw
-p-value. \| \| kstest_statistic \| float \| Test statistic of the
-Kolmogorov-Smirnov test. \| \| fdr_corrected_pvalue_logp \| float \|
-Site score: negative logarithm of the multiple testing corrected
-p-value. FDR (False Discovery Rate) is used for correction. \| \|
-reference_group \| chr \| Reference group for the site. “All” means that
-the site has been compared to all sites in the study. \| \|
-subject_count \| int \| Number of site subjects who are eligible for the
-time series. \|
+Data frame columns:
+
+| Column name               | Data type | Description                                                                                                                  |
+|------------------------|------------------------|------------------------|
+| timeseries_id             | chr       | Unique identifier of the time series. Points to the timeseries table.                                                        |
+| site                      | chr       | Study site for which the score has been calculated.                                                                          |
+| country                   | chr       | Site’s country.                                                                                                              |
+| feature                   | chr       | Time series feature the score is for.                                                                                        |
+| pvalue_kstest_logp        | float     | Negative logarithm of the raw p-value.                                                                                       |
+| kstest_statistic          | float     | Test statistic of the Kolmogorov-Smirnov test.                                                                               |
+| fdr_corrected_pvalue_logp | float     | Site score: negative logarithm of the multiple testing corrected p-value. FDR (False Discovery Rate) is used for correction. |
+| reference_group           | chr       | Reference group for the site. “All” means that the site has been compared to all sites in the study.                         |
+| subject_count             | int       | Number of site subjects who are eligible for the time series.                                                                |
