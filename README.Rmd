@@ -1,5 +1,7 @@
 ---
-output: github_document
+output: 
+  md_document:
+    variant: markdown_github
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -87,6 +89,7 @@ The following gives more details on each parameter. Examples are also provided w
 
 Vector of features to calculate for each time series.
 The vector must contain at least one of the following feature codes:
+
 | Feature code | Description |
 | --- | --- |
 | autocorr | Auto-correlation |
@@ -124,6 +127,7 @@ custom_timeseries data frame must have at least one entry.
 Data frame with one row per study subject.
 
 Data frame columns:
+
 | Column name | Data type | Data required | Description |
 | --- | --- | --- | --- |
 | subject_id | chr | Y | Unique identifier for each subject |
@@ -137,6 +141,7 @@ Parameters are, for example, laboratory assays and vital sign measurements done
 during the course of a study.
 
 Data frame columns:
+
 | Column name | Data type | Data required | Description |
 | --- | --- | --- | --- |
 | parameter_id | chr | Y | Parameter identifier |
@@ -153,6 +158,7 @@ Example for two parameters, one vital sign and one local lab. For any time serie
 the vital sign, at least 50 eligible subjects are required. For the local lab, time series with one
 time point only are acceptable. These parameter-specific properties override the corresponding global
 parameters (see above).
+
 | parameter_id | parameter_category_1 | parameter_category_2 | parameter_category_3 | parameter_name | time_point_count_min | subject_count_min | max_share_missing | generate_change_from_baseline |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | dummy_param_1 	| VS 	| NA 	| NA 	| DIABP 	|  	| 50 	|  	|  |
@@ -163,6 +169,7 @@ parameters (see above).
 Data frame for the data collected during the study with one row per data point.
 
 Data frame columns:
+
 | Column name | Data type | Data required | Description |
 | --- | --- | --- | --- |
 | subject_id | chr | Y | Pointer to the subject identifier in the subjects table. |
@@ -174,6 +181,7 @@ Data frame columns:
 | baseline | float |  | Possible baseline value for the parameter and the subject. This is used to calculate change-from-baseline time series. |
 
 Example of data contents:
+
 | subject_id	| parameter_id	| timepoint_1_name	| timepoint_2_name	| timepoint_rank	| result	| baseline	|
 | --- | --- | --- | --- | --- | --- | --- |
 | subj_1	| dummy_param_1	| Visit 1	| pre-dose	| 1	| 72	| 65	|
@@ -197,6 +205,7 @@ Please note: if you do not have any custom time series to process, you still hav
 function a blank data frame!
 
 Data frame columns:
+
 | Column name | Data type | Data required | Description |
 | --- | --- | --- | --- |
 | timeseries_id | chr | Y | Identifier for the the custom time series. |
@@ -205,6 +214,7 @@ Data frame columns:
 
 In the example below, a custom time series has been defined for dummy_param_1.
 Timepoints are defined with their respective ranks in the _data_ df.
+
 | timeseries_id	| parameter_id	| timepoint_combo	|
 | --- | --- | --- |
 | custom_ts_1	| dummy_param_1	| 1;2;3;4	|
@@ -218,6 +228,7 @@ Output is a list of four data frames. Their details are explained in the followi
 Time series processed. Contains both the auto-generated and/or custom time series.
 
 Data frame columns:
+
 | Column name | Data type | Description |
 | --- | --- | --- |
 | timeseries_id | chr | Unique identifier for the time series. |
@@ -232,6 +243,7 @@ Data frame columns:
 Data frame with features calculated for time series.
 
 Data frame columns:
+
 | Column name | Data type | Description |
 | --- | --- | --- |
 | timeseries_id | chr | Unique identifier of the time series. Points to the timeseries table. |
@@ -245,6 +257,7 @@ Data frame with the top two principal components for a time series. These are us
 for the visualization of the similarity of subjects.
 
 Data frame columns:
+
 | Column name | Data type | Description |
 | --- | --- | --- |
 | timeseries_id | chr | Unique identifier of the time series. Points to the timeseries table. |
@@ -257,6 +270,7 @@ Data frame columns:
 Biasness scores for sites. The data frame contains a row for each site/time series/feature combination.
 
 Data frame columns:
+
 | Column name | Data type | Description |
 | --- | --- | --- |
 | timeseries_id | chr | Unique identifier of the time series. Points to the timeseries table. |

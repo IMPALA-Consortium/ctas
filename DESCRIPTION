@@ -15,12 +15,12 @@ Description: The package is used to identify anomalies in clinical time series.
     See details in the provided PHUSE EU Connect 2022 resources.
 License: MIT + file LICENSE
 Encoding: UTF-8
-Imports:
-    dplyr
+Depends:
+    dplyr,
+    R (>= 3.5.0)
 LazyData: true
 RoxygenNote: 7.2.1
-Depends: 
-    R (>= 2.10),
+Imports: 
     rlang,
     stringr,
     tidyr
