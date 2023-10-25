@@ -108,7 +108,8 @@ ls_tsoa <- process_a_study(
     "average",
     "own_site_simil_score",
     "sd",
-    "unique_value_count_relative"
+    "unique_value_count_relative",
+    "range"
   ),
   default_minimum_timepoints_per_series = 3,
   default_minimum_subjects_per_series = 3,
@@ -208,6 +209,7 @@ contain at least one of the following feature codes:
 | own_site_simil_score        | Measure of co-clustering of time series from the same study site |
 | sd                          | Standard deviation                                               |
 | unique_value_count_relative | Number of unique values divided by number of values available    |
+| range                       | The range of values in a time series                             |
 
 ### default_minimum_timepoints_per_series
 
