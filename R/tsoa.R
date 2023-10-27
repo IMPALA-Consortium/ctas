@@ -460,12 +460,15 @@ calculate_ts_features <- function(this_timeseries_wide, this_baseline, this_time
     standard_devs <- apply(this_timeseries_wide, MARGIN = 1, sd, na.rm = TRUE)
     unique_value_counts_relative <- apply(this_timeseries_wide, MARGIN = 1, function(x) n_distinct(x, na.rm = TRUE) / sum(!is.na(x)) )
     autocorrelations <- apply(this_timeseries_wide, MARGIN = 1, calculate_autocorrelation)
-
+    value_ranges <- apply(this_timeseries_wide, MARGIN = 1, function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE) )
+    
     ts_features$sd <- standard_devs
     ts_features$average <- averages
     ts_features$autocorr <- autocorrelations
     ts_features$unique_value_count_relative <- unique_value_counts_relative
-
+    ts_features$range <- value_ranges
+    
+    
 
   } else if (ncol(this_timeseries_wide) > 1 & this_baseline == "cfb") {
 
@@ -749,7 +752,7 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, time
 
   df_custom_timeseries_colnamed_expected <- c("timeseries_id", "parameter_id", "timepoint_combo")
 
-  allowed_timeseries_features <- c('autocorr', 'average', 'own_site_simil_score', 'sd', 'unique_value_count_relative')
+  allowed_timeseries_features <- c('autocorr', 'average', 'own_site_simil_score', 'sd', 'unique_value_count_relative', 'range')
 
 
 
