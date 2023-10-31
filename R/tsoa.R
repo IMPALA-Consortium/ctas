@@ -461,14 +461,14 @@ calculate_ts_features <- function(this_timeseries_wide, this_baseline, this_time
     unique_value_counts_relative <- apply(this_timeseries_wide, MARGIN = 1, function(x) n_distinct(x, na.rm = TRUE) / sum(!is.na(x)) )
     autocorrelations <- apply(this_timeseries_wide, MARGIN = 1, calculate_autocorrelation)
     value_ranges <- apply(this_timeseries_wide, MARGIN = 1, function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE) )
-    
+
     ts_features$sd <- standard_devs
     ts_features$average <- averages
     ts_features$autocorr <- autocorrelations
     ts_features$unique_value_count_relative <- unique_value_counts_relative
     ts_features$range <- value_ranges
-    
-    
+
+
 
   } else if (ncol(this_timeseries_wide) > 1 & this_baseline == "cfb") {
 
@@ -840,7 +840,9 @@ calculate_autocorrelation <- function(this_timeseries, lag=1) {
 
   timeseries_length <- length(this_timeseries)
 
-  auto_corr_coeff <- cor(  this_timeseries[1:(timeseries_length-lag)], this_timeseries[(1+lag):timeseries_length] )
+  auto_corr_coeff <- cor(this_timeseries[1:(timeseries_length-lag)],
+                         this_timeseries[(1+lag):timeseries_length],
+                         use = "pairwise.complete.obs")
 
   return(auto_corr_coeff)
 
