@@ -262,7 +262,14 @@ calculate_site_bias_ts_features <- function(this_feature, this_data) {
 
   # Add country name and subject count into the results
   site_pvalues <- site_pvalues %>%
-    left_join(y=site_metadata, by="site")
+    left_join(y=site_metadata, by="site") %>%
+    mutate(
+      pvalue_kstest = ifelse(
+        is.na(.data$pvalue_kstest) & as.numeric(.data$kstest_statistic) == 1,
+        1e-100,
+        .data$pvalue_kstest
+      )
+    )
 
   return(site_pvalues)
 
