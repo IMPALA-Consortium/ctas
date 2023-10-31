@@ -30,19 +30,13 @@ test_that("process_a_study", {
 
   expect_true(all(expected_tsoa_names %in%  names(ls_tsoa)))
 
-  allow_na <- c(
-    "fdr_corrected_pvalue_logp",
-    "pvalue_kstest_logp"
-  )
-
   expect_true(all(unlist(
     purrr::map(
       ls_tsoa,
-      ~ ! any(is.na(
-        select(., - any_of(allow_na))
+      ~ ! any(is.na(.)
         ))
       )
-  )))
+  ))
 
   expect_true(all(unlist(
     purrr::map(
