@@ -17,6 +17,7 @@
 #' @param default_max_share_missing_timepoints_per_series Maximum share of time points which can be missing per subject. This is used if no parameter-specific minimum is defined in parameters.
 #' @param default_generate_change_from_baseline If set TRUE, time series and their features are calculate also for change-from-baseline values.
 #' @param autogenerate_timeseries If set to TRUE, automatic definition of time series is used. If set to FALSE, custom_timeseries must have at least one time series defined.
+#' @param optimize_sites_and_patients If set to TRUE, always creates timeseries with as many sites and patients as possible while respecting the other function parameters. Default:FALSE
 #' @return List with four data frames. Timeseries: definition of the time series used. Timeseries_features: features calculated from the time series. PCA_coordinates: principal components of individual time series for visualizing similarity. Site_scores: biasness scores for sites.
 #'
 #' @export
@@ -25,7 +26,7 @@
 process_a_study <- function(subjects, parameters, data, custom_timeseries, timeseries_features_to_calculate,
                             default_minimum_timepoints_per_series, default_minimum_subjects_per_series,
                             default_max_share_missing_timepoints_per_series, default_generate_change_from_baseline,
-                            autogenerate_timeseries) {
+                            autogenerate_timeseries, optimize_sites_and_patients = FALSE) {
 
   # Disable confusing "`summarise()` has grouped output by 'XX'. You can override using the `.groups` argument." messages.
   options(dplyr.summarise.inform = FALSE)
@@ -67,7 +68,7 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, times
       mutate(baseline = ifelse(.data$generate_change_from_baseline == TRUE, list(c("original", "cfb")), "original")) %>%
       unnest("baseline") %>%
       rowwise() %>%
-      mutate(output = list(pick_timepoint_combos(.data$dataset, .data$time_point_count_min, .data$subject_count_min, .data$max_share_missing, .data$baseline))) %>%
+      mutate(output = list(pick_timepoint_combos(.data$dataset, .data$time_point_count_min, .data$subject_count_min, .data$max_share_missing, .data$baseline, .env$subjects, .env$optimize_sites_and_patients))) %>%
       unnest("output") %>%
       ungroup() %>%
       mutate(timeseries_id = paste0('ts_', row_number(), '_autogen')) %>%
@@ -662,10 +663,11 @@ pick_subjects_for_custom_timeseries <- function(this_timepoints_and_subjects, th
 #' @param this_subject_count_min Minimum number of subjects per time series.
 #' @param this_max_share_missing Maximum share of missing measuremnents a subject can have.
 #' @param this_baseline Whether the time series is for actual measurements or change-from-baseline values.
+#' @inheritParams process_a_study
 #' @return Data frame with one or more time series for the parameter.
 #'
 #' @author Pekka Tiikkainen, \email{pekka.tiikkainen@@bayer.com}
-pick_timepoint_combos <- function(dataset, this_time_point_count_min, this_subject_count_min, this_max_share_missing, this_baseline) {
+pick_timepoint_combos <- function(dataset, this_time_point_count_min, this_subject_count_min, this_max_share_missing, this_baseline, subjects, optimize_sites_and_patients) {
 
 
   timepoint_combos_to_return <- c()
@@ -683,6 +685,18 @@ pick_timepoint_combos <- function(dataset, this_time_point_count_min, this_subje
   }
 
   timepoint_ranks <- sort( unique(dataset$timepoint_rank) )
+
+  if (optimize_sites_and_patients) {
+    tp_max_sites_and_subjects <- get_max_sites_and_subjects(timepoint_ranks = timepoint_ranks,
+                                                            this_time_point_count_min = this_time_point_count_min,
+                                                            dataset = dataset,
+                                                            this_max_share_missing = this_max_share_missing,
+                                                            this_subject_count_min = this_subject_count_min,
+                                                            subjects = subjects)
+  } else {
+    # we set to Inf to make sure that comparisons in if statement below always evaluates to FALSE
+    tp_max_sites_and_subjects = Inf
+  }
 
   # Execute this only if there are enough data points available.
   if(length(timepoint_ranks) >= this_time_point_count_min) {
@@ -710,9 +724,15 @@ pick_timepoint_combos <- function(dataset, this_time_point_count_min, this_subje
         # Only include time series with enough subjects and
         # if the number of subjects is at least 20 % greater than the subject count
         # for the previous time series.
+        # alternatively also add timeseries if optimize_sites_and_patients and timepoint contains
+        # maximum number of sites and patients
         if(prev_accepted_timeseries_subj_count == 0 |
            ( num_subjects_in_timeseries - prev_accepted_timeseries_subj_count >= this_subject_count_min &
-             num_subjects_in_timeseries / prev_accepted_timeseries_subj_count >= 1.2)
+             num_subjects_in_timeseries / prev_accepted_timeseries_subj_count >= 1.2) |
+           ( optimize_sites_and_patients &
+             num_subjects_in_timeseries - prev_accepted_timeseries_subj_count >= this_subject_count_min &
+             num_subjects_in_timeseries > prev_accepted_timeseries_subj_count &
+             this_last_visit_index == tp_max_sites_and_subjects)
         ) {
 
           timepoint_combos_to_return <- append(timepoint_combos_to_return, paste(this_ts_timepoints, collapse=";"))
@@ -735,6 +755,64 @@ pick_timepoint_combos <- function(dataset, this_time_point_count_min, this_subje
   return(return_df)
 
 
+}
+
+#'Get timpepoint that has the most sites and patients
+#'@inheritParams pick_timepoint_combos
+#'@param timepoint_ranks a vector with all time point ranks
+#'@return integer with optimized timepoint
+#'@details is called by pick_timepoint combos. uses the same for loop to iterate
+#'over possible timeseries and returns eligable patients and sites. returns
+#'highest timepoint rank that has the highest number of sites with the highest number of
+#'patients. As NA values can occur randomly patient elegibility can vary depending on
+#'the timepoint range. It is not necessarily the shortest range that has the most
+#'patients. This is why we iteratively need to determine the optimal conditions
+#'using the for loop.
+get_max_sites_and_subjects <- function(timepoint_ranks,
+                             this_time_point_count_min,
+                             this_max_share_missing,
+                             dataset,
+                             this_subject_count_min,
+                             subjects) {
+  df_results <- tibble(
+    timepoint_rank = numeric(0),
+    n_subjects = numeric(0),
+    n_sites = numeric(0)
+  )
+
+  if(length(timepoint_ranks) >= this_time_point_count_min) {
+
+    for(this_last_visit_index in length(timepoint_ranks):this_time_point_count_min) {
+
+      this_ts_timepoints <- timepoint_ranks[1:this_last_visit_index]
+
+      timepoint_count <- length(this_ts_timepoints)
+
+      # List of subjects who have at most this_max_share_missing missing for the time points.
+      timeseries_subjects <- dataset %>%
+        filter(.data$timepoint_rank %in% .env$this_ts_timepoints) %>%
+        group_by(.data$subject_id) %>%
+        summarise(measurement_count = n()) %>%
+        left_join(subjects, by = "subject_id") %>%
+        filter(.data$measurement_count >= ceiling( (1 - .env$this_max_share_missing) * .env$timepoint_count)) %>%
+        ungroup() %>%
+        summarize(
+          n_subjects = n_distinct(.data$subject_id),
+          n_sites = n_distinct(.data$site)
+        ) %>%
+        mutate(timepoint_rank = this_last_visit_index, .before = 1)
+
+      if(timeseries_subjects$n_subjects >= this_subject_count_min) {
+        df_results <- bind_rows(df_results, timeseries_subjects)
+      }
+    }
+  }
+
+  timepoints <- df_results %>%
+    arrange(desc(.data$n_sites), desc(.data$n_subjects), desc(.data$timepoint_rank)) %>%
+    pull(.data$timepoint_rank)
+
+  return(timepoints[[1]])
 }
 
 #' check_input_data
