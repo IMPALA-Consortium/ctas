@@ -9,7 +9,9 @@ pick_timepoint_combos(
   this_time_point_count_min,
   this_subject_count_min,
   this_max_share_missing,
-  this_baseline
+  this_baseline,
+  subjects,
+  optimize_sites_and_patients
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ pick_timepoint_combos(
 \item{this_max_share_missing}{Maximum share of missing measuremnents a subject can have.}
 
 \item{this_baseline}{Whether the time series is for actual measurements or change-from-baseline values.}
+
+\item{subjects}{Data frame with one row per study subject.}
+
+\item{optimize_sites_and_patients}{If set to TRUE, always creates timeseries with as many sites and patients as possible while respecting the other function parameters. Default:FALSE}
 }
 \value{
 Data frame with one or more time series for the parameter.
