@@ -4,10 +4,10 @@
 \alias{calculate_own_site_simil_score}
 \title{calculate_own_site_simil_score}
 \usage{
-calculate_own_site_simil_score(this_timeseries_wide, subjects)
+calculate_own_site_simil_score(this_origvalues_distances, subjects)
 }
 \arguments{
-\item{this_timeseries_wide}{Time series data in wide format.}
+\item{this_origvalues_distances}{Dist object for the time series}
 
 \item{subjects}{Data frame with one row per study subject.}
 }
