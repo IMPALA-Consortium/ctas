@@ -9,6 +9,7 @@ check_input_data(
   parameters,
   data,
   custom_timeseries,
+  custom_reference_groups,
   default_timeseries_features_to_calculate,
   default_minimum_timepoints_per_series,
   default_minimum_subjects_per_series,
@@ -25,6 +26,8 @@ check_input_data(
 \item{data}{Measurements of study parameters. One row per data point.}
 
 \item{custom_timeseries}{Pre-defined time series.}
+
+\item{custom_reference_groups}{Parameter-feature combinations for which the sites should be compared within the country or region - and not globally.}
 
 \item{default_timeseries_features_to_calculate}{Semicolon-delimited string of time series features to calculate.}
 
