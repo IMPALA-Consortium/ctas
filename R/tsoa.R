@@ -64,7 +64,7 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, times
       group_by(.data$parameter_id) %>%
       nest() %>%
       left_join(y=select(parameters, c("parameter_id", "time_point_count_min", "subject_count_min", "max_share_missing", "generate_change_from_baseline")), by="parameter_id") %>%
-      rename(dataset = .data$data) %>%
+      rename(c(dataset = "data")) %>%
       mutate(baseline = ifelse(.data$generate_change_from_baseline == TRUE, list(c("original", "cfb")), "original")) %>%
       unnest("baseline") %>%
       rowwise() %>%
