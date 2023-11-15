@@ -33,7 +33,7 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
   options(dplyr.summarise.inform = FALSE)
 
   # Makes sure all the necessary input is there and that the data is in correct format etc.
-  check_input_data(subjects, parameters, data, custom_timeseries, default_timeseries_features_to_calculate,
+  check_input_data(subjects, parameters, data, custom_timeseries, custom_reference_groups, default_timeseries_features_to_calculate,
                    default_minimum_timepoints_per_series, default_minimum_subjects_per_series,
                    default_max_share_missing_timepoints_per_series, default_generate_change_from_baseline,
                    autogenerate_timeseries)
@@ -918,7 +918,7 @@ get_max_sites_and_subjects <- function(timepoint_ranks,
 #' @return no data returned
 #'
 #' @author Pekka Tiikkainen, \email{pekka.tiikkainen@@bayer.com}
-check_input_data <- function(subjects, parameters, data, custom_timeseries, default_timeseries_features_to_calculate,
+check_input_data <- function(subjects, parameters, data, custom_timeseries, custom_reference_groups, default_timeseries_features_to_calculate,
                              default_minimum_timepoints_per_series, default_minimum_subjects_per_series,
                              default_max_share_missing_timepoints_per_series, default_generate_change_from_baseline,
                              autogenerate_timeseries) {
