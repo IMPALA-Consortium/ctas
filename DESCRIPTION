@@ -32,7 +32,8 @@ Suggests:
     testthat (>= 3.0.0),
     purrr,
     knitr,
-    rmarkdown
+    rmarkdown,
+    pkgdown
 Config/testthat/edition: 3
 URL:
     https://phuse.s3.eu-central-1.amazonaws.com/Archive/2022/Connect/EU/Belfast/PRE_AR04.pdf,
