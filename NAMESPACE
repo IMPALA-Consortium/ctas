@@ -2,6 +2,7 @@
 
 export(process_a_study)
 import(dplyr)
+importFrom(dbscan,lof)
 importFrom(rlang,.data)
 importFrom(rlang,.env)
 importFrom(stats,cor)
@@ -18,3 +19,4 @@ importFrom(tidyr,nest)
 importFrom(tidyr,pivot_longer)
 importFrom(tidyr,pivot_wider)
 importFrom(tidyr,unnest)
+importFrom(utils,head)

@@ -64,7 +64,7 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, times
       group_by(.data$parameter_id) %>%
       nest() %>%
       left_join(y=select(parameters, c("parameter_id", "time_point_count_min", "subject_count_min", "max_share_missing", "generate_change_from_baseline")), by="parameter_id") %>%
-      rename(dataset = .data$data) %>%
+      rename(c(dataset = "data")) %>%
       mutate(baseline = ifelse(.data$generate_change_from_baseline == TRUE, list(c("original", "cfb")), "original")) %>%
       unnest("baseline") %>%
       rowwise() %>%
@@ -328,16 +328,16 @@ parse_readable_timeseries_combo_string <- function(timeseries_combo, this_parame
 #'
 #' @author Pekka Tiikkainen, \email{pekka.tiikkainen@@bayer.com}
 calculate_own_site_simil_score <- function(this_origvalues_distances, subjects) {
-  
+
   dist_object_labels <- attr(this_origvalues_distances, "Labels")
   dist_object_label_count <- attr(this_origvalues_distances, "Size")
-  
+
   own_site_simil_scores <- rep(-1, times=dist_object_label_count)
-  
+
   dist_object_label_sites <- data.frame("subject_id" = dist_object_labels) %>%
     left_join(y=select(subjects, c("subject_id", "site")), by="subject_id") %>%
     pull(.data$site)
-  
+
   # Only process sites with more than one subject per time series
   sites_to_process <- subjects %>%
     filter(.data$site %in% dist_object_label_sites) %>%
@@ -346,102 +346,101 @@ calculate_own_site_simil_score <- function(this_origvalues_distances, subjects) 
     summarise(subj_count = n_distinct(.data$subject_id)) %>%
     filter(.data$subj_count > 1) %>%
     pull(.data$site)
-  
-  
+
+
   for(this_site in unique(sites_to_process)) {
-    
+
     this_site_filter <- ifelse(dist_object_label_sites == this_site, 1, 0)
-    
+
     site_subject_indices <- which(this_site_filter == 1)
-    
+
     for(this_subject_index in site_subject_indices) {
-      
+
       labels_before <- this_subject_index - 1
       labels_after <- dist_object_label_count - this_subject_index
-      
+
       if(this_subject_index == 1) {
-        
+
         dist_indices_before <- c()
-        
+
         dist_indices_own_col <- seq(from=1, to=labels_after)
-        
+
       } else if (this_subject_index == dist_object_label_count) {
-        
+
         # Distances for the subject before the "own" subject's column.
         index_steps <- cumsum( seq(from=labels_after+labels_before-1, by=-1, length.out=labels_before-1) )
         dist_indices_before <- c(labels_before, labels_before+index_steps)
-        
+
         dist_indices_own_col <- c()
-        
+
       } else {
-        
+
         # Distances for the subject before the "own" subject's column.
         index_steps <- cumsum( seq(from=labels_after+labels_before-1, by=-1, length.out=labels_before-1) )
         dist_indices_before <- c(labels_before, labels_before+index_steps)
-        
-        
+
+
         # Distances given in the subject's "own" column
         own_col_start_index <- sum(seq(from=dist_object_label_count-1, to=labels_after+1, by=-1)) + 1
         own_col_end_index <- own_col_start_index + labels_after - 1
-        
+
         dist_indices_own_col <- seq(from=own_col_start_index, to=own_col_end_index)
-        
+
       }
-      
-      
+
+
       distances_before <- this_origvalues_distances[dist_indices_before]
       distances_own_col <- this_origvalues_distances[dist_indices_own_col]
-      
+
       distances <- c(distances_before, distances_own_col)
-      
+
       distances_site_categ <- this_site_filter[-this_subject_index]
-      
+
       own_site_simil_scores[this_subject_index] <- auroc(distances, distances_site_categ)
-      
+
     }
-    
-    
-    
+
+
+
   }
-  
-  
+
+
   same_site_simil_metric <- data.frame("subject_id" = dist_object_labels,
                                        "own_site_simil_score" = own_site_simil_scores) %>%
     filter(.data$own_site_simil_score >= 0)
-  
+
   return(same_site_simil_metric)
-  
+
 }
 
 
 #' calculate_lof
 #'
 #' Calculates Local Outlier Factor (lof) for each time series
-#' @inheritParams process_a_study
 #' @param this_origvalues_distances Dist object for the time series
 #' @return Data frame with a feature value per subject.
 #'
 #' @author Pekka Tiikkainen, \email{pekka.tiikkainen@@bayer.com}
 calculate_lof <- function(this_origvalues_distances) {
-  
+
   dist_object_labels <- attr(this_origvalues_distances, "Labels")
-  
+
   # Include nearest neighbour radius to 10. For small datasets, include at most third of the subjects.
   nearest_neighbour_count <- min(10, floor(length(dist_object_labels) / 3))
-  
+
   lof_values <- lof(this_origvalues_distances, minPts = nearest_neighbour_count + 1)
-  
+
   # replace infinite scores with one (these are generated if all neighbours are identical)
   lof_values[!is.finite(lof_values)] <- 1
-  
+
   dist_object_labels <- attr(this_origvalues_distances, "Labels")
-  
-  
+
+
   output <- data.frame("subject_id" = dist_object_labels,
                        "lof" = lof_values)
-  
+
   return(output)
-  
+
 }
 
 #' auroc
@@ -473,90 +472,90 @@ auroc <- function(score, bool) {
 #'
 #' @author Pekka Tiikkainen, \email{pekka.tiikkainen@@bayer.com}
 calculate_ts_features <- function(this_timeseries_wide, this_baseline, this_timeseries_features_to_calculate, subjects) {
-  
-  
+
+
   subj_keys <- this_timeseries_wide$subject_id
   this_timeseries_wide$subject_id <- NULL
   timepoint_col_names <- colnames(this_timeseries_wide)
-  
+
   # Calculate the subject distance object if either own site simil score or local outlier factor lof features are requested.
-  if('own_site_simil_score' %in% this_timeseries_features_to_calculate | 
+  if('own_site_simil_score' %in% this_timeseries_features_to_calculate |
      'lof' %in% this_timeseries_features_to_calculate) {
-    
+
     suppressWarnings (rownames(this_timeseries_wide) <- subj_keys)
-    
+
     origvalues_distances <- dist(this_timeseries_wide)
-    
+
   }
-  
-  
+
+
   ts_features <- data.frame("subject_id" = subj_keys)
-  
+
   if(ncol(this_timeseries_wide) > 1 & this_baseline == "original") {
-    
+
     # Most time series features should only be calculated if more than time points are available
-    
+
     if('range' %in% this_timeseries_features_to_calculate) {
       ts_features$range <- apply(this_timeseries_wide, MARGIN = 1, function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE) )
     }
-    
+
     if('sd' %in% this_timeseries_features_to_calculate) {
       ts_features$sd <- apply(this_timeseries_wide, MARGIN = 1, sd, na.rm = TRUE)
     }
-    
+
     if('unique_value_count_relative' %in% this_timeseries_features_to_calculate) {
       ts_features$unique_value_count_relative <- apply(this_timeseries_wide, MARGIN = 1, function(x) n_distinct(x, na.rm = TRUE) / sum(!is.na(x)) )
     }
-    
+
     if('autocorr' %in% this_timeseries_features_to_calculate) {
       ts_features$autocorr <- apply(this_timeseries_wide, MARGIN = 1, calculate_autocorrelation)
     }
-    
-    
-    
+
+
+
   } else if (ncol(this_timeseries_wide) > 1 & this_baseline == "cfb") {
-    
+
     # For change-from-baseline time series, return average, range and self-similarity to own site features.
     # Other features would be identical with the time series for original values.
-    
+
     if('range' %in% this_timeseries_features_to_calculate) {
       ts_features$range <- apply(this_timeseries_wide, MARGIN = 1, function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE) )
     }
-    
-    
-  } 
-  
+
+
+  }
+
   # Average is calculated for all kinds of time series
   if('average' %in% this_timeseries_features_to_calculate) {
     ts_features$average <- apply(this_timeseries_wide, MARGIN = 1, mean, na.rm = TRUE)
   }
-  
+
   if('lof' %in% this_timeseries_features_to_calculate) {
-    
+
     lof_values_df <- calculate_lof(origvalues_distances)
-    
+
     ts_features <- ts_features %>%
       left_join(y=lof_values_df, by="subject_id")
-    
+
   }
-  
+
   # Only calculate the own site similarity scores if needed
   if('own_site_simil_score' %in% this_timeseries_features_to_calculate) {
-    
+
     own_site_similarity_scores <- calculate_own_site_simil_score(origvalues_distances, subjects)
-    
+
     ts_features <- ts_features %>%
       left_join(y=own_site_similarity_scores, by="subject_id")
-    
-  } 
-  
+
+  }
+
   # Finally pivot the features table into long format
   ts_features <- ts_features %>%
     pivot_longer(cols= - c("subject_id"), names_to="feature", values_to="value", values_drop_na = TRUE)
-  
-  
+
+
   return(ts_features)
-  
+
 }
 
 
@@ -862,18 +861,18 @@ get_max_sites_and_subjects <- function(timepoint_ranks,
   }
 
   if( nrow(df_results) > 0 ) {
-    
+
     timepoints <- df_results %>%
       arrange(desc(.data$n_sites), desc(.data$n_subjects), desc(.data$timepoint_rank)) %>%
       head(1) %>%
       pull(.data$timepoint_rank)
-      
+
   } else {
-    
+
     timepoints <- Inf
-    
+
   }
-  
+
   return(timepoints)
 }
 
