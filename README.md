@@ -1,13 +1,12 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/IMPALA-Consortium/tsoa/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/IMPALA-Consortium/tsoa/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 # Time Series Outliers and Anomalies (TSOA)
 
 Pekka Tiikkainen, Bayer Pharmaceuticals
-
-<!-- badges: start -->
-<!-- badges: end -->
 
 ## Introduction
 
@@ -53,20 +52,20 @@ data("tsoa_data", package = "tsoa")
 
 tsoa_data
 #> $data
-#> # A tibble: 7,512 × 7
+#> # A tibble: 40,474 × 7
 #>    subject_id timepoint_rank timepoint_1_name result parameter…¹ timep…² basel…³
 #>    <chr>               <int> <chr[1d]>         <dbl> <chr>       <chr>   <lgl>  
-#>  1 1                       1 AB                 37.6 param1      timepo… NA     
-#>  2 1                       2 AC                 25.3 param1      timepo… NA     
-#>  3 1                       3 AD                 NA   param1      timepo… NA     
-#>  4 1                       4 AE                 32.6 param1      timepo… NA     
-#>  5 1                       5 AF                 26.9 param1      timepo… NA     
-#>  6 1                       6 AG                 31.2 param1      timepo… NA     
-#>  7 1                       7 AH                 35.9 param1      timepo… NA     
-#>  8 1                       8 AI                 35.8 param1      timepo… NA     
-#>  9 1                       9 AJ                 30.8 param1      timepo… NA     
-#> 10 1                      10 AK                 32.7 param1      timepo… NA     
-#> # … with 7,502 more rows, and abbreviated variable names ¹​parameter_id,
+#>  1 1                       1 AB                 6.73 param1      timepo… NA     
+#>  2 1                       2 AC                 0    param1      timepo… NA     
+#>  3 1                       3 AD                 4.06 param1      timepo… NA     
+#>  4 1                       4 AE                16.3  param1      timepo… NA     
+#>  5 1                       5 AF                27.2  param1      timepo… NA     
+#>  6 1                       6 AG                NA    param1      timepo… NA     
+#>  7 1                       7 AH                 6.66 param1      timepo… NA     
+#>  8 1                       8 AI                21.6  param1      timepo… NA     
+#>  9 1                       9 AJ                 2.85 param1      timepo… NA     
+#> 10 1                      10 AK                 0    param1      timepo… NA     
+#> # … with 40,464 more rows, and abbreviated variable names ¹​parameter_id,
 #> #   ²​timepoint_2_name, ³​baseline
 #> 
 #> $parameters
@@ -80,20 +79,20 @@ tsoa_data
 #> #   ⁶​subject_count_min, ⁷​max_share_missing, ⁸​generate_change_from_baseline
 #> 
 #> $subjects
-#> # A tibble: 189 × 3
+#> # A tibble: 202 × 3
 #>    subject_id site  country
 #>    <chr>      <chr> <chr>  
-#>  1 1          1     C      
-#>  2 2          1     C      
-#>  3 3          1     C      
-#>  4 4          1     C      
-#>  5 5          1     C      
-#>  6 6          1     C      
-#>  7 7          1     C      
-#>  8 8          2     C      
-#>  9 9          2     C      
-#> 10 10         2     C      
-#> # … with 179 more rows
+#>  1 1          mean  A      
+#>  2 2          mean  A      
+#>  3 3          mean  A      
+#>  4 4          mean  A      
+#>  5 5          mean  A      
+#>  6 6          mean  A      
+#>  7 7          mean  A      
+#>  8 8          mean  A      
+#>  9 9          mean  A      
+#> 10 10         mean  A      
+#> # … with 192 more rows
 #> 
 #> $custom_timeseries
 #> # A tibble: 0 × 0
@@ -108,9 +107,7 @@ ls_tsoa <- process_a_study(
     "average",
     "own_site_simil_score",
     "sd",
-    "unique_value_count_relative",
-    "range",
-    "lof"
+    "unique_value_count_relative"
   ),
   default_minimum_timepoints_per_series = 3,
   default_minimum_subjects_per_series = 3,
@@ -118,73 +115,68 @@ ls_tsoa <- process_a_study(
   default_generate_change_from_baseline = FALSE,
   autogenerate_timeseries = TRUE
 )
+#> Warning: There was 1 warning in `mutate()`.
+#> ℹ In argument: `ts_features = list(...)`.
+#> ℹ In row 1.
+#> Caused by warning in `cor()`:
+#> ! the standard deviation is zero
 
 ls_tsoa
 #> $timeseries
-#> # A tibble: 12 × 6
-#>    timeseries_id          parameter_id baseline timepoint_combo  timep…¹ timep…²
-#>    <chr>                  <chr>        <chr>    <chr>            <chr>     <dbl>
-#>  1 ts_1_autogen_original  param1       original 1;2;3;4;5;6;7;8… AB_tim…      35
-#>  2 ts_2_autogen_original  param1       original 1;2;3;4;5;6;7;8… AB_tim…      34
-#>  3 ts_3_autogen_original  param1       original 1;2;3;4;5;6;7;8… AB_tim…      32
-#>  4 ts_4_autogen_original  param1       original 1;2;3;4;5;6;7;8… AB_tim…      30
-#>  5 ts_5_autogen_original  param1       original 1;2;3;4;5;6;7;8… AB_tim…      28
-#>  6 ts_6_autogen_original  param1       original 1;2;3;4;5;6;7;8… AB_tim…      26
-#>  7 ts_7_autogen_original  param1       original 1;2;3;4;5;6;7;8… AB_tim…      22
-#>  8 ts_8_autogen_original  param2       original 1;2;3;4;5;6;7;8… AB_tim…      34
-#>  9 ts_9_autogen_original  param2       original 1;2;3;4;5;6;7;8… AB_tim…      32
-#> 10 ts_10_autogen_original param2       original 1;2;3;4;5;6;7;8… AB_tim…      30
-#> 11 ts_11_autogen_original param2       original 1;2;3;4;5;6;7;8… AB_tim…      26
-#> 12 ts_12_autogen_original param2       original 1;2;3;4;5;6;7;8… AB_tim…      22
+#> # A tibble: 2 × 6
+#>   timeseries_id         parameter_id baseline timepoint_combo    timep…¹ timep…²
+#>   <chr>                 <chr>        <chr>    <chr>              <chr>     <dbl>
+#> 1 ts_1_autogen_original param1       original 1;2;3;4;5;6;7;8;9… AB_tim…     126
+#> 2 ts_2_autogen_original param2       original 1;2;3;4;5;6;7;8;9… AB_tim…     126
 #> # … with abbreviated variable names ¹​timepoint_combo_readable, ²​timepoint_count
 #> 
 #> $timeseries_features
-#> # A tibble: 4,219 × 6
+#> # A tibble: 2,019 × 6
 #>    timeseries_id         subject_id feature                featu…¹ site  country
 #>    <chr>                 <chr>      <chr>                    <dbl> <chr> <chr>  
-#>  1 ts_1_autogen_original 1          sd                       4.21  1     C      
-#>  2 ts_1_autogen_original 1          average                 33.4   1     C      
-#>  3 ts_1_autogen_original 1          unique_value_count_re…   1     1     C      
-#>  4 ts_1_autogen_original 8          sd                       6.77  2     C      
-#>  5 ts_1_autogen_original 8          average                 33.5   2     C      
-#>  6 ts_1_autogen_original 8          unique_value_count_re…   1     2     C      
-#>  7 ts_1_autogen_original 28         sd                       4.94  6     B      
-#>  8 ts_1_autogen_original 28         average                 29.5   6     B      
-#>  9 ts_1_autogen_original 28         unique_value_count_re…   1     6     B      
-#> 10 ts_1_autogen_original 28         own_site_simil_score     0.414 6     B      
-#> # … with 4,209 more rows, and abbreviated variable name ¹​feature_value
+#>  1 ts_1_autogen_original 1          sd                      7.54   mean  A      
+#>  2 ts_1_autogen_original 1          average                 9.41   mean  A      
+#>  3 ts_1_autogen_original 1          autocorr                0.159  mean  A      
+#>  4 ts_1_autogen_original 1          unique_value_count_re…  0.895  mean  A      
+#>  5 ts_1_autogen_original 1          own_site_simil_score    0.999  mean  A      
+#>  6 ts_1_autogen_original 2          sd                      4.90   mean  A      
+#>  7 ts_1_autogen_original 2          average                12.5    mean  A      
+#>  8 ts_1_autogen_original 2          autocorr                0.0876 mean  A      
+#>  9 ts_1_autogen_original 2          unique_value_count_re…  1      mean  A      
+#> 10 ts_1_autogen_original 2          own_site_simil_score    0.995  mean  A      
+#> # … with 2,009 more rows, and abbreviated variable name ¹​feature_value
 #> 
 #> $PCA_coordinates
-#> # A tibble: 1,076 × 4
-#>    timeseries_id         subject_id    pc1     pc2
-#>    <chr>                 <chr>       <dbl>   <dbl>
-#>  1 ts_1_autogen_original 1          -10.9   -0.458
-#>  2 ts_1_autogen_original 8           -8.61   5.69 
-#>  3 ts_1_autogen_original 28          12.8   -1.92 
-#>  4 ts_1_autogen_original 30         -18.1    2.89 
-#>  5 ts_1_autogen_original 34          18.7   32.3  
-#>  6 ts_1_autogen_original 35          51.0  -11.9  
-#>  7 ts_1_autogen_original 40         -11.4  -14.3  
-#>  8 ts_1_autogen_original 43          10.5   30.2  
-#>  9 ts_1_autogen_original 62          17.6   -4.69 
-#> 10 ts_1_autogen_original 71           4.67  -2.42 
-#> # … with 1,066 more rows
+#> # A tibble: 404 × 4
+#>    timeseries_id         subject_id   pc1   pc2
+#>    <chr>                 <chr>      <dbl> <dbl>
+#>  1 ts_1_autogen_original 1          -213. -15.6
+#>  2 ts_1_autogen_original 2          -177. -13.4
+#>  3 ts_1_autogen_original 3          -193. -36.7
+#>  4 ts_1_autogen_original 4          -225. -13.7
+#>  5 ts_1_autogen_original 5          -217. -13.6
+#>  6 ts_1_autogen_original 6          -274. -10.0
+#>  7 ts_1_autogen_original 7          -245. -18.3
+#>  8 ts_1_autogen_original 8          -244. -15.8
+#>  9 ts_1_autogen_original 9          -219. -14.5
+#> 10 ts_1_autogen_original 10         -237. -17.8
+#> # … with 394 more rows
 #> 
 #> $site_scores
-#> # A tibble: 1,363 × 9
+#> # A tibble: 250 × 9
 #>    timeseries_id   site  country feature pvalu…¹ kstes…² fdr_c…³ refer…⁴ subje…⁵
 #>    <chr>           <chr> <chr>   <chr>     <dbl>   <dbl>   <dbl> <chr>     <int>
-#>  1 ts_1_autogen_o… 1     C       sd      0.111     0.633  0      all           1
-#>  2 ts_1_autogen_o… 2     C       sd      0.149     0.667  0      all           1
-#>  3 ts_1_autogen_o… 6     B       sd      0.196     0.483  0      all           2
-#>  4 ts_1_autogen_o… 7     C       sd      0.810     0.759  0.0452 all           2
-#>  5 ts_1_autogen_o… 8     D       sd      0.287     0.767  0      all           1
-#>  6 ts_1_autogen_o… 9     A       sd      0.889     0.967  0.0756 all           1
-#>  7 ts_1_autogen_o… 13    B       sd      0.287     0.767  0      all           1
-#>  8 ts_1_autogen_o… 15    B       sd      0.00466   0.238  0      all           3
-#>  9 ts_1_autogen_o… 17    C       sd      0.412     0.833  0.0174 all           1
-#> 10 ts_1_autogen_o… 18    D       sd      0.407     0.586  0.0174 all           2
-#> # … with 1,353 more rows, and abbreviated variable names ¹​pvalue_kstest_logp,
+#>  1 ts_1_autogen_o… mean  A       sd       0.375    0.257 6.73e-2 all          11
+#>  2 ts_1_autogen_o… sd    D       sd       7.50     0.886 6.01e+0 all           9
+#>  3 ts_1_autogen_o… cons… A       sd       0.502    0.295 9.05e-2 all          10
+#>  4 ts_1_autogen_o… cons… B       sd       7.38     0.985 5.93e+0 all           5
+#>  5 ts_1_autogen_o… roun… E       sd       0.189    0.224 3.13e-2 all          10
+#>  6 ts_1_autogen_o… zick… C       sd       2.38     0.631 1.36e+0 all           7
+#>  7 ts_1_autogen_o… zick… B       sd       4.97     0.707 3.75e+0 all          11
+#>  8 ts_1_autogen_o… 8     C       sd       0.0493   0.181 5.49e-4 all           9
+#>  9 ts_1_autogen_o… 9     C       sd       0.247    0.240 3.50e-2 all          10
+#> 10 ts_1_autogen_o… 10    A       sd       0.874    0.397 2.83e-1 all           8
+#> # … with 240 more rows, and abbreviated variable names ¹​pvalue_kstest_logp,
 #> #   ²​kstest_statistic, ³​fdr_corrected_pvalue_logp, ⁴​reference_group,
 #> #   ⁵​subject_count
 ```
@@ -210,8 +202,6 @@ contain at least one of the following feature codes:
 | own_site_simil_score        | Measure of co-clustering of time series from the same study site |
 | sd                          | Standard deviation                                               |
 | unique_value_count_relative | Number of unique values divided by number of values available    |
-| range                       | The range of values in a time series                             |
-| lof                         | Local outlier factor                                             |
 
 ### default_minimum_timepoints_per_series
 
