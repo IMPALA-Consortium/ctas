@@ -16,13 +16,12 @@ knitr::opts_chunk$set(
 ```
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/IMPALA-Consortium/tsoa/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/IMPALA-Consortium/tsoa/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 # Time Series Outliers and Anomalies (TSOA)
 Pekka Tiikkainen, Bayer Pharmaceuticals
 
-<!-- badges: start -->
-<!-- badges: end -->
 
 ## Introduction
 
