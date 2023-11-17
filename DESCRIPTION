@@ -6,6 +6,9 @@ Authors@R: c(
   person("Pekka", "Tiikkainen",
     role = c("aut", "cre"),
     email = "pekka.tiikkainen@bayer.com"),
+  person("Björn", "Koneswarkantha",
+    role = c("aut"),
+    email = "pekka.tiikkainen@bayer.com"),
   person("Bayer Pharmaceuticals",
     role = "cph")
   )
@@ -27,8 +30,12 @@ Imports:
     tidyr
 Suggests: 
     testthat (>= 3.0.0),
-    purrr
+    purrr,
+    knitr,
+    rmarkdown,
+    pkgdown
 Config/testthat/edition: 3
 URL:
     https://phuse.s3.eu-central-1.amazonaws.com/Archive/2022/Connect/EU/Belfast/PRE_AR04.pdf,
     https://phuse.s3.eu-central-1.amazonaws.com/Archive/2022/Connect/EU/Belfast/PAP_AR04.pdf
+VignetteBuilder: knitr

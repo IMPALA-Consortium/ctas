@@ -1,13 +1,12 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/IMPALA-Consortium/tsoa/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/IMPALA-Consortium/tsoa/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 # Time Series Outliers and Anomalies (TSOA)
 
 Pekka Tiikkainen, Bayer Pharmaceuticals
-
-<!-- badges: start -->
-<!-- badges: end -->
 
 ## Introduction
 
@@ -67,6 +66,7 @@ tsoa_data
 #>  9 1                       9 AJ                 NA   param1       timepoint name 2 NA      
 #> 10 1                      10 AK                 32.9 param1       timepoint name 2 NA      
 #> # … with 13,764 more rows
+
 #> 
 #> $parameters
 #> # A tibble: 2 × 11
@@ -78,6 +78,7 @@ tsoa_data
 #> #   ⁵​timeseries_features_to_calculate, ⁶​use_only_custom_timeseries
 #> 
 #> $subjects
+
 #> # A tibble: 349 × 4
 #>    subject_id site  country region
 #>    <chr>      <chr> <chr>   <chr> 
@@ -92,6 +93,7 @@ tsoa_data
 #>  9 9          AAC   AA      A     
 #> 10 10         AAC   AA      A     
 #> # … with 339 more rows
+
 #> 
 #> $custom_timeseries
 #> # A tibble: 0 × 0
@@ -121,6 +123,11 @@ ls_tsoa <- process_a_study(
   default_generate_change_from_baseline = FALSE,
   autogenerate_timeseries = TRUE
 )
+#> Warning: There was 1 warning in `mutate()`.
+#> ℹ In argument: `ts_features = list(...)`.
+#> ℹ In row 1.
+#> Caused by warning in `cor()`:
+#> ! the standard deviation is zero
 
 ls_tsoa
 #> $timeseries
@@ -213,8 +220,6 @@ The vector must contain at least one of the following feature codes:
 | own_site_simil_score        | Measure of co-clustering of time series from the same study site |
 | sd                          | Standard deviation                                               |
 | unique_value_count_relative | Number of unique values divided by number of values available    |
-| range                       | The range of values in a time series                             |
-| lof                         | Local outlier factor                                             |
 
 ### default_minimum_timepoints_per_series
 

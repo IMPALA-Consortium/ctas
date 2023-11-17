@@ -4,3 +4,7 @@
 ^.*\.pdf$
 ^CODEOWNERS$
 ^README\.Rmd$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
