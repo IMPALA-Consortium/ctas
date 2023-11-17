@@ -236,7 +236,6 @@ calculate_site_bias_ts_features <- function(this_feature, this_data, this_ref_gr
   # Define the hypothesis (i.e. whether we are looking at one-sided or two-sided bias).
   nullhypo_ks <- case_when(
     this_feature == "own_site_simil_score" ~ "less",
-    this_feature == "lof" ~ "less",
     this_feature == "unique_value_count_relative" ~ "greater",
     TRUE ~ "two.sided"
   )
