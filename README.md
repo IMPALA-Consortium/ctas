@@ -432,5 +432,5 @@ Data frame columns:
 | pvalue_kstest_logp        | float     | Negative logarithm of the raw p-value.                                                                                       |
 | kstest_statistic          | float     | Test statistic of the Kolmogorov-Smirnov test.                                                                               |
 | fdr_corrected_pvalue_logp | float     | Site score: negative logarithm of the multiple testing corrected p-value. FDR (False Discovery Rate) is used for correction. |
-| ref_group           | chr       | Reference group for the site. “All” means that the site has been compared to all sites in the study.                         |
+| ref_group           | chr       | Reference group used for calculating the score.                        |
 | subject_count             | int       | Number of site subjects who are eligible for the time series.                                                                |
