@@ -6,9 +6,9 @@ Authors@R: c(
   person("Pekka", "Tiikkainen",
     role = c("aut", "cre"),
     email = "pekka.tiikkainen@bayer.com"),
-  person("Björn", "Koneswarkantha",
+  person("Björn", "Koneswarakantha",
     role = c("aut"),
-    email = "pekka.tiikkainen@bayer.com"),
+    email = "bjoern.koneswarakantha@roche.com"),
   person("Bayer Pharmaceuticals",
     role = "cph")
   )
