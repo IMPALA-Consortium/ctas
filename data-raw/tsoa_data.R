@@ -7,13 +7,25 @@ library(tidyr)
 
 timepoint_names <- combn(LETTERS, 2, FUN = paste, collapse = "")
 
+region_count <- 3
 
 ts <- tibble::tibble(
-    site = as.character(seq(1, 35))
+  region = seq(1, region_count)
   ) %>%
   dplyr::mutate(
-    country = sample(seq(1, 5), size = nrow(.), replace = TRUE),
-    country = LETTERS[country],
+    region = LETTERS[region],
+    country = rpois(nrow(.), lambda = 3),
+    country = purrr::map(country, ~ seq(1, .))
+  ) %>%
+  tidyr::unnest(country)  %>%
+  dplyr::mutate(
+    country = paste0(region, LETTERS[country]),
+    site = rpois(nrow(.), lambda = 4),
+    site = purrr::map(site, ~ seq(1, .))
+  ) %>%
+  tidyr::unnest(site)  %>%
+  dplyr::mutate(
+    site = paste0(country, LETTERS[site]),
     subject_id = rpois(nrow(.), lambda = 5),
     subject_id = purrr::map(subject_id, ~ seq(1, .))
   ) %>%
@@ -61,7 +73,7 @@ data <- bind_rows(
     timepoint_2_name = "timepoint name 2",
     baseline = NA
   ) %>%
-  select(- site, - country)
+  select(- site, - country, -region)
 
 
 parameters <- data %>%
@@ -74,23 +86,34 @@ parameters <- data %>%
     time_point_count_min = NA,
     subject_count_min = NA,
     max_share_missing = NA,
-    generate_change_from_baseline = NA
+    generate_change_from_baseline = NA,
+    timeseries_features_to_calculate = NA,
+    use_only_custom_timeseries = FALSE
   )
 
 subjects <- ts %>%
-  distinct(subject_id, site, country)
+  distinct(subject_id, site, country, region)
 
 custom_timeseries <- tibble(
-  timeseries_id = NULL,
-  parameter_id = NULL,
-  timepoint_combo = NULL
+  timeseries_id = character(),
+  parameter_id = character(),
+  timepoint_combo = character()
 )
+
+custom_reference_groups <- tibble(
+  parameter_id = character(),
+  feature = character(),
+  ref_group = character()
+)
+
+
 
 tsoa_data <- list(
   data = data,
   parameters = parameters,
   subjects = subjects,
-  custom_timeseries = custom_timeseries
+  custom_timeseries = custom_timeseries,
+  custom_reference_groups = custom_reference_groups
 )
 
 usethis::use_data(tsoa_data, overwrite = TRUE)
