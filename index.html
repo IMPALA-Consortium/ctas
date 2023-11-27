@@ -11,8 +11,8 @@
     See details in the provided PHUSE EU Connect 2022 resources.">
 <title>The package is used to identify anomalies and outliers in clinical data time series • tsoa</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="The package is used to identify anomalies and outliers in clinical data time series">
 <meta property="og:description" content="The package is used to identify anomalies in clinical time series.
@@ -32,7 +32,7 @@
     
     <a class="navbar-brand me-2" href="index.html">tsoa</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,62 +93,70 @@
 <span></span>
 <span><span class="va">tsoa_data</span></span>
 <span><span class="co">#&gt; $data</span></span>
-<span><span class="co">#&gt; # A tibble: 40,474 × 7</span></span>
-<span><span class="co">#&gt;    subject_id timepoint_rank timepoint_1_name result parameter…¹ timep…² basel…³</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;               &lt;int&gt; &lt;chr[1d]&gt;         &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;   &lt;lgl&gt;  </span></span>
-<span><span class="co">#&gt;  1 1                       1 AB                 6.73 param1      timepo… NA     </span></span>
-<span><span class="co">#&gt;  2 1                       2 AC                 0    param1      timepo… NA     </span></span>
-<span><span class="co">#&gt;  3 1                       3 AD                 4.06 param1      timepo… NA     </span></span>
-<span><span class="co">#&gt;  4 1                       4 AE                16.3  param1      timepo… NA     </span></span>
-<span><span class="co">#&gt;  5 1                       5 AF                27.2  param1      timepo… NA     </span></span>
-<span><span class="co">#&gt;  6 1                       6 AG                NA    param1      timepo… NA     </span></span>
-<span><span class="co">#&gt;  7 1                       7 AH                 6.66 param1      timepo… NA     </span></span>
-<span><span class="co">#&gt;  8 1                       8 AI                21.6  param1      timepo… NA     </span></span>
-<span><span class="co">#&gt;  9 1                       9 AJ                 2.85 param1      timepo… NA     </span></span>
-<span><span class="co">#&gt; 10 1                      10 AK                 0    param1      timepo… NA     </span></span>
-<span><span class="co">#&gt; # … with 40,464 more rows, and abbreviated variable names ¹​parameter_id,</span></span>
-<span><span class="co">#&gt; #   ²​timepoint_2_name, ³​baseline</span></span>
+<span><span class="co">#&gt; # A tibble: 13,774 × 7</span></span>
+<span><span class="co">#&gt;    subject_id timepoint_rank timepoint_1_name result parameter_id timepoint_2_name baseline</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;               &lt;int&gt; &lt;chr[1d]&gt;         &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt;            &lt;lgl&gt;   </span></span>
+<span><span class="co">#&gt;  1 1                       1 AB                 35.5 param1       timepoint name 2 NA      </span></span>
+<span><span class="co">#&gt;  2 1                       2 AC                 NA   param1       timepoint name 2 NA      </span></span>
+<span><span class="co">#&gt;  3 1                       3 AD                 29.2 param1       timepoint name 2 NA      </span></span>
+<span><span class="co">#&gt;  4 1                       4 AE                 NA   param1       timepoint name 2 NA      </span></span>
+<span><span class="co">#&gt;  5 1                       5 AF                 NA   param1       timepoint name 2 NA      </span></span>
+<span><span class="co">#&gt;  6 1                       6 AG                 31.2 param1       timepoint name 2 NA      </span></span>
+<span><span class="co">#&gt;  7 1                       7 AH                 33.7 param1       timepoint name 2 NA      </span></span>
+<span><span class="co">#&gt;  8 1                       8 AI                 27.5 param1       timepoint name 2 NA      </span></span>
+<span><span class="co">#&gt;  9 1                       9 AJ                 NA   param1       timepoint name 2 NA      </span></span>
+<span><span class="co">#&gt; 10 1                      10 AK                 32.9 param1       timepoint name 2 NA      </span></span>
+<span><span class="co">#&gt; # … with 13,764 more rows</span></span>
+<span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $parameters</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 9</span></span>
-<span><span class="co">#&gt;   parameter_id paramet…¹ param…² param…³ param…⁴ time_…⁵ subje…⁶ max_s…⁷ gener…⁸</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;        &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;lgl&gt;   &lt;lgl&gt;   &lt;lgl&gt;   &lt;lgl&gt;  </span></span>
-<span><span class="co">#&gt; 1 param1       param1    catego… catego… catego… NA      NA      NA      NA     </span></span>
-<span><span class="co">#&gt; 2 param2       param2    catego… catego… catego… NA      NA      NA      NA     </span></span>
-<span><span class="co">#&gt; # … with abbreviated variable names ¹​parameter_name, ²​parameter_category_1,</span></span>
-<span><span class="co">#&gt; #   ³​parameter_category_2, ⁴​parameter_category_3, ⁵​time_point_count_min,</span></span>
-<span><span class="co">#&gt; #   ⁶​subject_count_min, ⁷​max_share_missing, ⁸​generate_change_from_baseline</span></span>
+<span><span class="co">#&gt; # A tibble: 2 × 11</span></span>
+<span><span class="co">#&gt;   parameter_id parameter_name parameter_category_1 parameter_category_2 parameter_category_3 time_po…¹ subje…² max_s…³ gener…⁴ times…⁵ use_o…⁶</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;        &lt;chr&gt;          &lt;chr&gt;                &lt;chr&gt;                &lt;chr&gt;                &lt;lgl&gt;     &lt;lgl&gt;   &lt;lgl&gt;   &lt;lgl&gt;   &lt;lgl&gt;   &lt;lgl&gt;  </span></span>
+<span><span class="co">#&gt; 1 param1       param1         category 1           category 2           category 3           NA        NA      NA      NA      NA      FALSE  </span></span>
+<span><span class="co">#&gt; 2 param2       param2         category 1           category 2           category 3           NA        NA      NA      NA      NA      FALSE  </span></span>
+<span><span class="co">#&gt; # … with abbreviated variable names ¹​time_point_count_min, ²​subject_count_min, ³​max_share_missing, ⁴​generate_change_from_baseline,</span></span>
+<span><span class="co">#&gt; #   ⁵​timeseries_features_to_calculate, ⁶​use_only_custom_timeseries</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $subjects</span></span>
-<span><span class="co">#&gt; # A tibble: 202 × 3</span></span>
-<span><span class="co">#&gt;    subject_id site  country</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;      &lt;chr&gt; &lt;chr&gt;  </span></span>
-<span><span class="co">#&gt;  1 1          mean  A      </span></span>
-<span><span class="co">#&gt;  2 2          mean  A      </span></span>
-<span><span class="co">#&gt;  3 3          mean  A      </span></span>
-<span><span class="co">#&gt;  4 4          mean  A      </span></span>
-<span><span class="co">#&gt;  5 5          mean  A      </span></span>
-<span><span class="co">#&gt;  6 6          mean  A      </span></span>
-<span><span class="co">#&gt;  7 7          mean  A      </span></span>
-<span><span class="co">#&gt;  8 8          mean  A      </span></span>
-<span><span class="co">#&gt;  9 9          mean  A      </span></span>
-<span><span class="co">#&gt; 10 10         mean  A      </span></span>
-<span><span class="co">#&gt; # … with 192 more rows</span></span>
+<span></span>
+<span><span class="co">#&gt; # A tibble: 349 × 4</span></span>
+<span><span class="co">#&gt;    subject_id site  country region</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;      &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; </span></span>
+<span><span class="co">#&gt;  1 1          AAA   AA      A     </span></span>
+<span><span class="co">#&gt;  2 2          AAB   AA      A     </span></span>
+<span><span class="co">#&gt;  3 3          AAB   AA      A     </span></span>
+<span><span class="co">#&gt;  4 4          AAB   AA      A     </span></span>
+<span><span class="co">#&gt;  5 5          AAB   AA      A     </span></span>
+<span><span class="co">#&gt;  6 6          AAC   AA      A     </span></span>
+<span><span class="co">#&gt;  7 7          AAC   AA      A     </span></span>
+<span><span class="co">#&gt;  8 8          AAC   AA      A     </span></span>
+<span><span class="co">#&gt;  9 9          AAC   AA      A     </span></span>
+<span><span class="co">#&gt; 10 10         AAC   AA      A     </span></span>
+<span><span class="co">#&gt; # … with 339 more rows</span></span>
+<span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $custom_timeseries</span></span>
 <span><span class="co">#&gt; # A tibble: 0 × 0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $custom_reference_groups</span></span>
+<span><span class="co">#&gt; # A tibble: 0 × 0</span></span>
+<span></span>
 <span></span>
 <span><span class="va">ls_tsoa</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/process_a_study.html">process_a_study</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">tsoa_data</span><span class="op">$</span><span class="va">data</span>,</span>
 <span>  subjects <span class="op">=</span> <span class="va">tsoa_data</span><span class="op">$</span><span class="va">subjects</span>,</span>
 <span>  parameters <span class="op">=</span> <span class="va">tsoa_data</span><span class="op">$</span><span class="va">parameters</span>,</span>
 <span>  custom_timeseries <span class="op">=</span> <span class="va">tsoa_data</span><span class="op">$</span><span class="va">custom_timeseries</span>,</span>
-<span>  timeseries_features_to_calculate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  custom_reference_groups <span class="op">=</span> <span class="va">tsoa_data</span><span class="op">$</span><span class="va">custom_reference_groups</span>,</span>
+<span>  default_timeseries_features_to_calculate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"autocorr"</span>,</span>
 <span>    <span class="st">"average"</span>,</span>
 <span>    <span class="st">"own_site_simil_score"</span>,</span>
 <span>    <span class="st">"sd"</span>,</span>
-<span>    <span class="st">"unique_value_count_relative"</span></span>
+<span>    <span class="st">"unique_value_count_relative"</span>,</span>
+<span>    <span class="st">"lof"</span>,</span>
+<span>    <span class="st">"range"</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  default_minimum_timepoints_per_series <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  default_minimum_subjects_per_series <span class="op">=</span> <span class="fl">3</span>,</span>
@@ -164,62 +172,71 @@
 <span></span>
 <span><span class="va">ls_tsoa</span></span>
 <span><span class="co">#&gt; $timeseries</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 6</span></span>
-<span><span class="co">#&gt;   timeseries_id         parameter_id baseline timepoint_combo    timep…¹ timep…²</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;                 &lt;chr&gt;        &lt;chr&gt;    &lt;chr&gt;              &lt;chr&gt;     &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 ts_1_autogen_original param1       original 1;2;3;4;5;6;7;8;9… AB_tim…     126</span></span>
-<span><span class="co">#&gt; 2 ts_2_autogen_original param2       original 1;2;3;4;5;6;7;8;9… AB_tim…     126</span></span>
+<span><span class="co">#&gt; # A tibble: 10 × 6</span></span>
+<span><span class="co">#&gt;    timeseries_id          parameter_id baseline timepoint_combo                                                                timep…¹ timep…²</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;                  &lt;chr&gt;        &lt;chr&gt;    &lt;chr&gt;                                                                          &lt;chr&gt;     &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 ts_1_autogen_original  param1       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24;25;26;27;28;29… AB_tim…      32</span></span>
+<span><span class="co">#&gt;  2 ts_2_autogen_original  param1       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24;25;26;27;28     AB_tim…      28</span></span>
+<span><span class="co">#&gt;  3 ts_3_autogen_original  param1       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24                 AB_tim…      24</span></span>
+<span><span class="co">#&gt;  4 ts_4_autogen_original  param1       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20                             AB_tim…      20</span></span>
+<span><span class="co">#&gt;  5 ts_5_autogen_original  param1       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14                                               AB_tim…      14</span></span>
+<span><span class="co">#&gt;  6 ts_6_autogen_original  param2       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24;25;26;27;28;29… AB_tim…      33</span></span>
+<span><span class="co">#&gt;  7 ts_7_autogen_original  param2       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24;25;26;27;28;29… AB_tim…      30</span></span>
+<span><span class="co">#&gt;  8 ts_8_autogen_original  param2       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24;25;26;27;28     AB_tim…      28</span></span>
+<span><span class="co">#&gt;  9 ts_9_autogen_original  param2       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24                 AB_tim…      24</span></span>
+<span><span class="co">#&gt; 10 ts_10_autogen_original param2       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20                             AB_tim…      20</span></span>
 <span><span class="co">#&gt; # … with abbreviated variable names ¹​timepoint_combo_readable, ²​timepoint_count</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $timeseries_features</span></span>
-<span><span class="co">#&gt; # A tibble: 2,019 × 6</span></span>
-<span><span class="co">#&gt;    timeseries_id         subject_id feature                featu…¹ site  country</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;                 &lt;chr&gt;      &lt;chr&gt;                    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  </span></span>
-<span><span class="co">#&gt;  1 ts_1_autogen_original 1          sd                      7.54   mean  A      </span></span>
-<span><span class="co">#&gt;  2 ts_1_autogen_original 1          average                 9.41   mean  A      </span></span>
-<span><span class="co">#&gt;  3 ts_1_autogen_original 1          autocorr                0.159  mean  A      </span></span>
-<span><span class="co">#&gt;  4 ts_1_autogen_original 1          unique_value_count_re…  0.895  mean  A      </span></span>
-<span><span class="co">#&gt;  5 ts_1_autogen_original 1          own_site_simil_score    0.999  mean  A      </span></span>
-<span><span class="co">#&gt;  6 ts_1_autogen_original 2          sd                      4.90   mean  A      </span></span>
-<span><span class="co">#&gt;  7 ts_1_autogen_original 2          average                12.5    mean  A      </span></span>
-<span><span class="co">#&gt;  8 ts_1_autogen_original 2          autocorr                0.0876 mean  A      </span></span>
-<span><span class="co">#&gt;  9 ts_1_autogen_original 2          unique_value_count_re…  1      mean  A      </span></span>
-<span><span class="co">#&gt; 10 ts_1_autogen_original 2          own_site_simil_score    0.995  mean  A      </span></span>
-<span><span class="co">#&gt; # … with 2,009 more rows, and abbreviated variable name ¹​feature_value</span></span>
+<span><span class="co">#&gt; # A tibble: 292 × 7</span></span>
+<span><span class="co">#&gt;    timeseries_id         subject_id feature  feature_value site  country region</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;                 &lt;chr&gt;      &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; </span></span>
+<span><span class="co">#&gt;  1 ts_1_autogen_original 1          autocorr        0.354  AAA   AA      A     </span></span>
+<span><span class="co">#&gt;  2 ts_1_autogen_original 2          autocorr       -0.397  AAA   AA      A     </span></span>
+<span><span class="co">#&gt;  3 ts_1_autogen_original 3          autocorr        0.119  AAA   AA      A     </span></span>
+<span><span class="co">#&gt;  4 ts_1_autogen_original 4          autocorr        0.389  AAA   AA      A     </span></span>
+<span><span class="co">#&gt;  5 ts_1_autogen_original 17         autocorr        0.309  AAC   AA      A     </span></span>
+<span><span class="co">#&gt;  6 ts_1_autogen_original 19         autocorr        0.142  BAA   BA      B     </span></span>
+<span><span class="co">#&gt;  7 ts_1_autogen_original 20         autocorr        0.0376 BAA   BA      B     </span></span>
+<span><span class="co">#&gt;  8 ts_1_autogen_original 21         autocorr       -0.289  BAA   BA      B     </span></span>
+<span><span class="co">#&gt;  9 ts_1_autogen_original 25         autocorr       -0.317  BAB   BA      B     </span></span>
+<span><span class="co">#&gt; 10 ts_1_autogen_original 31         autocorr        0.0678 BAC   BA      B     </span></span>
+<span><span class="co">#&gt; # … with 282 more rows</span></span>
+<span><span class="co">#&gt; # ℹ Use `print(n = ...)` to see more rows</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $PCA_coordinates</span></span>
-<span><span class="co">#&gt; # A tibble: 404 × 4</span></span>
-<span><span class="co">#&gt;    timeseries_id         subject_id   pc1   pc2</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;                 &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 ts_1_autogen_original 1          -213. -15.6</span></span>
-<span><span class="co">#&gt;  2 ts_1_autogen_original 2          -177. -13.4</span></span>
-<span><span class="co">#&gt;  3 ts_1_autogen_original 3          -193. -36.7</span></span>
-<span><span class="co">#&gt;  4 ts_1_autogen_original 4          -225. -13.7</span></span>
-<span><span class="co">#&gt;  5 ts_1_autogen_original 5          -217. -13.6</span></span>
-<span><span class="co">#&gt;  6 ts_1_autogen_original 6          -274. -10.0</span></span>
-<span><span class="co">#&gt;  7 ts_1_autogen_original 7          -245. -18.3</span></span>
-<span><span class="co">#&gt;  8 ts_1_autogen_original 8          -244. -15.8</span></span>
-<span><span class="co">#&gt;  9 ts_1_autogen_original 9          -219. -14.5</span></span>
-<span><span class="co">#&gt; 10 ts_1_autogen_original 10         -237. -17.8</span></span>
-<span><span class="co">#&gt; # … with 394 more rows</span></span>
+<span><span class="co">#&gt; # A tibble: 292 × 4</span></span>
+<span><span class="co">#&gt;    timeseries_id         subject_id    pc1    pc2</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;                 &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 ts_1_autogen_original 1          -20.8    6.00</span></span>
+<span><span class="co">#&gt;  2 ts_1_autogen_original 2          -33.1    7.02</span></span>
+<span><span class="co">#&gt;  3 ts_1_autogen_original 3           21.4   -2.27</span></span>
+<span><span class="co">#&gt;  4 ts_1_autogen_original 4           31.0   -2.94</span></span>
+<span><span class="co">#&gt;  5 ts_1_autogen_original 17          32.8   -3.77</span></span>
+<span><span class="co">#&gt;  6 ts_1_autogen_original 19          -9.13   2.13</span></span>
+<span><span class="co">#&gt;  7 ts_1_autogen_original 20          16.0   -9.33</span></span>
+<span><span class="co">#&gt;  8 ts_1_autogen_original 21         -15.2    3.50</span></span>
+<span><span class="co">#&gt;  9 ts_1_autogen_original 25         -22.4  -14.6 </span></span>
+<span><span class="co">#&gt; 10 ts_1_autogen_original 31          29.8   28.6 </span></span>
+<span><span class="co">#&gt; # … with 282 more rows</span></span>
+<span><span class="co">#&gt; # ℹ Use `print(n = ...)` to see more rows</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $site_scores</span></span>
-<span><span class="co">#&gt; # A tibble: 250 × 9</span></span>
-<span><span class="co">#&gt;    timeseries_id   site  country feature pvalu…¹ kstes…² fdr_c…³ refer…⁴ subje…⁵</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;     &lt;int&gt;</span></span>
-<span><span class="co">#&gt;  1 ts_1_autogen_o… mean  A       sd       0.375    0.257 6.73e-2 all          11</span></span>
-<span><span class="co">#&gt;  2 ts_1_autogen_o… sd    D       sd       7.50     0.886 6.01e+0 all           9</span></span>
-<span><span class="co">#&gt;  3 ts_1_autogen_o… cons… A       sd       0.502    0.295 9.05e-2 all          10</span></span>
-<span><span class="co">#&gt;  4 ts_1_autogen_o… cons… B       sd       7.38     0.985 5.93e+0 all           5</span></span>
-<span><span class="co">#&gt;  5 ts_1_autogen_o… roun… E       sd       0.189    0.224 3.13e-2 all          10</span></span>
-<span><span class="co">#&gt;  6 ts_1_autogen_o… zick… C       sd       2.38     0.631 1.36e+0 all           7</span></span>
-<span><span class="co">#&gt;  7 ts_1_autogen_o… zick… B       sd       4.97     0.707 3.75e+0 all          11</span></span>
-<span><span class="co">#&gt;  8 ts_1_autogen_o… 8     C       sd       0.0493   0.181 5.49e-4 all           9</span></span>
-<span><span class="co">#&gt;  9 ts_1_autogen_o… 9     C       sd       0.247    0.240 3.50e-2 all          10</span></span>
-<span><span class="co">#&gt; 10 ts_1_autogen_o… 10    A       sd       0.874    0.397 2.83e-1 all           8</span></span>
-<span><span class="co">#&gt; # … with 240 more rows, and abbreviated variable names ¹​pvalue_kstest_logp,</span></span>
-<span><span class="co">#&gt; #   ²​kstest_statistic, ³​fdr_corrected_pvalue_logp, ⁴​reference_group,</span></span>
-<span><span class="co">#&gt; #   ⁵​subject_count</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 83 × 10</span></span>
+<span><span class="co">#&gt;    timeseries_id         site  country region feature  pvalue_kstest_logp kstest_statistic fdr_corrected_pvalue_logp ref_group subject_count</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;                 &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;                 &lt;dbl&gt;            &lt;dbl&gt;                     &lt;dbl&gt; &lt;chr&gt;             &lt;int&gt;</span></span>
+<span><span class="co">#&gt;  1 ts_1_autogen_original AAA   AA      A      autocorr            0.393              0.5                           0 global                4</span></span>
+<span><span class="co">#&gt;  2 ts_1_autogen_original AAC   AA      A      autocorr            0.426              0.867                         0 global                1</span></span>
+<span><span class="co">#&gt;  3 ts_1_autogen_original BAA   BA      B      autocorr            0.135              0.385                         0 global                3</span></span>
+<span><span class="co">#&gt;  4 ts_1_autogen_original BAB   BA      B      autocorr            0.602              0.933                         0 global                1</span></span>
+<span><span class="co">#&gt;  5 ts_1_autogen_original BAC   BA      B      autocorr            0.0580             0.6                           0 global                1</span></span>
+<span><span class="co">#&gt;  6 ts_1_autogen_original CAA   CA      C      autocorr            0.00383            0.25                          0 global                4</span></span>
+<span><span class="co">#&gt;  7 ts_1_autogen_original CAC   CA      C      autocorr            0.155              0.5                           0 global                2</span></span>
+<span><span class="co">#&gt;  8 ts_2_autogen_original AAA   AA      A      autocorr            0.338              0.389                         0 global                6</span></span>
+<span><span class="co">#&gt;  9 ts_2_autogen_original AAB   AA      A      autocorr            0.115              0.455                         0 global                2</span></span>
+<span><span class="co">#&gt; 10 ts_2_autogen_original AAC   AA      A      autocorr            0.301              0.783                         0 global                1</span></span>
+<span><span class="co">#&gt; # … with 73 more rows</span></span>
+<span><span class="co">#&gt; # ℹ Use `print(n = ...)` to see more rows</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="input-parameters">Input parameters<a class="anchor" aria-label="anchor" href="#input-parameters"></a>
@@ -227,9 +244,9 @@
 <p>The function process_a_study has a number of parameters that need to be provided. Some of these are data frames while others are simple variables.</p>
 <p>The following gives more details on each parameter. Examples are also provided where needed.</p>
 <div class="section level3">
-<h3 id="timeseries_features_to_calculate">timeseries_features_to_calculate<a class="anchor" aria-label="anchor" href="#timeseries_features_to_calculate"></a>
+<h3 id="default_timeseries_features_to_calculate">default_timeseries_features_to_calculate<a class="anchor" aria-label="anchor" href="#default_timeseries_features_to_calculate"></a>
 </h3>
-<p>Vector of features to calculate for each time series. The vector must contain at least one of the following feature codes:</p>
+<p>Vector of features to calculate for each time series by default. The vector must contain at least one of the following feature codes:</p>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -311,7 +328,7 @@
 <td>subject_id</td>
 <td>chr</td>
 <td>Y</td>
-<td>Unique identifier for each subject</td>
+<td>Unique identifier for each subject.</td>
 </tr>
 <tr class="even">
 <td>country</td>
@@ -320,6 +337,12 @@
 <td>Country where the subject is enrolled.</td>
 </tr>
 <tr class="odd">
+<td>region</td>
+<td>chr</td>
+<td>Y</td>
+<td>Region of the world the site belongs to.</td>
+</tr>
+<tr class="even">
 <td>site</td>
 <td>chr</td>
 <td>Y</td>
@@ -401,20 +424,34 @@
 <td></td>
 <td>Whether to also generate baseline-adjusted time series for the parameter. If not provided, global default value is used.</td>
 </tr>
+<tr class="even">
+<td>timeseries_features_to_calculate</td>
+<td>chr</td>
+<td></td>
+<td>Comma-delimited string of features to calculate for this parameter. Overrides the features listed in default_timeseries_features_to_calculate.</td>
+</tr>
+<tr class="odd">
+<td>use_only_custom_timeseries</td>
+<td>boolean</td>
+<td>Y</td>
+<td>If set to TRUE, only use the custom timeseries defined in custom_timeseries - even if autogenerate_timeseries is set to TRUE.</td>
+</tr>
 </tbody>
 </table>
 <p>Example for two parameters, one vital sign and one local lab. For any time series generated for the vital sign, at least 50 eligible subjects are required. For the local lab, time series with one time point only are acceptable. These parameter-specific properties override the corresponding global parameters (see above).</p>
-<table style="width:100%;" class="table">
+<table class="table">
 <colgroup>
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
 </colgroup>
 <thead><tr class="header">
 <th>parameter_id</th>
@@ -426,6 +463,8 @@
 <th>subject_count_min</th>
 <th>max_share_missing</th>
 <th>generate_change_from_baseline</th>
+<th>timeseries_features_to_calculate</th>
+<th>use_only_custom_timeseries</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -438,6 +477,8 @@
 <td>50</td>
 <td></td>
 <td></td>
+<td></td>
+<td>TRUE</td>
 </tr>
 <tr class="even">
 <td>dummy_param_2</td>
@@ -449,6 +490,8 @@
 <td></td>
 <td></td>
 <td></td>
+<td>average;sd</td>
+<td>FALSE</td>
 </tr>
 </tbody>
 </table>
@@ -649,6 +692,46 @@
 </tr></tbody>
 </table>
 </div>
+<div class="section level3">
+<h3 id="custom_reference_groups">custom_reference_groups<a class="anchor" aria-label="anchor" href="#custom_reference_groups"></a>
+</h3>
+<p>For some parameters and features, it makes no sense to compare a site to all other sites globally. These include parameters whose values depend heavily on the underlying population such as height and weight. With this table, the user can define parameters and features which should be compared to other sites in the same country or the same region of the world (e.g. the average subject heights from a site in Japan should only be compared the average subject heights in other sites in Eastern Asia).</p>
+<p>If a parameter-feature combination is not listed here, the comparison is done by default to all sites globally.</p>
+<table class="table">
+<colgroup>
+<col width="25%">
+<col width="25%">
+<col width="25%">
+<col width="25%">
+</colgroup>
+<thead><tr class="header">
+<th>Column name</th>
+<th>Data type</th>
+<th>Data required</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>parameter_id</td>
+<td>chr</td>
+<td>Y</td>
+<td>Reference to a parameter in the parameters table</td>
+</tr>
+<tr class="even">
+<td>feature</td>
+<td>chr</td>
+<td>Y</td>
+<td>Time series feature</td>
+</tr>
+<tr class="odd">
+<td>ref_group</td>
+<td>chr</td>
+<td>Y</td>
+<td>Scope of comparison, accepted values “country”, “region”, “global”</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div class="section level2">
 <h2 id="output-data">Output data<a class="anchor" aria-label="anchor" href="#output-data"></a>
@@ -817,31 +900,36 @@
 <td>Site’s country.</td>
 </tr>
 <tr class="even">
+<td>region</td>
+<td>chr</td>
+<td>Region of the world the site and its country belong to.</td>
+</tr>
+<tr class="odd">
 <td>feature</td>
 <td>chr</td>
 <td>Time series feature the score is for.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>pvalue_kstest_logp</td>
 <td>float</td>
 <td>Negative logarithm of the raw p-value.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>kstest_statistic</td>
 <td>float</td>
 <td>Test statistic of the Kolmogorov-Smirnov test.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>fdr_corrected_pvalue_logp</td>
 <td>float</td>
 <td>Site score: negative logarithm of the multiple testing corrected p-value. FDR (False Discovery Rate) is used for correction.</td>
 </tr>
-<tr class="even">
-<td>reference_group</td>
-<td>chr</td>
-<td>Reference group for the site. “All” means that the site has been compared to all sites in the study.</td>
-</tr>
 <tr class="odd">
+<td>ref_group</td>
+<td>chr</td>
+<td>Reference group used for calculating the score.</td>
+</tr>
+<tr class="even">
 <td>subject_count</td>
 <td>int</td>
 <td>Number of site subjects who are eligible for the time series.</td>
@@ -873,7 +961,7 @@
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Pekka Tiikkainen <br><small class="roles"> Author, maintainer </small>  </li>
-<li>Björn Koneswarkantha <br><small class="roles"> Author </small>  </li>
+<li>Björn Koneswarakantha <br><small class="roles"> Author </small>  </li>
 <li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
@@ -891,7 +979,7 @@
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Pekka Tiikkainen, Björn Koneswarkantha.</p>
+<p>Developed by Pekka Tiikkainen, Björn Koneswarakantha.</p>
 </div>
 
 <div class="pkgdown-footer-right">
