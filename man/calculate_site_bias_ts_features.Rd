@@ -4,12 +4,14 @@
 \alias{calculate_site_bias_ts_features}
 \title{calculate_site_bias_ts_features}
 \usage{
-calculate_site_bias_ts_features(this_feature, this_data)
+calculate_site_bias_ts_features(this_feature, this_data, this_ref_group)
 }
 \arguments{
 \item{this_feature}{Type of the time series feature.}
 
 \item{this_data}{Feature values for each subject.}
+
+\item{this_ref_group}{Reference group for the sites (country, region or global).}
 }
 \value{
 Data frame with KS p-values for each site.

@@ -9,7 +9,8 @@ check_input_data(
   parameters,
   data,
   custom_timeseries,
-  timeseries_features_to_calculate,
+  custom_reference_groups,
+  default_timeseries_features_to_calculate,
   default_minimum_timepoints_per_series,
   default_minimum_subjects_per_series,
   default_max_share_missing_timepoints_per_series,
@@ -26,7 +27,9 @@ check_input_data(
 
 \item{custom_timeseries}{Pre-defined time series.}
 
-\item{timeseries_features_to_calculate}{Vector of time series features to calculate.}
+\item{custom_reference_groups}{Parameter-feature combinations for which the sites should be compared within the country or region - and not globally.}
+
+\item{default_timeseries_features_to_calculate}{Semicolon-delimited string of time series features to calculate.}
 
 \item{default_minimum_timepoints_per_series}{Default minimum timepoints per time series. This is used if no parameter-specific minimum is defined in parameters.}
 

@@ -52,62 +52,70 @@ data("tsoa_data", package = "tsoa")
 
 tsoa_data
 #> $data
-#> # A tibble: 40,474 × 7
-#>    subject_id timepoint_rank timepoint_1_name result parameter…¹ timep…² basel…³
-#>    <chr>               <int> <chr[1d]>         <dbl> <chr>       <chr>   <lgl>  
-#>  1 1                       1 AB                 6.73 param1      timepo… NA     
-#>  2 1                       2 AC                 0    param1      timepo… NA     
-#>  3 1                       3 AD                 4.06 param1      timepo… NA     
-#>  4 1                       4 AE                16.3  param1      timepo… NA     
-#>  5 1                       5 AF                27.2  param1      timepo… NA     
-#>  6 1                       6 AG                NA    param1      timepo… NA     
-#>  7 1                       7 AH                 6.66 param1      timepo… NA     
-#>  8 1                       8 AI                21.6  param1      timepo… NA     
-#>  9 1                       9 AJ                 2.85 param1      timepo… NA     
-#> 10 1                      10 AK                 0    param1      timepo… NA     
-#> # … with 40,464 more rows, and abbreviated variable names ¹​parameter_id,
-#> #   ²​timepoint_2_name, ³​baseline
+#> # A tibble: 13,774 × 7
+#>    subject_id timepoint_rank timepoint_1_name result parameter_id timepoint_2_name baseline
+#>    <chr>               <int> <chr[1d]>         <dbl> <chr>        <chr>            <lgl>   
+#>  1 1                       1 AB                 35.5 param1       timepoint name 2 NA      
+#>  2 1                       2 AC                 NA   param1       timepoint name 2 NA      
+#>  3 1                       3 AD                 29.2 param1       timepoint name 2 NA      
+#>  4 1                       4 AE                 NA   param1       timepoint name 2 NA      
+#>  5 1                       5 AF                 NA   param1       timepoint name 2 NA      
+#>  6 1                       6 AG                 31.2 param1       timepoint name 2 NA      
+#>  7 1                       7 AH                 33.7 param1       timepoint name 2 NA      
+#>  8 1                       8 AI                 27.5 param1       timepoint name 2 NA      
+#>  9 1                       9 AJ                 NA   param1       timepoint name 2 NA      
+#> 10 1                      10 AK                 32.9 param1       timepoint name 2 NA      
+#> # … with 13,764 more rows
+
 #> 
 #> $parameters
-#> # A tibble: 2 × 9
-#>   parameter_id paramet…¹ param…² param…³ param…⁴ time_…⁵ subje…⁶ max_s…⁷ gener…⁸
-#>   <chr>        <chr>     <chr>   <chr>   <chr>   <lgl>   <lgl>   <lgl>   <lgl>  
-#> 1 param1       param1    catego… catego… catego… NA      NA      NA      NA     
-#> 2 param2       param2    catego… catego… catego… NA      NA      NA      NA     
-#> # … with abbreviated variable names ¹​parameter_name, ²​parameter_category_1,
-#> #   ³​parameter_category_2, ⁴​parameter_category_3, ⁵​time_point_count_min,
-#> #   ⁶​subject_count_min, ⁷​max_share_missing, ⁸​generate_change_from_baseline
+#> # A tibble: 2 × 11
+#>   parameter_id parameter_name parameter_category_1 parameter_category_2 parameter_category_3 time_po…¹ subje…² max_s…³ gener…⁴ times…⁵ use_o…⁶
+#>   <chr>        <chr>          <chr>                <chr>                <chr>                <lgl>     <lgl>   <lgl>   <lgl>   <lgl>   <lgl>  
+#> 1 param1       param1         category 1           category 2           category 3           NA        NA      NA      NA      NA      FALSE  
+#> 2 param2       param2         category 1           category 2           category 3           NA        NA      NA      NA      NA      FALSE  
+#> # … with abbreviated variable names ¹​time_point_count_min, ²​subject_count_min, ³​max_share_missing, ⁴​generate_change_from_baseline,
+#> #   ⁵​timeseries_features_to_calculate, ⁶​use_only_custom_timeseries
 #> 
 #> $subjects
-#> # A tibble: 202 × 3
-#>    subject_id site  country
-#>    <chr>      <chr> <chr>  
-#>  1 1          mean  A      
-#>  2 2          mean  A      
-#>  3 3          mean  A      
-#>  4 4          mean  A      
-#>  5 5          mean  A      
-#>  6 6          mean  A      
-#>  7 7          mean  A      
-#>  8 8          mean  A      
-#>  9 9          mean  A      
-#> 10 10         mean  A      
-#> # … with 192 more rows
+
+#> # A tibble: 349 × 4
+#>    subject_id site  country region
+#>    <chr>      <chr> <chr>   <chr> 
+#>  1 1          AAA   AA      A     
+#>  2 2          AAB   AA      A     
+#>  3 3          AAB   AA      A     
+#>  4 4          AAB   AA      A     
+#>  5 5          AAB   AA      A     
+#>  6 6          AAC   AA      A     
+#>  7 7          AAC   AA      A     
+#>  8 8          AAC   AA      A     
+#>  9 9          AAC   AA      A     
+#> 10 10         AAC   AA      A     
+#> # … with 339 more rows
+
 #> 
 #> $custom_timeseries
 #> # A tibble: 0 × 0
+#> 
+#> $custom_reference_groups
+#> # A tibble: 0 × 0
+
 
 ls_tsoa <- process_a_study(
   data = tsoa_data$data,
   subjects = tsoa_data$subjects,
   parameters = tsoa_data$parameters,
   custom_timeseries = tsoa_data$custom_timeseries,
-  timeseries_features_to_calculate = c(
+  custom_reference_groups = tsoa_data$custom_reference_groups,
+  default_timeseries_features_to_calculate = c(
     "autocorr",
     "average",
     "own_site_simil_score",
     "sd",
-    "unique_value_count_relative"
+    "unique_value_count_relative",
+    "lof",
+    "range"
   ),
   default_minimum_timepoints_per_series = 3,
   default_minimum_subjects_per_series = 3,
@@ -123,62 +131,72 @@ ls_tsoa <- process_a_study(
 
 ls_tsoa
 #> $timeseries
-#> # A tibble: 2 × 6
-#>   timeseries_id         parameter_id baseline timepoint_combo    timep…¹ timep…²
-#>   <chr>                 <chr>        <chr>    <chr>              <chr>     <dbl>
-#> 1 ts_1_autogen_original param1       original 1;2;3;4;5;6;7;8;9… AB_tim…     126
-#> 2 ts_2_autogen_original param2       original 1;2;3;4;5;6;7;8;9… AB_tim…     126
+#> # A tibble: 10 × 6
+#>    timeseries_id          parameter_id baseline timepoint_combo                                                                timep…¹ timep…²
+#>    <chr>                  <chr>        <chr>    <chr>                                                                          <chr>     <dbl>
+#>  1 ts_1_autogen_original  param1       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24;25;26;27;28;29… AB_tim…      32
+#>  2 ts_2_autogen_original  param1       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24;25;26;27;28     AB_tim…      28
+#>  3 ts_3_autogen_original  param1       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24                 AB_tim…      24
+#>  4 ts_4_autogen_original  param1       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20                             AB_tim…      20
+#>  5 ts_5_autogen_original  param1       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14                                               AB_tim…      14
+#>  6 ts_6_autogen_original  param2       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24;25;26;27;28;29… AB_tim…      33
+#>  7 ts_7_autogen_original  param2       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24;25;26;27;28;29… AB_tim…      30
+#>  8 ts_8_autogen_original  param2       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24;25;26;27;28     AB_tim…      28
+#>  9 ts_9_autogen_original  param2       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20;21;22;23;24                 AB_tim…      24
+#> 10 ts_10_autogen_original param2       original 1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20                             AB_tim…      20
 #> # … with abbreviated variable names ¹​timepoint_combo_readable, ²​timepoint_count
 #> 
 #> $timeseries_features
-#> # A tibble: 2,019 × 6
-#>    timeseries_id         subject_id feature                featu…¹ site  country
-#>    <chr>                 <chr>      <chr>                    <dbl> <chr> <chr>  
-#>  1 ts_1_autogen_original 1          sd                      7.54   mean  A      
-#>  2 ts_1_autogen_original 1          average                 9.41   mean  A      
-#>  3 ts_1_autogen_original 1          autocorr                0.159  mean  A      
-#>  4 ts_1_autogen_original 1          unique_value_count_re…  0.895  mean  A      
-#>  5 ts_1_autogen_original 1          own_site_simil_score    0.999  mean  A      
-#>  6 ts_1_autogen_original 2          sd                      4.90   mean  A      
-#>  7 ts_1_autogen_original 2          average                12.5    mean  A      
-#>  8 ts_1_autogen_original 2          autocorr                0.0876 mean  A      
-#>  9 ts_1_autogen_original 2          unique_value_count_re…  1      mean  A      
-#> 10 ts_1_autogen_original 2          own_site_simil_score    0.995  mean  A      
-#> # … with 2,009 more rows, and abbreviated variable name ¹​feature_value
+#> # A tibble: 292 × 7
+#>    timeseries_id         subject_id feature  feature_value site  country region
+#>    <chr>                 <chr>      <chr>            <dbl> <chr> <chr>   <chr> 
+#>  1 ts_1_autogen_original 1          autocorr        0.354  AAA   AA      A     
+#>  2 ts_1_autogen_original 2          autocorr       -0.397  AAA   AA      A     
+#>  3 ts_1_autogen_original 3          autocorr        0.119  AAA   AA      A     
+#>  4 ts_1_autogen_original 4          autocorr        0.389  AAA   AA      A     
+#>  5 ts_1_autogen_original 17         autocorr        0.309  AAC   AA      A     
+#>  6 ts_1_autogen_original 19         autocorr        0.142  BAA   BA      B     
+#>  7 ts_1_autogen_original 20         autocorr        0.0376 BAA   BA      B     
+#>  8 ts_1_autogen_original 21         autocorr       -0.289  BAA   BA      B     
+#>  9 ts_1_autogen_original 25         autocorr       -0.317  BAB   BA      B     
+#> 10 ts_1_autogen_original 31         autocorr        0.0678 BAC   BA      B     
+#> # … with 282 more rows
+#> # ℹ Use `print(n = ...)` to see more rows
 #> 
 #> $PCA_coordinates
-#> # A tibble: 404 × 4
-#>    timeseries_id         subject_id   pc1   pc2
-#>    <chr>                 <chr>      <dbl> <dbl>
-#>  1 ts_1_autogen_original 1          -213. -15.6
-#>  2 ts_1_autogen_original 2          -177. -13.4
-#>  3 ts_1_autogen_original 3          -193. -36.7
-#>  4 ts_1_autogen_original 4          -225. -13.7
-#>  5 ts_1_autogen_original 5          -217. -13.6
-#>  6 ts_1_autogen_original 6          -274. -10.0
-#>  7 ts_1_autogen_original 7          -245. -18.3
-#>  8 ts_1_autogen_original 8          -244. -15.8
-#>  9 ts_1_autogen_original 9          -219. -14.5
-#> 10 ts_1_autogen_original 10         -237. -17.8
-#> # … with 394 more rows
+#> # A tibble: 292 × 4
+#>    timeseries_id         subject_id    pc1    pc2
+#>    <chr>                 <chr>       <dbl>  <dbl>
+#>  1 ts_1_autogen_original 1          -20.8    6.00
+#>  2 ts_1_autogen_original 2          -33.1    7.02
+#>  3 ts_1_autogen_original 3           21.4   -2.27
+#>  4 ts_1_autogen_original 4           31.0   -2.94
+#>  5 ts_1_autogen_original 17          32.8   -3.77
+#>  6 ts_1_autogen_original 19          -9.13   2.13
+#>  7 ts_1_autogen_original 20          16.0   -9.33
+#>  8 ts_1_autogen_original 21         -15.2    3.50
+#>  9 ts_1_autogen_original 25         -22.4  -14.6 
+#> 10 ts_1_autogen_original 31          29.8   28.6 
+#> # … with 282 more rows
+#> # ℹ Use `print(n = ...)` to see more rows
 #> 
 #> $site_scores
-#> # A tibble: 250 × 9
-#>    timeseries_id   site  country feature pvalu…¹ kstes…² fdr_c…³ refer…⁴ subje…⁵
-#>    <chr>           <chr> <chr>   <chr>     <dbl>   <dbl>   <dbl> <chr>     <int>
-#>  1 ts_1_autogen_o… mean  A       sd       0.375    0.257 6.73e-2 all          11
-#>  2 ts_1_autogen_o… sd    D       sd       7.50     0.886 6.01e+0 all           9
-#>  3 ts_1_autogen_o… cons… A       sd       0.502    0.295 9.05e-2 all          10
-#>  4 ts_1_autogen_o… cons… B       sd       7.38     0.985 5.93e+0 all           5
-#>  5 ts_1_autogen_o… roun… E       sd       0.189    0.224 3.13e-2 all          10
-#>  6 ts_1_autogen_o… zick… C       sd       2.38     0.631 1.36e+0 all           7
-#>  7 ts_1_autogen_o… zick… B       sd       4.97     0.707 3.75e+0 all          11
-#>  8 ts_1_autogen_o… 8     C       sd       0.0493   0.181 5.49e-4 all           9
-#>  9 ts_1_autogen_o… 9     C       sd       0.247    0.240 3.50e-2 all          10
-#> 10 ts_1_autogen_o… 10    A       sd       0.874    0.397 2.83e-1 all           8
-#> # … with 240 more rows, and abbreviated variable names ¹​pvalue_kstest_logp,
-#> #   ²​kstest_statistic, ³​fdr_corrected_pvalue_logp, ⁴​reference_group,
-#> #   ⁵​subject_count
+#> # A tibble: 83 × 10
+#>    timeseries_id         site  country region feature  pvalue_kstest_logp kstest_statistic fdr_corrected_pvalue_logp ref_group subject_count
+#>    <chr>                 <chr> <chr>   <chr>  <chr>                 <dbl>            <dbl>                     <dbl> <chr>             <int>
+#>  1 ts_1_autogen_original AAA   AA      A      autocorr            0.393              0.5                           0 global                4
+#>  2 ts_1_autogen_original AAC   AA      A      autocorr            0.426              0.867                         0 global                1
+#>  3 ts_1_autogen_original BAA   BA      B      autocorr            0.135              0.385                         0 global                3
+#>  4 ts_1_autogen_original BAB   BA      B      autocorr            0.602              0.933                         0 global                1
+#>  5 ts_1_autogen_original BAC   BA      B      autocorr            0.0580             0.6                           0 global                1
+#>  6 ts_1_autogen_original CAA   CA      C      autocorr            0.00383            0.25                          0 global                4
+#>  7 ts_1_autogen_original CAC   CA      C      autocorr            0.155              0.5                           0 global                2
+#>  8 ts_2_autogen_original AAA   AA      A      autocorr            0.338              0.389                         0 global                6
+#>  9 ts_2_autogen_original AAB   AA      A      autocorr            0.115              0.455                         0 global                2
+#> 10 ts_2_autogen_original AAC   AA      A      autocorr            0.301              0.783                         0 global                1
+#> # … with 73 more rows
+#> # ℹ Use `print(n = ...)` to see more rows
+
 ```
 
 ## Input parameters
@@ -190,10 +208,10 @@ variables.
 The following gives more details on each parameter. Examples are also
 provided where needed.
 
-### timeseries_features_to_calculate
+### default_timeseries_features_to_calculate
 
-Vector of features to calculate for each time series. The vector must
-contain at least one of the following feature codes:
+Vector of features to calculate for each time series by default. 
+The vector must contain at least one of the following feature codes:
 
 | Feature code                | Description                                                      |
 |------------------------------------|------------------------------------|
@@ -240,8 +258,9 @@ Data frame columns:
 
 | Column name | Data type | Data required | Description                            |
 |-------------|-----------|---------------|----------------------------------------|
-| subject_id  | chr       | Y             | Unique identifier for each subject     |
+| subject_id  | chr       | Y             | Unique identifier for each subject.     |
 | country     | chr       | Y             | Country where the subject is enrolled. |
+| region      | chr       | Y             | Region of the world the site belongs to.|
 | site        | chr       | Y             | Name of the study site.                |
 
 ### parameters
@@ -263,6 +282,8 @@ Data frame columns:
 | subject_count_min             | int       |               | Minimum number of eligible subjects required for auto-generated time series. If not provided, global default value is used.                       |
 | max_share_missing             | float     |               | Maximum number of missing data points an eligible subject can have for auto-generated time series. If not provided, global default value is used. |
 | generate_change_from_baseline | boolean   |               | Whether to also generate baseline-adjusted time series for the parameter. If not provided, global default value is used.                          |
+| timeseries_features_to_calculate | chr   |               | Comma-delimited string of features to calculate for this parameter. Overrides the features listed in default_timeseries_features_to_calculate.     |
+| use_only_custom_timeseries | boolean   |  Y             | If set to TRUE, only use the custom timeseries defined in custom_timeseries - even if autogenerate_timeseries is set to TRUE.     |
 
 Example for two parameters, one vital sign and one local lab. For any
 time series generated for the vital sign, at least 50 eligible subjects
@@ -270,10 +291,10 @@ are required. For the local lab, time series with one time point only
 are acceptable. These parameter-specific properties override the
 corresponding global parameters (see above).
 
-| parameter_id  | parameter_category_1 | parameter_category_2 | parameter_category_3 | parameter_name | time_point_count_min | subject_count_min | max_share_missing | generate_change_from_baseline |
-|--------|--------|--------|--------|--------|--------|--------|--------|--------|
-| dummy_param_1 | VS                   | NA                   | NA                   | DIABP          |                      | 50                |                   |                               |
-| dummy_param_2 | LB                   | General chemistry    | Local lab            | Glucose        | 1                    |                   |                   |                               |
+| parameter_id  | parameter_category_1 | parameter_category_2 | parameter_category_3 | parameter_name | time_point_count_min | subject_count_min | max_share_missing | generate_change_from_baseline | timeseries_features_to_calculate | use_only_custom_timeseries |
+|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|
+| dummy_param_1 | VS                   | NA                   | NA                   | DIABP          |                      | 50                |                   |                               |                                  | TRUE |
+| dummy_param_2 | LB                   | General chemistry    | Local lab            | Glucose        | 1                    |                   |                   |                               | average;sd                       | FALSE |
 
 ### data
 
@@ -332,6 +353,24 @@ dummy_param_1. Timepoints are defined with their respective ranks in the
 | timeseries_id | parameter_id  | timepoint_combo |
 |---------------|---------------|-----------------|
 | custom_ts_1   | dummy_param_1 | 1;2;3;4         |
+
+### custom_reference_groups
+
+For some parameters and features, it makes no sense to compare a site to all other sites globally.
+These include parameters whose values depend heavily on the underlying population
+such as height and weight. With this table, the user can define parameters and
+features which should be compared to other sites in the same country or the same region of the world
+(e.g. the average subject heights from a site in Japan should only be compared the average subject
+heights in other sites in Eastern Asia).
+
+If a parameter-feature combination is not listed here, the comparison is done by default
+to all sites globally.
+
+| Column name     | Data type | Data required | Description                                                                                                                                          |
+|------------------|------------------|------------------|------------------|
+| parameter_id | chr | Y | Reference to a parameter in the parameters table |
+| feature | chr | Y | Time series feature |
+| ref_group | chr | Y | Scope of comparison, accepted values "country", "region", "global" |
 
 ## Output data
 
@@ -393,9 +432,10 @@ Data frame columns:
 | timeseries_id             | chr       | Unique identifier of the time series. Points to the timeseries table.                                                        |
 | site                      | chr       | Study site for which the score has been calculated.                                                                          |
 | country                   | chr       | Site’s country.                                                                                                              |
+| region                   | chr       | Region of the world the site and its country belong to.                                                                                                              |
 | feature                   | chr       | Time series feature the score is for.                                                                                        |
 | pvalue_kstest_logp        | float     | Negative logarithm of the raw p-value.                                                                                       |
 | kstest_statistic          | float     | Test statistic of the Kolmogorov-Smirnov test.                                                                               |
 | fdr_corrected_pvalue_logp | float     | Site score: negative logarithm of the multiple testing corrected p-value. FDR (False Discovery Rate) is used for correction. |
-| reference_group           | chr       | Reference group for the site. “All” means that the site has been compared to all sites in the study.                         |
+| ref_group           | chr       | Reference group used for calculating the score.                        |
 | subject_count             | int       | Number of site subjects who are eligible for the time series.                                                                |

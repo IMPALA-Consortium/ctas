@@ -11,7 +11,8 @@
 #' @param parameters Data frame with one row per study parameter (e.g. labs and vital signs) to process.
 #' @param data Measurements of study parameters. One row per data point.
 #' @param custom_timeseries Pre-defined time series.
-#' @param timeseries_features_to_calculate Vector of time series features to calculate.
+#' @param custom_reference_groups Parameter-feature combinations for which the sites should be compared within the country or region - and not globally.
+#' @param default_timeseries_features_to_calculate Semicolon-delimited string of time series features to calculate.
 #' @param default_minimum_timepoints_per_series Default minimum timepoints per time series. This is used if no parameter-specific minimum is defined in parameters.
 #' @param default_minimum_subjects_per_series Default minimum of subjects per time series. This is used if no parameter-specific minimum is defined in parameters.
 #' @param default_max_share_missing_timepoints_per_series Maximum share of time points which can be missing per subject. This is used if no parameter-specific minimum is defined in parameters.
@@ -23,7 +24,7 @@
 #' @export
 #'
 #' @author Pekka Tiikkainen, \email{pekka.tiikkainen@@bayer.com}
-process_a_study <- function(subjects, parameters, data, custom_timeseries, timeseries_features_to_calculate,
+process_a_study <- function(subjects, parameters, data, custom_timeseries, custom_reference_groups, default_timeseries_features_to_calculate,
                             default_minimum_timepoints_per_series, default_minimum_subjects_per_series,
                             default_max_share_missing_timepoints_per_series, default_generate_change_from_baseline,
                             autogenerate_timeseries, optimize_sites_and_patients = FALSE) {
@@ -32,7 +33,7 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, times
   options(dplyr.summarise.inform = FALSE)
 
   # Makes sure all the necessary input is there and that the data is in correct format etc.
-  check_input_data(subjects, parameters, data, custom_timeseries, timeseries_features_to_calculate,
+  check_input_data(subjects, parameters, data, custom_timeseries, custom_reference_groups, default_timeseries_features_to_calculate,
                    default_minimum_timepoints_per_series, default_minimum_subjects_per_series,
                    default_max_share_missing_timepoints_per_series, default_generate_change_from_baseline,
                    autogenerate_timeseries)
@@ -42,7 +43,8 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, times
     mutate(time_point_count_min = ifelse(is.na(.data$time_point_count_min), .env$default_minimum_timepoints_per_series, .data$time_point_count_min),
            subject_count_min = ifelse(is.na(.data$subject_count_min), .env$default_minimum_subjects_per_series, .data$subject_count_min),
            max_share_missing = ifelse(is.na(.data$max_share_missing), .env$default_max_share_missing_timepoints_per_series, .data$max_share_missing),
-           generate_change_from_baseline = ifelse(is.na(.data$generate_change_from_baseline), .env$default_generate_change_from_baseline, .data$generate_change_from_baseline)
+           generate_change_from_baseline = ifelse(is.na(.data$generate_change_from_baseline), .env$default_generate_change_from_baseline, .data$generate_change_from_baseline),
+           timeseries_features_to_calculate = ifelse(is.na(.data$timeseries_features_to_calculate), .env$default_timeseries_features_to_calculate, .data$timeseries_features_to_calculate)
     )
 
   # This mapping table is used later for mapping parameter-specific time ranks into human-friendly names.
@@ -63,7 +65,8 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, times
     timeseries_per_param <- timepoints_and_subjects %>%
       group_by(.data$parameter_id) %>%
       nest() %>%
-      left_join(y=select(parameters, c("parameter_id", "time_point_count_min", "subject_count_min", "max_share_missing", "generate_change_from_baseline")), by="parameter_id") %>%
+      left_join(y=select(parameters, c("parameter_id", "time_point_count_min", "subject_count_min", "max_share_missing", "generate_change_from_baseline", "use_only_custom_timeseries")), by="parameter_id") %>%
+      filter(!use_only_custom_timeseries) %>% # Exclude parameters for which only custom timeseries should be used
       rename(c(dataset = "data")) %>%
       mutate(baseline = ifelse(.data$generate_change_from_baseline == TRUE, list(c("original", "cfb")), "original")) %>%
       unnest("baseline") %>%
@@ -94,7 +97,8 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, times
       rowwise() %>%
       mutate(baseline = ifelse(.data$generate_change_from_baseline == TRUE, list(c("original", "cfb")), "original")) %>%
       unnest("baseline") %>%
-      mutate(timepoint_combo_subjects = pick_subjects_for_custom_timeseries(.data$timepoints_and_subjects, .data$timepoint_combo, .data$max_share_missing, .data$parameter_id, .data$baseline)) %>%
+      rowwise() %>%
+      mutate(timepoint_combo_subjects = pick_subjects_for_custom_timeseries(.env$timepoints_and_subjects, .data$timepoint_combo, .data$max_share_missing, .data$parameter_id, .data$baseline)) %>%
       filter(str_count(.data$timepoint_combo_subjects, ";") + 1 >= .data$subject_count_min) %>% # Only pass time series with enough subjects.
       mutate(timeseries_id = paste0(.data$timeseries_id, '_', .data$baseline)) %>%
       select(-c("subject_count_min", "generate_change_from_baseline", "max_share_missing"))
@@ -124,16 +128,17 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, times
 
   # Count the number of time points in each time series
   timeseries_per_param$timepoint_count <- str_count(timeseries_per_param$timepoint_combo, ";") + 1
-
-
+  
+  
   # Calculate time series features and the principal components used in similarity plots.
   results <- timeseries_per_param %>%
+    left_join(y=select(parameters, parameter_id, timeseries_features_to_calculate), by="parameter_id") %>%
     filter(.data$baseline == "original" | .data$timepoint_count > 1) %>% # The latter condition requires that change-from-baseline series must have more than one time point.
     rowwise() %>%
     mutate(timeseries_wide = list(generate_wide_timeseries_table(.data$parameter_id, .data$timepoint_combo, .data$timepoint_combo_subjects, .data$baseline, .env$data))) %>%
     filter(nrow(.data$timeseries_wide) > 0) %>%
     mutate(principal_components = list(calculate_principal_components(.data$timeseries_wide))) %>%
-    mutate(ts_features = list(calculate_ts_features(.data$timeseries_wide, .data$baseline, .env$timeseries_features_to_calculate, .env$subjects))) %>%
+    mutate(ts_features = list(calculate_ts_features(.data$timeseries_wide, .data$baseline, .data$timeseries_features_to_calculate, .env$subjects))) %>%
     ungroup()
 
   # Parse the timepoint combination string into a more readable format.
@@ -169,7 +174,9 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, times
     unnest("ts_features") %>%
     inner_join(y=subjects, by="subject_id") %>%
     left_join(y=select(parameters, c("parameter_id", "subject_count_min")), by="parameter_id") %>% # Look up minimum subjects expected per parameter.
-    group_by(.data$timeseries_id, .data$feature) %>%
+    left_join(y=custom_reference_groups, by=c("parameter_id", "feature")) %>% # Look up any site reference groups.
+    mutate(ref_group = ifelse(is.na(ref_group), "global", ref_group)) %>%
+    group_by(.data$timeseries_id, .data$feature, .data$ref_group) %>%
     filter( n_distinct(.data$site) >= 2 & n() >= .data$subject_count_min) %>%
     nest()
 
@@ -180,25 +187,24 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, times
 
     tso_site_scores <- tso_site_scores %>%
       rowwise() %>%
-      mutate(site_p_values = list(calculate_site_bias_ts_features(.data$feature, .data$data))) %>%
+      mutate(site_p_values = list(calculate_site_bias_ts_features(.data$feature, .data$data, .data$ref_group))) %>%
       select(-data) %>%
       unnest("site_p_values") %>%
       mutate(pvalue_kstest = as.numeric(.data$pvalue_kstest), kstest_statistic = as.numeric(.data$kstest_statistic)) %>%
       ungroup() %>%
-      mutate(fdr_adjusted_pvalue_ks = p.adjust(.data$pvalue_kstest, method = "fdr"),
-             reference_group = "all") %>% # Correct for multiple testing
+      mutate(fdr_adjusted_pvalue_ks = p.adjust(.data$pvalue_kstest, method = "fdr")) %>% # Correct for multiple testing
       mutate(pvalue_kstest_logp = -log10(.data$pvalue_kstest), fdr_corrected_pvalue_logp = -log10(.data$fdr_adjusted_pvalue_ks)) %>%
       mutate(pvalue_kstest_logp = if_else( is.infinite(.data$pvalue_kstest_logp), 30, .data$pvalue_kstest_logp),
              fdr_corrected_pvalue_logp = if_else( is.infinite(.data$fdr_corrected_pvalue_logp), 30, .data$fdr_corrected_pvalue_logp)) %>%
-      select(c("timeseries_id", "site", "country", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "reference_group", "subj_count")) %>%
+      select(c("timeseries_id", "site", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subj_count")) %>%
       rename(c(subject_count = "subj_count"))
 
   } else {
 
     # Otherwise create an empty data frame.
 
-    tso_site_scores <- data.frame(matrix(ncol = 9, nrow = 0))
-    colnames(tso_site_scores) <- c("timeseries_id", "site", "country", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "reference_group", "subject_count")
+    tso_site_scores <- data.frame(matrix(ncol = 10, nrow = 0))
+    colnames(tso_site_scores) <- c("timeseries_id", "site", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subject_count")
 
   }
 
@@ -216,10 +222,11 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, times
 #'
 #' @param this_feature Type of the time series feature.
 #' @param this_data Feature values for each subject.
+#' @param this_ref_group Reference group for the sites (country, region or global).
 #' @return Data frame with KS p-values for each site.
 #'
 #' @author Pekka Tiikkainen, \email{pekka.tiikkainen@@bayer.com}
-calculate_site_bias_ts_features <- function(this_feature, this_data) {
+calculate_site_bias_ts_features <- function(this_feature, this_data, this_ref_group) {
 
   # Add a tiny random number to each value to avoid problems ks.test has with ties.
   this_data$value <- this_data$value + rnorm(nrow(this_data), mean = 0, sd = 0.00001)
@@ -229,26 +236,49 @@ calculate_site_bias_ts_features <- function(this_feature, this_data) {
   # Define the hypothesis (i.e. whether we are looking at one-sided or two-sided bias).
   nullhypo_ks <- case_when(
     this_feature == "own_site_simil_score" ~ "less",
-    this_feature == "outlier_score" ~ "less",
     this_feature == "unique_value_count_relative" ~ "greater",
     TRUE ~ "two.sided"
   )
 
   site_metadata <- this_data %>%
     group_by(.data$site) %>%
-    summarise(country = first(.data$country), subj_count = n_distinct(.data$subject_id))
-
+    summarise(region = first(.data$region), country = first(.data$country), subj_count = n_distinct(.data$subject_id))
+  
   # Put site name and value columns into vectors. This makes the for loop much faster.
   unique_sites <- unique(this_data$site)
+  
   sites <- this_data$site
+  countries <- this_data$country
+  regions <- this_data$region
   values <- this_data$value
 
   for(this_site in unique_sites) {
 
     this_site_value_indices <- which(sites == this_site)
+    
+    if(this_ref_group == "country") {
+      
+      this_country <- filter(site_metadata, site==this_site)$country
+      
+      reference_site_value_indices <- setdiff( which(countries == this_country), this_site_value_indices)
+      
+      
+    } else if (this_ref_group == "region") {
+      
+      this_region <- filter(site_metadata, site==this_site)$region
+      
+      reference_site_value_indices <- setdiff( which(regions == this_region), this_site_value_indices)
+      
+    } else if (this_ref_group == "global") {
+      
+      reference_site_value_indices <- which(sites != this_site)
+      
+    }
+    
+    if (length(reference_site_value_indices) == 0) next
 
     within_set_values <- values[this_site_value_indices]
-    outside_set_values <- values[-this_site_value_indices]
+    outside_set_values <- values[reference_site_value_indices]
 
     ks_results <- ks.test(x = within_set_values, y = outside_set_values, alternative = nullhypo_ks)
 
@@ -466,7 +496,7 @@ auroc <- function(score, bool) {
 #'
 #' @param this_timeseries_wide Time series data in wide format.
 #' @param this_baseline Whether the data in this_timeseries_wide are original or baseline-adjusted measurements.
-#' @param this_timeseries_features_to_calculate Vector of time series features to return.
+#' @param this_timeseries_features_to_calculate Semicolon-delimited list of time series features to return.
 #' @inheritParams process_a_study
 #' @return Data frame with time series features.
 #'
@@ -478,6 +508,8 @@ calculate_ts_features <- function(this_timeseries_wide, this_baseline, this_time
   this_timeseries_wide$subject_id <- NULL
   timepoint_col_names <- colnames(this_timeseries_wide)
 
+  this_timeseries_features_to_calculate <- str_split(this_timeseries_features_to_calculate, ';')[[1]]
+ 
   # Calculate the subject distance object if either own site simil score or local outlier factor lof features are requested.
   if('own_site_simil_score' %in% this_timeseries_features_to_calculate |
      'lof' %in% this_timeseries_features_to_calculate) {
@@ -883,21 +915,25 @@ get_max_sites_and_subjects <- function(timepoint_ranks,
 #' @return no data returned
 #'
 #' @author Pekka Tiikkainen, \email{pekka.tiikkainen@@bayer.com}
-check_input_data <- function(subjects, parameters, data, custom_timeseries, timeseries_features_to_calculate,
+check_input_data <- function(subjects, parameters, data, custom_timeseries, custom_reference_groups, default_timeseries_features_to_calculate,
                              default_minimum_timepoints_per_series, default_minimum_subjects_per_series,
                              default_max_share_missing_timepoints_per_series, default_generate_change_from_baseline,
                              autogenerate_timeseries) {
 
-  df_subjects_colnames_expected <- c("country", "subject_id", "site")
+  df_subjects_colnames_expected <- c("country", "subject_id", "site", "region")
 
   df_parameters_colnames_expected <- c("parameter_id", "parameter_category_1", "parameter_category_2",
                                        "parameter_category_3", "parameter_name", "time_point_count_min", "subject_count_min", "max_share_missing",
-                                       "generate_change_from_baseline")
+                                       "generate_change_from_baseline", "timeseries_features_to_calculate", "use_only_custom_timeseries")
 
   df_data_colnames_expected <- c("subject_id", "parameter_id", "timepoint_1_name", "timepoint_2_name", "timepoint_rank", "result", "baseline")
 
-  df_custom_timeseries_colnamed_expected <- c("timeseries_id", "parameter_id", "timepoint_combo")
+  df_custom_reference_colnames_expected <- c("parameter_id", "feature", "ref_group")
+  
+  df_custom_timeseries_colnames_expected <- c("timeseries_id", "parameter_id", "timepoint_combo")
 
+  
+  
   allowed_timeseries_features <- c('autocorr', 'average', 'own_site_simil_score', 'sd', 'unique_value_count_relative', 'range', 'lof')
 
 
@@ -928,7 +964,9 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, time
   stopifnot("Column 'subject_count_min' in 'parameters' must be numeric!" = is.numeric(parameters$subject_count_min) | is.logical(parameters$subject_count_min))
   stopifnot("Column 'max_share_missing' in 'parameters' must be numeric!" = is.numeric(parameters$max_share_missing) | is.logical(parameters$max_share_missing))
   stopifnot("Column 'generate_change_from_baseline' in 'parameters' must be logical!" = is.logical(parameters$generate_change_from_baseline))
+  stopifnot("Column 'use_only_custom_timeseries' in 'parameters' must be logical!" = is.logical(parameters$use_only_custom_timeseries))
 
+  
   # Data frame 'Data'
   stopifnot("Column 'subject_id' in 'data' must be a character!" = is.character(data$subject_id))
   stopifnot("Column 'parameter_id' in 'data' must be a character!" = is.character(data$parameter_id))
@@ -938,9 +976,15 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, time
   stopifnot("Column 'result' in 'data' must be numeric!" = is.numeric(data$result))
   stopifnot("Column 'baseline' in 'data' must be numeric!" = is.numeric(data$baseline) | is.logical(data$baseline))
 
+  if(nrow(custom_reference_groups) > 0) {
+    
+    stopifnot("The argument df 'custom_reference_groups' does not have all the expected columns!" = setequal(colnames(custom_reference_groups), df_custom_reference_colnames_expected))
+    
+  }
+  
   if(nrow(custom_timeseries) > 0) {
 
-    stopifnot("The argument df 'custom_timeseries' does not have all the expected columns!" = setequal(colnames(custom_timeseries), df_custom_timeseries_colnamed_expected))
+    stopifnot("The argument df 'custom_timeseries' does not have all the expected columns!" = setequal(colnames(custom_timeseries), df_custom_timeseries_colnames_expected))
 
     # Data frame 'custom_timeseries'
     stopifnot("Column 'timeseries_id' in 'custom_timeseries' must be a character!" = is.character(custom_timeseries$timeseries_id))
@@ -951,7 +995,8 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, time
 
 
   # Make sure that all feature names to calculate are correct.
-  stopifnot("The argument 'timeseries_features_to_calculate' contains illegal values!" = all(timeseries_features_to_calculate %in% allowed_timeseries_features))
+  default_timeseries_features_to_calculate <- str_split(default_timeseries_features_to_calculate, ';')[[1]]
+  stopifnot("The argument 'timeseries_features_to_calculate' contains illegal values!" = all(default_timeseries_features_to_calculate %in% allowed_timeseries_features))
 
   # Make sure scalar arguments have correct data types.
   stopifnot("Argument default_minimum_timepoints_per_series is not numeric!" = is.numeric(default_minimum_timepoints_per_series))
