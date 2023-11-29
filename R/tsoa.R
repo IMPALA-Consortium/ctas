@@ -66,7 +66,7 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
       group_by(.data$parameter_id) %>%
       nest() %>%
       left_join(y=select(parameters, c("parameter_id", "time_point_count_min", "subject_count_min", "max_share_missing", "generate_change_from_baseline", "use_only_custom_timeseries")), by="parameter_id") %>%
-      filter(!use_only_custom_timeseries) %>% # Exclude parameters for which only custom timeseries should be used
+      filter(! .data$use_only_custom_timeseries) %>% # Exclude parameters for which only custom timeseries should be used
       rename(c(dataset = "data")) %>%
       mutate(baseline = ifelse(.data$generate_change_from_baseline == TRUE, list(c("original", "cfb")), "original")) %>%
       unnest("baseline") %>%
@@ -128,11 +128,11 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
 
   # Count the number of time points in each time series
   timeseries_per_param$timepoint_count <- str_count(timeseries_per_param$timepoint_combo, ";") + 1
-  
-  
+
+
   # Calculate time series features and the principal components used in similarity plots.
   results <- timeseries_per_param %>%
-    left_join(y=select(parameters, parameter_id, timeseries_features_to_calculate), by="parameter_id") %>%
+    left_join(y=select(parameters, c("parameter_id", "timeseries_features_to_calculate")), by="parameter_id") %>%
     filter(.data$baseline == "original" | .data$timepoint_count > 1) %>% # The latter condition requires that change-from-baseline series must have more than one time point.
     rowwise() %>%
     mutate(timeseries_wide = list(generate_wide_timeseries_table(.data$parameter_id, .data$timepoint_combo, .data$timepoint_combo_subjects, .data$baseline, .env$data))) %>%
@@ -175,7 +175,7 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
     inner_join(y=subjects, by="subject_id") %>%
     left_join(y=select(parameters, c("parameter_id", "subject_count_min")), by="parameter_id") %>% # Look up minimum subjects expected per parameter.
     left_join(y=custom_reference_groups, by=c("parameter_id", "feature")) %>% # Look up any site reference groups.
-    mutate(ref_group = ifelse(is.na(ref_group), "global", ref_group)) %>%
+    mutate(ref_group = ifelse(is.na(.data$ref_group), "global", .data$ref_group)) %>%
     group_by(.data$timeseries_id, .data$feature, .data$ref_group) %>%
     filter( n_distinct(.data$site) >= 2 & n() >= .data$subject_count_min) %>%
     nest()
@@ -243,10 +243,10 @@ calculate_site_bias_ts_features <- function(this_feature, this_data, this_ref_gr
   site_metadata <- this_data %>%
     group_by(.data$site) %>%
     summarise(region = first(.data$region), country = first(.data$country), subj_count = n_distinct(.data$subject_id))
-  
+
   # Put site name and value columns into vectors. This makes the for loop much faster.
   unique_sites <- unique(this_data$site)
-  
+
   sites <- this_data$site
   countries <- this_data$country
   regions <- this_data$region
@@ -255,26 +255,26 @@ calculate_site_bias_ts_features <- function(this_feature, this_data, this_ref_gr
   for(this_site in unique_sites) {
 
     this_site_value_indices <- which(sites == this_site)
-    
+
     if(this_ref_group == "country") {
-      
-      this_country <- filter(site_metadata, site==this_site)$country
-      
+
+      this_country <- filter(site_metadata, .data$site==this_site)$country
+
       reference_site_value_indices <- setdiff( which(countries == this_country), this_site_value_indices)
-      
-      
+
+
     } else if (this_ref_group == "region") {
-      
-      this_region <- filter(site_metadata, site==this_site)$region
-      
+
+      this_region <- filter(site_metadata, .data$site==this_site)$region
+
       reference_site_value_indices <- setdiff( which(regions == this_region), this_site_value_indices)
-      
+
     } else if (this_ref_group == "global") {
-      
+
       reference_site_value_indices <- which(sites != this_site)
-      
+
     }
-    
+
     if (length(reference_site_value_indices) == 0) next
 
     within_set_values <- values[this_site_value_indices]
@@ -509,7 +509,7 @@ calculate_ts_features <- function(this_timeseries_wide, this_baseline, this_time
   timepoint_col_names <- colnames(this_timeseries_wide)
 
   this_timeseries_features_to_calculate <- str_split(this_timeseries_features_to_calculate, ';')[[1]]
- 
+
   # Calculate the subject distance object if either own site simil score or local outlier factor lof features are requested.
   if('own_site_simil_score' %in% this_timeseries_features_to_calculate |
      'lof' %in% this_timeseries_features_to_calculate) {
@@ -929,11 +929,11 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
   df_data_colnames_expected <- c("subject_id", "parameter_id", "timepoint_1_name", "timepoint_2_name", "timepoint_rank", "result", "baseline")
 
   df_custom_reference_colnames_expected <- c("parameter_id", "feature", "ref_group")
-  
+
   df_custom_timeseries_colnames_expected <- c("timeseries_id", "parameter_id", "timepoint_combo")
 
-  
-  
+
+
   allowed_timeseries_features <- c('autocorr', 'average', 'own_site_simil_score', 'sd', 'unique_value_count_relative', 'range', 'lof')
 
 
@@ -966,7 +966,7 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
   stopifnot("Column 'generate_change_from_baseline' in 'parameters' must be logical!" = is.logical(parameters$generate_change_from_baseline))
   stopifnot("Column 'use_only_custom_timeseries' in 'parameters' must be logical!" = is.logical(parameters$use_only_custom_timeseries))
 
-  
+
   # Data frame 'Data'
   stopifnot("Column 'subject_id' in 'data' must be a character!" = is.character(data$subject_id))
   stopifnot("Column 'parameter_id' in 'data' must be a character!" = is.character(data$parameter_id))
@@ -977,11 +977,11 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
   stopifnot("Column 'baseline' in 'data' must be numeric!" = is.numeric(data$baseline) | is.logical(data$baseline))
 
   if(nrow(custom_reference_groups) > 0) {
-    
+
     stopifnot("The argument df 'custom_reference_groups' does not have all the expected columns!" = setequal(colnames(custom_reference_groups), df_custom_reference_colnames_expected))
-    
+
   }
-  
+
   if(nrow(custom_timeseries) > 0) {
 
     stopifnot("The argument df 'custom_timeseries' does not have all the expected columns!" = setequal(colnames(custom_timeseries), df_custom_timeseries_colnames_expected))
