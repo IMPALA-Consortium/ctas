@@ -92,19 +92,22 @@ test_that("process_a_study - optimize_sites_and_patients, backwards compatibilit
 
   # if optimize_sites_and_patients an additional timeseries will be created
   # that includes the maximum number of sites and patients thus keeping site AAA
-  ls_tsoa_opt <- process_a_study(
-    data = tsoa_data$data,
-    subjects = tsoa_data$subjects,
-    parameters = tsoa_data$parameters,
-    custom_timeseries = tsoa_data$custom_timeseries,
-    custom_reference_groups = tsoa_data$custom_reference_groups,
-    default_timeseries_features_to_calculate = feats_collapse,
-    default_minimum_timepoints_per_series = 3,
-    default_minimum_subjects_per_series = 3,
-    default_max_share_missing_timepoints_per_series = 0.5,
-    default_generate_change_from_baseline = FALSE,
-    autogenerate_timeseries = TRUE,
-    optimize_sites_and_patients = TRUE
+  expect_warning(
+      ls_tsoa_opt <- process_a_study(
+      data = tsoa_data$data,
+      subjects = tsoa_data$subjects,
+      parameters = tsoa_data$parameters,
+      custom_timeseries = tsoa_data$custom_timeseries,
+      custom_reference_groups = tsoa_data$custom_reference_groups,
+      default_timeseries_features_to_calculate = feats_collapse,
+      default_minimum_timepoints_per_series = 3,
+      default_minimum_subjects_per_series = 3,
+      default_max_share_missing_timepoints_per_series = 0.5,
+      default_generate_change_from_baseline = FALSE,
+      autogenerate_timeseries = TRUE,
+      optimize_sites_and_patients = TRUE
+    ),
+    regexp = "NA in dist object returning NA for lof"
   )
 
   expect_true(! "AAA" %in% ls_tsoa_default$site_scores$site)

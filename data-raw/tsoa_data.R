@@ -5,6 +5,8 @@ library(tibble)
 library(purrr)
 library(tidyr)
 
+set.seed(1)
+
 timepoint_names <- combn(LETTERS, 2, FUN = paste, collapse = "")
 
 region_count <- 3
