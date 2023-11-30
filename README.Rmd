@@ -60,7 +60,9 @@ feats <- c(
     "average",
     "own_site_simil_score",
     "sd",
-    "unique_value_count_relative"
+    "unique_value_count_relative",
+    "lof",
+    "range"
   ) %>%
   paste(collapse = ";")
 

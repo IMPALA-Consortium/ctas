@@ -110,7 +110,9 @@ feats <- c(
     "average",
     "own_site_simil_score",
     "sd",
-    "unique_value_count_relative"
+    "unique_value_count_relative",
+    "lof",
+    "range"
   ) %>%
   paste(collapse = ";")
 
@@ -144,20 +146,20 @@ ls_tsoa
 #> # … with abbreviated variable names ¹​timepoint_combo_readable, ²​timepoint_count
 #> 
 #> $timeseries_features
-#> # A tibble: 4,062 × 7
+#> # A tibble: 5,706 × 7
 #>    timeseries_id         subject_id feature        featur…¹ site  country region
 #>    <chr>                 <chr>      <chr>             <dbl> <chr> <chr>   <chr> 
-#>  1 ts_1_autogen_original 1          sd              1.66    AAA   AA      A     
-#>  2 ts_1_autogen_original 1          unique_value_…  1       AAA   AA      A     
-#>  3 ts_1_autogen_original 1          autocorr       -0.393   AAA   AA      A     
-#>  4 ts_1_autogen_original 1          average        33.9     AAA   AA      A     
-#>  5 ts_1_autogen_original 11         sd              1.90    AAC   AA      A     
-#>  6 ts_1_autogen_original 11         unique_value_…  1       AAC   AA      A     
-#>  7 ts_1_autogen_original 11         autocorr       -0.00259 AAC   AA      A     
-#>  8 ts_1_autogen_original 11         average        28.0     AAC   AA      A     
-#>  9 ts_1_autogen_original 15         sd              2.22    AAD   AA      A     
-#> 10 ts_1_autogen_original 15         unique_value_…  1       AAD   AA      A     
-#> # … with 4,052 more rows, and abbreviated variable name ¹​feature_value
+#>  1 ts_1_autogen_original 1          range           6.44    AAA   AA      A     
+#>  2 ts_1_autogen_original 1          sd              1.66    AAA   AA      A     
+#>  3 ts_1_autogen_original 1          unique_value_…  1       AAA   AA      A     
+#>  4 ts_1_autogen_original 1          autocorr       -0.393   AAA   AA      A     
+#>  5 ts_1_autogen_original 1          average        33.9     AAA   AA      A     
+#>  6 ts_1_autogen_original 1          lof             0.996   AAA   AA      A     
+#>  7 ts_1_autogen_original 11         range           6.84    AAC   AA      A     
+#>  8 ts_1_autogen_original 11         sd              1.90    AAC   AA      A     
+#>  9 ts_1_autogen_original 11         unique_value_…  1       AAC   AA      A     
+#> 10 ts_1_autogen_original 11         autocorr       -0.00259 AAC   AA      A     
+#> # … with 5,696 more rows, and abbreviated variable name ¹​feature_value
 #> 
 #> $PCA_coordinates
 #> # A tibble: 822 × 4
@@ -176,20 +178,20 @@ ls_tsoa
 #> # … with 812 more rows
 #> 
 #> $site_scores
-#> # A tibble: 1,247 × 10
+#> # A tibble: 1,765 × 10
 #>    timese…¹ site  country region feature pvalu…² kstes…³ fdr_c…⁴ ref_g…⁵ subje…⁶
 #>    <chr>    <chr> <chr>   <chr>  <chr>     <dbl>   <dbl>   <dbl> <chr>     <int>
-#>  1 ts_1_au… AAA   AA      A      sd       0.747    0.924 1.90e-2 global        1
-#>  2 ts_1_au… AAC   AA      A      sd       0.571    0.879 1.90e-2 global        1
-#>  3 ts_1_au… AAD   AA      A      sd       0.0597   0.312 0       global        3
-#>  4 ts_1_au… ABA   AB      A      sd       1.00     0.587 7.59e-2 global        4
-#>  5 ts_1_au… ABB   AB      A      sd       0.144    0.446 4.84e-4 global        2
-#>  6 ts_1_au… ABC   AB      A      sd       0.174    0.462 4.84e-4 global        2
-#>  7 ts_1_au… ACA   AC      A      sd       0.0297   0.246 0       global        4
-#>  8 ts_1_au… ADA   AD      A      sd       0.295    0.758 4.84e-4 global        1
-#>  9 ts_1_au… ADB   AD      A      sd       1.08     0.603 8.97e-2 global        4
-#> 10 ts_1_au… ADC   AD      A      sd       0.765    0.723 2.11e-2 global        2
-#> # … with 1,237 more rows, and abbreviated variable names ¹​timeseries_id,
+#>  1 ts_1_au… AAA   AA      A      range    0.680    0.909 0.0305  global        1
+#>  2 ts_1_au… AAC   AA      A      range    0.571    0.879 0.0305  global        1
+#>  3 ts_1_au… AAD   AA      A      range    0.191    0.391 0.00685 global        3
+#>  4 ts_1_au… ABA   AB      A      range    1.08     0.603 0.0905  global        4
+#>  5 ts_1_au… ABB   AB      A      range    0.0966   0.415 0.00312 global        2
+#>  6 ts_1_au… ABC   AB      A      range    0.248    0.492 0.0108  global        2
+#>  7 ts_1_au… ACA   AC      A      range    0.391    0.421 0.0108  global        4
+#>  8 ts_1_au… ADA   AD      A      range    0.571    0.879 0.0305  global        1
+#>  9 ts_1_au… ADB   AD      A      range    0.934    0.571 0.0402  global        4
+#> 10 ts_1_au… ADC   AD      A      range    0.910    0.769 0.0402  global        2
+#> # … with 1,755 more rows, and abbreviated variable names ¹​timeseries_id,
 #> #   ²​pvalue_kstest_logp, ³​kstest_statistic, ⁴​fdr_corrected_pvalue_logp,
 #> #   ⁵​ref_group, ⁶​subject_count
 ```
