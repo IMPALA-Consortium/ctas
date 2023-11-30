@@ -55,18 +55,22 @@ data("tsoa_data", package = "tsoa")
 
 tsoa_data
 
-ls_tsoa <- process_a_study(
-  data = tsoa_data$data,
-  subjects = tsoa_data$subjects,
-  parameters = tsoa_data$parameters,
-  custom_timeseries = tsoa_data$custom_timeseries,
-  timeseries_features_to_calculate = c(
+feats <- c(
     "autocorr",
     "average",
     "own_site_simil_score",
     "sd",
     "unique_value_count_relative"
-  ),
+  ) %>%
+  paste(collapse = ";")
+
+ls_tsoa <- process_a_study(
+  data = tsoa_data$data,
+  subjects = tsoa_data$subjects,
+  parameters = tsoa_data$parameters,
+  custom_timeseries = tsoa_data$custom_timeseries,
+  custom_reference_groups = tsoa_data$custom_reference_groups,
+  default_timeseries_features_to_calculate = feats,
   default_minimum_timepoints_per_series = 3,
   default_minimum_subjects_per_series = 3,
   default_max_share_missing_timepoints_per_series = 0.5,
