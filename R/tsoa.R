@@ -455,6 +455,16 @@ calculate_lof <- function(this_origvalues_distances) {
 
   dist_object_labels <- attr(this_origvalues_distances, "Labels")
 
+  if (anyNA(this_origvalues_distances)) {
+
+    output <- data.frame("subject_id" = dist_object_labels,
+                         "lof" = rep(NA, length(dist_object_labels)))
+
+    warning("NA in dist object returning NA for lof")
+
+    return(output)
+  }
+
   # Include nearest neighbour radius to 10. For small datasets, include at most third of the subjects.
   nearest_neighbour_count <- min(10, floor(length(dist_object_labels) / 3))
 
