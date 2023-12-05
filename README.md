@@ -1,16 +1,16 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/IMPALA-Consortium/tsoa/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/IMPALA-Consortium/tsoa/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/IMPALA-Consortium/ctas/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/IMPALA-Consortium/ctas/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-# Time Series Outliers and Anomalies (TSOA)
+# Clinical Timeseries Anomaly Spotter (CTAS)
 
 Pekka Tiikkainen, Bayer Pharmaceuticals
 
 ## Introduction
 
-TSOA is an R package for identifying outliers and anomalies in clinical
+CTAS is an R package for identifying outliers and anomalies in clinical
 trial time series. Its main focus is on flagging sites with one or more
 study parameters whose profiles differ from those of the other sites.
 However, also anomalies for individual subjects can be identified with
@@ -37,7 +37,7 @@ data frames. For details on the output, please see below.
 
 ``` r
 
-library(tsoa)
+library(ctas)
 #> Loading required package: dplyr
 #> 
 #> Attaching package: 'dplyr'
@@ -48,9 +48,9 @@ library(tsoa)
 #> 
 #>     intersect, setdiff, setequal, union
 
-data("tsoa_data", package = "tsoa")
+data("ctas_data", package = "ctas")
 
-tsoa_data
+ctas_data
 #> $data
 #> # A tibble: 6,684 × 7
 #>    subject_id timepoint_rank timepoint_1_name result parameter…¹ timep…² basel…³
@@ -116,12 +116,12 @@ feats <- c(
   ) %>%
   paste(collapse = ";")
 
-ls_tsoa <- process_a_study(
-  data = tsoa_data$data,
-  subjects = tsoa_data$subjects,
-  parameters = tsoa_data$parameters,
-  custom_timeseries = tsoa_data$custom_timeseries,
-  custom_reference_groups = tsoa_data$custom_reference_groups,
+ls_ctas <- process_a_study(
+  data = ctas_data$data,
+  subjects = ctas_data$subjects,
+  parameters = ctas_data$parameters,
+  custom_timeseries = ctas_data$custom_timeseries,
+  custom_reference_groups = ctas_data$custom_reference_groups,
   default_timeseries_features_to_calculate = feats,
   default_minimum_timepoints_per_series = 3,
   default_minimum_subjects_per_series = 3,
@@ -130,7 +130,7 @@ ls_tsoa <- process_a_study(
   autogenerate_timeseries = TRUE
 )
 
-ls_tsoa
+ls_ctas
 #> $timeseries
 #> # A tibble: 8 × 6
 #>   timeseries_id         parameter_id baseline timepoint_combo    timep…¹ timep…²

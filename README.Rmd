@@ -16,16 +16,16 @@ knitr::opts_chunk$set(
 ```
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/IMPALA-Consortium/tsoa/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/IMPALA-Consortium/tsoa/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/IMPALA-Consortium/ctas/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/IMPALA-Consortium/ctas/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-# Time Series Outliers and Anomalies (TSOA)
+# Clinical Timeseries Anomaly Spotter (CTAS)
 Pekka Tiikkainen, Bayer Pharmaceuticals
 
 
 ## Introduction
 
-TSOA is an R package for identifying outliers and anomalies in clinical trial time series.
+CTAS is an R package for identifying outliers and anomalies in clinical trial time series.
 Its main focus is on flagging sites with one or more study parameters whose profiles differ
 from those of the other sites. However, also anomalies for individual subjects can be identified
 with the results the package gives.
@@ -49,11 +49,11 @@ The function returns the results as a list of data frames. For details on the ou
 
 ```{r example}
 
-library(tsoa)
+library(ctas)
 
-data("tsoa_data", package = "tsoa")
+data("ctas_data", package = "ctas")
 
-tsoa_data
+ctas_data
 
 feats <- c(
     "autocorr",
@@ -66,12 +66,12 @@ feats <- c(
   ) %>%
   paste(collapse = ";")
 
-ls_tsoa <- process_a_study(
-  data = tsoa_data$data,
-  subjects = tsoa_data$subjects,
-  parameters = tsoa_data$parameters,
-  custom_timeseries = tsoa_data$custom_timeseries,
-  custom_reference_groups = tsoa_data$custom_reference_groups,
+ls_ctas <- process_a_study(
+  data = ctas_data$data,
+  subjects = ctas_data$subjects,
+  parameters = ctas_data$parameters,
+  custom_timeseries = ctas_data$custom_timeseries,
+  custom_reference_groups = ctas_data$custom_reference_groups,
   default_timeseries_features_to_calculate = feats,
   default_minimum_timepoints_per_series = 3,
   default_minimum_subjects_per_series = 3,
@@ -80,7 +80,7 @@ ls_tsoa <- process_a_study(
   autogenerate_timeseries = TRUE
 )
 
-ls_tsoa
+ls_ctas
 ```
 
 ## Input parameters
