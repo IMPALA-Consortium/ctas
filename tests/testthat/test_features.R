@@ -18,10 +18,12 @@ test_that("ks.test not to return NA", {
     mutate(
       subject_id = as.character(row_number())
     )
-  
+
   this_feature = "test"
   this_ref_group = "global"
-  
+
   df_kstest <- calculate_site_bias_ts_features(this_feature, this_data, this_ref_group)
+
+  expect_true(! any(is.na(df_kstest$pvalue_kstest)))
 
 })
