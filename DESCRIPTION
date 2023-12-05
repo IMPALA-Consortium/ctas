@@ -1,6 +1,6 @@
-Package: tsoa
+Package: ctas
 Type: Package
-Title: The package is used to identify anomalies and outliers in clinical data time series
+Title: The package is used to identify anomalous clinical time series
 Version: 0.2.0
 Authors@R: c(
   person("Pekka", "Tiikkainen",
