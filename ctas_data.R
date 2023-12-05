@@ -110,7 +110,7 @@ custom_reference_groups <- tibble(
 
 
 
-tsoa_data <- list(
+ctas_data <- list(
   data = data,
   parameters = parameters,
   subjects = subjects,
@@ -118,4 +118,4 @@ tsoa_data <- list(
   custom_reference_groups = custom_reference_groups
 )
 
-usethis::use_data(tsoa_data, overwrite = TRUE)
+usethis::use_data(ctas_data, overwrite = TRUE)
