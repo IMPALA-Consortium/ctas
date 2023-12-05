@@ -37,6 +37,9 @@
     <loc>/reference/check_input_data.html</loc>
   </url>
   <url>
+    <loc>/reference/ctas_data.html</loc>
+  </url>
+  <url>
     <loc>/reference/generate_wide_timeseries_table.html</loc>
   </url>
   <url>
@@ -56,8 +59,5 @@
   </url>
   <url>
     <loc>/reference/process_a_study.html</loc>
-  </url>
-  <url>
-    <loc>/reference/tsoa_data.html</loc>
   </url>
 </urlset>
