@@ -228,7 +228,8 @@ time_point_count_min column defined in the parameters df.
 
 Minimum number of eligible subjects for auto-generated time series. This
 value will be used for a parameter if they do not have the
-subject_count_min column defined in the parameters df.
+subject_count_min column defined in the parameters df. The parameter
+has a minimum value of two.
 
 ### default_max_share_missing_timepoints_per_series
 
