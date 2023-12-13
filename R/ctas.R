@@ -984,6 +984,12 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
   stopifnot("Column 'generate_change_from_baseline' in 'parameters' must be logical!" = is.logical(parameters$generate_change_from_baseline))
   stopifnot("Column 'use_only_custom_timeseries' in 'parameters' must be logical!" = is.logical(parameters$use_only_custom_timeseries))
 
+  # Make sure that no parameter has the custom subject_count_min below two.
+  params_with_too_small_subject_count_min <- parameters %>%
+    filter(subject_count_min < 2) %>%
+    pull(parameter_id)
+  
+  stopifnot("Some parameters' subject_count_min parameter is below two!" = length(params_with_too_small_subject_count_min) == 0)
 
   # Data frame 'Data'
   stopifnot("Column 'subject_id' in 'data' must be a character!" = is.character(data$subject_id))
