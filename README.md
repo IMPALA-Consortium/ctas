@@ -276,7 +276,7 @@ Data frame columns:
 | parameter_category_3          | chr       |               | Third level category of the parameter (e.g. Local lab for a laboratory assay).                                                                    |
 | parameter_name                | chr       | Y             | Parameter name                                                                                                                                    |
 | time_point_count_min          | int       |               | Minimum number of time points required for auto-generated time series. If not provided, global default value is used.                             |
-| subject_count_min             | int       |               | Minimum number of eligible subjects required for auto-generated time series. If not provided, global default value is used.                       |
+| subject_count_min             | int       |               | Minimum number of eligible subjects required for auto-generated time series. If not provided, global default value is used. If provided, the value must be at least two.                      |
 | max_share_missing             | float     |               | Maximum number of missing data points an eligible subject can have for auto-generated time series. If not provided, global default value is used. |
 | generate_change_from_baseline | boolean   |               | Whether to also generate baseline-adjusted time series for the parameter. If not provided, global default value is used.                          |
 
