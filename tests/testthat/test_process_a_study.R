@@ -204,7 +204,7 @@ test_that("process_a_study - default_minimum_subjects_per_series <- 1", {
     df_lonely
   )
 
-  expect_warning(
+  expect_error(
     ls_ctas <- process_a_study(
       data = ctas_data$data,
       subjects = ctas_data$subjects,
@@ -218,12 +218,8 @@ test_that("process_a_study - default_minimum_subjects_per_series <- 1", {
       default_generate_change_from_baseline = FALSE,
       autogenerate_timeseries = TRUE
     ),
-    "NA in dist object returning NA for lof"
+    "Minimum value for default_minimum_subjects_per_series is two!"
   )
-
-  expect_true(! any(purrr::map_lgl(ls_ctas, is.null)))
-  expect_true(! any(purrr::map_lgl(ls_ctas, ~ nrow(.) == 0)))
-  expect_true(min(ls_ctas$site_scores$subject_count) == 1)
 
 })
 

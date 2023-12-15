@@ -59,6 +59,14 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
     arrange(.data$parameter_id, .data$subject_id, .data$timepoint_rank, .data$has_baseline_value) %>%
     distinct(.data$parameter_id, .data$subject_id, .data$timepoint_rank, .data$has_baseline_value)
 
+  # If timepoints_and_subjects is empty (all results are NULL or blank), stop
+  if(nrow(timepoints_and_subjects) == 0) {
+    
+    return(list("timeseries" = NULL, "timeseries_features" = NULL,
+                "PCA_coordinates" = NULL, "site_scores" = NULL))
+    
+  }
+  
   if(autogenerate_timeseries) {
 
     # Autogenerate the time point combos (time series) for each parameter.
@@ -976,6 +984,12 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
   stopifnot("Column 'generate_change_from_baseline' in 'parameters' must be logical!" = is.logical(parameters$generate_change_from_baseline))
   stopifnot("Column 'use_only_custom_timeseries' in 'parameters' must be logical!" = is.logical(parameters$use_only_custom_timeseries))
 
+  # Make sure that no parameter has the custom subject_count_min below two.
+  params_with_too_small_subject_count_min <- parameters %>%
+    filter(.data$subject_count_min < 2) %>%
+    pull(.data$parameter_id)
+  
+  stopifnot("Some parameters' subject_count_min parameter is below two!" = length(params_with_too_small_subject_count_min) == 0)
 
   # Data frame 'Data'
   stopifnot("Column 'subject_id' in 'data' must be a character!" = is.character(data$subject_id))
@@ -1015,6 +1029,9 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
   stopifnot("Argument default_generate_change_from_baseline must be TRUE or FALSE!" = is.logical(default_generate_change_from_baseline))
   stopifnot("Argument autogenerate_timeseries must be TRUE or FALSE!" = is.logical(autogenerate_timeseries))
 
+  # Stop if default_minimum_subjects_per_series is less than two.
+  stopifnot("Minimum value for default_minimum_subjects_per_series is two!" = default_minimum_subjects_per_series >= 2)
+  
   # If the time series should not be auto generated, expect at least one custom timeseries.
   stopifnot("Custom timeseries must be defined if autogenerate_timeseries is set to FALSE!" = ifelse(autogenerate_timeseries, TRUE, nrow(custom_timeseries) > 0))
 
