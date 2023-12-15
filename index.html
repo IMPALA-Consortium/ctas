@@ -286,7 +286,7 @@
 <div class="section level3">
 <h3 id="default_minimum_subjects_per_series">default_minimum_subjects_per_series<a class="anchor" aria-label="anchor" href="#default_minimum_subjects_per_series"></a>
 </h3>
-<p>Minimum number of eligible subjects for auto-generated time series. This value will be used for a parameter if they do not have the subject_count_min column defined in the parameters df.</p>
+<p>Minimum number of eligible subjects for auto-generated time series. This value will be used for a parameter if they do not have the subject_count_min column defined in the parameters df. The parameter has a minimum value of two.</p>
 </div>
 <div class="section level3">
 <h3 id="default_max_share_missing_timepoints_per_series">default_max_share_missing_timepoints_per_series<a class="anchor" aria-label="anchor" href="#default_max_share_missing_timepoints_per_series"></a>
@@ -402,7 +402,7 @@
 <td>subject_count_min</td>
 <td>int</td>
 <td></td>
-<td>Minimum number of eligible subjects required for auto-generated time series. If not provided, global default value is used.</td>
+<td>Minimum number of eligible subjects required for auto-generated time series. If not provided, global default value is used. If provided, the value must be at least two.</td>
 </tr>
 <tr class="even">
 <td>max_share_missing</td>
