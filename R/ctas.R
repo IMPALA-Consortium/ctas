@@ -986,8 +986,8 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
 
   # Make sure that no parameter has the custom subject_count_min below two.
   params_with_too_small_subject_count_min <- parameters %>%
-    filter(subject_count_min < 2) %>%
-    pull(parameter_id)
+    filter(.data$subject_count_min < 2) %>%
+    pull(.data$parameter_id)
   
   stopifnot("Some parameters' subject_count_min parameter is below two!" = length(params_with_too_small_subject_count_min) == 0)
 
