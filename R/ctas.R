@@ -61,12 +61,12 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
 
   # If timepoints_and_subjects is empty (all results are NULL or blank), stop
   if(nrow(timepoints_and_subjects) == 0) {
-    
+
     return(list("timeseries" = NULL, "timeseries_features" = NULL,
                 "PCA_coordinates" = NULL, "site_scores" = NULL))
-    
+
   }
-  
+
   if(autogenerate_timeseries) {
 
     # Autogenerate the time point combos (time series) for each parameter.
@@ -475,6 +475,9 @@ calculate_lof <- function(this_origvalues_distances) {
 
   # Include nearest neighbour radius to 10. For small datasets, include at most third of the subjects.
   nearest_neighbour_count <- min(10, floor(length(dist_object_labels) / 3))
+
+  # nearest neighbour count needs to be at least 1, for minPts to be 2, will cause error if below 2
+  nearest_neighbour_count <- ifelse(nearest_neighbour_count == 0, 1, nearest_neighbour_count)
 
   lof_values <- lof(this_origvalues_distances, minPts = nearest_neighbour_count + 1)
 
@@ -988,7 +991,7 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
   params_with_too_small_subject_count_min <- parameters %>%
     filter(.data$subject_count_min < 2) %>%
     pull(.data$parameter_id)
-  
+
   stopifnot("Some parameters' subject_count_min parameter is below two!" = length(params_with_too_small_subject_count_min) == 0)
 
   # Data frame 'Data'
@@ -1031,7 +1034,7 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
 
   # Stop if default_minimum_subjects_per_series is less than two.
   stopifnot("Minimum value for default_minimum_subjects_per_series is two!" = default_minimum_subjects_per_series >= 2)
-  
+
   # If the time series should not be auto generated, expect at least one custom timeseries.
   stopifnot("Custom timeseries must be defined if autogenerate_timeseries is set to FALSE!" = ifelse(autogenerate_timeseries, TRUE, nrow(custom_timeseries) > 0))
 
