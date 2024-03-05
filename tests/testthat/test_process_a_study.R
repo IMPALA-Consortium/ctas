@@ -223,3 +223,98 @@ test_that("process_a_study - default_minimum_subjects_per_series <- 1", {
 
 })
 
+test_that("process_a_study - avoid lof() error - minPts has to be at least 2 and not larger than the number of points", {
+
+  data <- tibble(
+    STUDY = rep("A", 372),
+    PATNUM = c(rep("E", 10), rep("F", 23), rep("A", 36), rep("B", 80), rep("C", 158), rep("D", 29), rep("E", 36)),
+    SITE_NUMBER = c(rep("D", 10), rep("E", 23), rep("C", 36), rep("A", 80), rep("B", 158), rep("E", 29), rep("D", 36)),
+    TIMEPOINT_NAME = rep("A", 372),
+    TIMEPOINT_RANK = c(11:21, 1:23, 1:36, 1:80, 1:158, 1:29, 1:35),
+    NAME = rep("A", 372),
+    PARAMETER_CATEGORY_1 = rep("A", 372),
+    PARAMETER_CATEGORY_2 = rep("A", 372),
+    PARAMETER_CATEGORY_3 = rep("A", 372),
+    VALUE = sample(c(1:1000, NA), 372, replace = TRUE),
+    COUNTRY = c(rep("B", 336), rep("A", 10), rep("E", 26)),
+    REGION = rep("B", 372),
+    SPLIT_BY = rep("A", 372)
+  ) %>%
+    rename_with(tolower) %>%
+    rename(
+      parameter_id = split_by,
+      parameter_name = name,
+      site = site_number,
+      subject_id = patnum,
+      timepoint_1_name = timepoint_name,
+      result = value
+    ) %>%
+    filter(! (subject_id == "D" & timepoint_rank > 50))
+
+  df_parameters <- data %>%
+    distinct(
+      .data$parameter_id,
+      .data$parameter_name,
+      .data$parameter_category_1,
+      .data$parameter_category_2,
+      .data$parameter_category_3
+    ) %>%
+    mutate(
+      timeseries_features_to_calculate = NA,
+      use_only_custom_timeseries = FALSE,
+      time_point_count_min = NA,
+      subject_count_min = NA,
+      max_share_missing = NA,
+      generate_change_from_baseline = NA
+    )
+  # the error occurs for sites with only one patient
+  df_subjects <- data %>%
+    count(.data$subject_id, .data$country, .data$region, .data$site) %>%
+    arrange(.data$subject_id, desc(.data$n)) %>%
+    filter(row_number() == 1, .by = "subject_id") %>%
+    select(- n)
+
+  df_data <- data %>%
+    distinct(
+      .data$subject_id,
+      .data$parameter_id,
+      .data$timepoint_1_name,
+      .data$timepoint_rank,
+      .data$result
+    ) %>%
+    mutate(
+      timepoint_2_name = NA,
+      baseline = NA
+    )
+
+  df_custom_timeseries <- tibble(
+    timeseries_id = character(),
+    parameter_id = character(),
+    timepoint_combo = character()
+  )
+
+  df_custom_reference_groups <- tibble(
+    parameter_id = character(),
+    feature = character(),
+    ref_group = character()
+  )
+
+  ls_ctas <- ctas::process_a_study(
+    subjects = df_subjects,
+    parameters = df_parameters,
+    data = df_data,
+    custom_timeseries = df_custom_timeseries,
+    custom_reference_groups = df_custom_reference_groups,
+    default_timeseries_features_to_calculate = "lof",
+    default_minimum_timepoints_per_series = 1,
+    default_minimum_subjects_per_series = 2,
+    default_max_share_missing_timepoints_per_series = 0.4,
+    default_generate_change_from_baseline = FALSE,
+    autogenerate_timeseries = TRUE,
+    optimize_sites_and_patients = TRUE
+  )
+
+  # data has very few subjects we expect score to be 0
+  expect_true(all(ls_ctas$site_scores$fdr_corrected_pvalue_logp == 0))
+
+})
