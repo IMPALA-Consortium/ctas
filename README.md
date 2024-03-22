@@ -1,19 +1,4 @@
----
-output: 
-  md_document:
-    variant: markdown_github
----
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/IMPALA-Consortium/ctas/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/IMPALA-Consortium/ctas/actions/workflows/R-CMD-check.yaml)
