@@ -29,7 +29,7 @@ Please note that data preparation step is intentionally out-of-scope for
 the package because each user is likely to have their data in a
 different format.
 
-Then the main function (process_a_study) is called separately for each
+Then the main function (process_a\_study) is called separately for each
 study you wish to process. The function returns the results as a list of
 data frames. For details on the output, please see below.
 
@@ -52,58 +52,56 @@ data("ctas_data", package = "ctas")
 
 ctas_data
 #> $data
-#> # A tibble: 6,684 × 7
-#>    subject_id timepoint_rank timepoint_1_name result parameter…¹ timep…² basel…³
-#>    <chr>               <int> <chr[1d]>         <dbl> <chr>       <chr>   <lgl>  
-#>  1 1                       1 AB                 NA   param1      timepo… NA     
-#>  2 1                       2 AC                 31.8 param1      timepo… NA     
-#>  3 1                       3 AD                 36.4 param1      timepo… NA     
-#>  4 1                       4 AE                 33.5 param1      timepo… NA     
-#>  5 1                       5 AF                 34.1 param1      timepo… NA     
-#>  6 1                       6 AG                 NA   param1      timepo… NA     
-#>  7 1                       7 AH                 31.3 param1      timepo… NA     
-#>  8 1                       8 AI                 33.2 param1      timepo… NA     
-#>  9 1                       9 AJ                 35.0 param1      timepo… NA     
-#> 10 1                      10 AK                 NA   param1      timepo… NA     
-#> # … with 6,674 more rows, and abbreviated variable names ¹​parameter_id,
-#> #   ²​timepoint_2_name, ³​baseline
+#> # A tibble: 6,890 × 7
+#>    subject_id timepoint_rank timepoint_1_name result parameter_id
+#>    <chr>               <int> <chr[1d]>         <dbl> <chr>       
+#>  1 1                       1 AB                 38.1 param1      
+#>  2 1                       2 AC                 36.9 param1      
+#>  3 1                       3 AD                 38.5 param1      
+#>  4 1                       4 AE                 39.8 param1      
+#>  5 1                       5 AF                 40.6 param1      
+#>  6 1                       6 AG                 36.7 param1      
+#>  7 1                       7 AH                 38.2 param1      
+#>  8 1                       8 AI                 40.0 param1      
+#>  9 1                       9 AJ                 37.0 param1      
+#> 10 1                      10 AK                 35.1 param1      
+#> # ℹ 6,880 more rows
+#> # ℹ 2 more variables: timepoint_2_name <chr>, baseline <lgl>
 #> 
 #> $parameters
 #> # A tibble: 2 × 11
-#>   parameter_id paramet…¹ param…² param…³ param…⁴ time_…⁵ subje…⁶ max_s…⁷ gener…⁸
-#>   <chr>        <chr>     <chr>   <chr>   <chr>   <lgl>   <lgl>   <lgl>   <lgl>  
-#> 1 param1       param1    catego… catego… catego… NA      NA      NA      NA     
-#> 2 param2       param2    catego… catego… catego… NA      NA      NA      NA     
-#> # … with 2 more variables: timeseries_features_to_calculate <lgl>,
-#> #   use_only_custom_timeseries <lgl>, and abbreviated variable names
-#> #   ¹​parameter_name, ²​parameter_category_1, ³​parameter_category_2,
-#> #   ⁴​parameter_category_3, ⁵​time_point_count_min, ⁶​subject_count_min,
-#> #   ⁷​max_share_missing, ⁸​generate_change_from_baseline
+#>   parameter_id parameter_name parameter_category_1 parameter_category_2
+#>   <chr>        <chr>          <chr>                <chr>               
+#> 1 param1       param1         category 1           category 2          
+#> 2 param2       param2         category 1           category 2          
+#> # ℹ 7 more variables: parameter_category_3 <chr>, time_point_count_min <lgl>,
+#> #   subject_count_min <lgl>, max_share_missing <lgl>,
+#> #   generate_change_from_baseline <lgl>,
+#> #   timeseries_features_to_calculate <lgl>, use_only_custom_timeseries <lgl>
 #> 
 #> $subjects
-#> # A tibble: 162 × 4
+#> # A tibble: 177 × 4
 #>    subject_id site  country region
 #>    <chr>      <chr> <chr>   <chr> 
 #>  1 1          AAA   AA      A     
 #>  2 2          AAA   AA      A     
 #>  3 3          AAA   AA      A     
-#>  4 4          AAA   AA      A     
-#>  5 5          AAA   AA      A     
-#>  6 6          AAA   AA      A     
-#>  7 7          AAB   AA      A     
-#>  8 8          AAB   AA      A     
-#>  9 9          AAB   AA      A     
-#> 10 10         AAB   AA      A     
-#> # … with 152 more rows
+#>  4 4          AAB   AA      A     
+#>  5 5          AAB   AA      A     
+#>  6 6          AAB   AA      A     
+#>  7 7          AAC   AA      A     
+#>  8 8          AAC   AA      A     
+#>  9 9          AAC   AA      A     
+#> 10 10         AAC   AA      A     
+#> # ℹ 167 more rows
 #> 
 #> $custom_timeseries
 #> # A tibble: 0 × 3
-#> # … with 3 variables: timeseries_id <chr>, parameter_id <chr>,
-#> #   timepoint_combo <chr>
+#> # ℹ 3 variables: timeseries_id <chr>, parameter_id <chr>, timepoint_combo <chr>
 #> 
 #> $custom_reference_groups
 #> # A tibble: 0 × 3
-#> # … with 3 variables: parameter_id <chr>, feature <chr>, ref_group <chr>
+#> # ℹ 3 variables: parameter_id <chr>, feature <chr>, ref_group <chr>
 
 feats <- c(
     "autocorr",
@@ -132,73 +130,76 @@ ls_ctas <- process_a_study(
 
 ls_ctas
 #> $timeseries
-#> # A tibble: 8 × 6
-#>   timeseries_id         parameter_id baseline timepoint_combo    timep…¹ timep…²
-#>   <chr>                 <chr>        <chr>    <chr>              <chr>     <dbl>
-#> 1 ts_1_autogen_original param1       original 1;2;3;4;5;6;7;8;9… AB_tim…      31
-#> 2 ts_2_autogen_original param1       original 1;2;3;4;5;6;7;8;9… AB_tim…      28
-#> 3 ts_3_autogen_original param1       original 1;2;3;4;5;6;7;8;9… AB_tim…      24
-#> 4 ts_4_autogen_original param1       original 1;2;3;4;5;6;7;8;9… AB_tim…      20
-#> 5 ts_5_autogen_original param2       original 1;2;3;4;5;6;7;8;9… AB_tim…      31
-#> 6 ts_6_autogen_original param2       original 1;2;3;4;5;6;7;8;9… AB_tim…      30
-#> 7 ts_7_autogen_original param2       original 1;2;3;4;5;6;7;8;9… AB_tim…      26
-#> 8 ts_8_autogen_original param2       original 1;2;3;4;5;6;7;8;9… AB_tim…      22
-#> # … with abbreviated variable names ¹​timepoint_combo_readable, ²​timepoint_count
+#> # A tibble: 10 × 6
+#>    timeseries_id    parameter_id baseline timepoint_combo timepoint_combo_read…¹
+#>    <chr>            <chr>        <chr>    <chr>           <chr>                 
+#>  1 ts_1_autogen_or… param1       original 1;2;3;4;5;6;7;… AB_timepoint name 2;A…
+#>  2 ts_2_autogen_or… param1       original 1;2;3;4;5;6;7;… AB_timepoint name 2;A…
+#>  3 ts_3_autogen_or… param1       original 1;2;3;4;5;6;7;… AB_timepoint name 2;A…
+#>  4 ts_4_autogen_or… param1       original 1;2;3;4;5;6;7;… AB_timepoint name 2;A…
+#>  5 ts_5_autogen_or… param1       original 1;2;3;4;5;6;7;… AB_timepoint name 2;A…
+#>  6 ts_6_autogen_or… param2       original 1;2;3;4;5;6;7;… AB_timepoint name 2;A…
+#>  7 ts_7_autogen_or… param2       original 1;2;3;4;5;6;7;… AB_timepoint name 2;A…
+#>  8 ts_8_autogen_or… param2       original 1;2;3;4;5;6;7;… AB_timepoint name 2;A…
+#>  9 ts_9_autogen_or… param2       original 1;2;3;4;5;6;7;… AB_timepoint name 2;A…
+#> 10 ts_10_autogen_o… param2       original 1;2;3;4;5;6;7;… AB_timepoint name 2;A…
+#> # ℹ abbreviated name: ¹​timepoint_combo_readable
+#> # ℹ 1 more variable: timepoint_count <dbl>
 #> 
 #> $timeseries_features
-#> # A tibble: 5,706 × 7
-#>    timeseries_id         subject_id feature        featur…¹ site  country region
+#> # A tibble: 7,902 × 7
+#>    timeseries_id         subject_id feature   feature_value site  country region
 #>    <chr>                 <chr>      <chr>             <dbl> <chr> <chr>   <chr> 
-#>  1 ts_1_autogen_original 1          range           6.44    AAA   AA      A     
-#>  2 ts_1_autogen_original 1          sd              1.66    AAA   AA      A     
-#>  3 ts_1_autogen_original 1          unique_value_…  1       AAA   AA      A     
-#>  4 ts_1_autogen_original 1          autocorr       -0.393   AAA   AA      A     
-#>  5 ts_1_autogen_original 1          average        33.9     AAA   AA      A     
-#>  6 ts_1_autogen_original 1          lof             0.996   AAA   AA      A     
-#>  7 ts_1_autogen_original 11         range           6.84    AAC   AA      A     
-#>  8 ts_1_autogen_original 11         sd              1.90    AAC   AA      A     
-#>  9 ts_1_autogen_original 11         unique_value_…  1       AAC   AA      A     
-#> 10 ts_1_autogen_original 11         autocorr       -0.00259 AAC   AA      A     
-#> # … with 5,696 more rows, and abbreviated variable name ¹​feature_value
+#>  1 ts_1_autogen_original 1          range            5.45   AAA   AA      A     
+#>  2 ts_1_autogen_original 1          sd               1.40   AAA   AA      A     
+#>  3 ts_1_autogen_original 1          unique_v…        1      AAA   AA      A     
+#>  4 ts_1_autogen_original 1          autocorr         0.120  AAA   AA      A     
+#>  5 ts_1_autogen_original 1          average         38.2    AAA   AA      A     
+#>  6 ts_1_autogen_original 1          lof              1.06   AAA   AA      A     
+#>  7 ts_1_autogen_original 4          range           14.6    AAB   AA      A     
+#>  8 ts_1_autogen_original 4          sd               3.70   AAB   AA      A     
+#>  9 ts_1_autogen_original 4          unique_v…        1      AAB   AA      A     
+#> 10 ts_1_autogen_original 4          autocorr        -0.0317 AAB   AA      A     
+#> # ℹ 7,892 more rows
 #> 
 #> $PCA_coordinates
-#> # A tibble: 822 × 4
-#>    timeseries_id         subject_id    pc1     pc2
-#>    <chr>                 <chr>       <dbl>   <dbl>
-#>  1 ts_1_autogen_original 1          -16.6   -1.57 
-#>  2 ts_1_autogen_original 11          16.1    0.857
-#>  3 ts_1_autogen_original 15          27.9   -1.62 
-#>  4 ts_1_autogen_original 16         -34.4    6.17 
-#>  5 ts_1_autogen_original 17           7.19  -2.61 
-#>  6 ts_1_autogen_original 20           6.33  -0.144
-#>  7 ts_1_autogen_original 21           5.30  14.9  
-#>  8 ts_1_autogen_original 26         -32.1   -3.02 
-#>  9 ts_1_autogen_original 28          -1.96 -21.4  
-#> 10 ts_1_autogen_original 31           1.33   5.71 
-#> # … with 812 more rows
+#> # A tibble: 1,137 × 4
+#>    timeseries_id         subject_id      pc1    pc2
+#>    <chr>                 <chr>         <dbl>  <dbl>
+#>  1 ts_1_autogen_original 1          -37.7      1.07
+#>  2 ts_1_autogen_original 4           14.6      2.67
+#>  3 ts_1_autogen_original 10          47.6     -2.96
+#>  4 ts_1_autogen_original 12          35.0      1.42
+#>  5 ts_1_autogen_original 14           0.0945 -34.7 
+#>  6 ts_1_autogen_original 16           2.97    -9.54
+#>  7 ts_1_autogen_original 17          -8.90     3.78
+#>  8 ts_1_autogen_original 19         -29.5      2.09
+#>  9 ts_1_autogen_original 22         -12.3      1.59
+#> 10 ts_1_autogen_original 24           6.02    -5.75
+#> # ℹ 1,127 more rows
 #> 
 #> $site_scores
-#> # A tibble: 1,765 × 10
-#>    timese…¹ site  country region feature pvalu…² kstes…³ fdr_c…⁴ ref_g…⁵ subje…⁶
-#>    <chr>    <chr> <chr>   <chr>  <chr>     <dbl>   <dbl>   <dbl> <chr>     <int>
-#>  1 ts_1_au… AAA   AA      A      range    0.680    0.909 0.0305  global        1
-#>  2 ts_1_au… AAC   AA      A      range    0.571    0.879 0.0305  global        1
-#>  3 ts_1_au… AAD   AA      A      range    0.191    0.391 0.00685 global        3
-#>  4 ts_1_au… ABA   AB      A      range    1.08     0.603 0.0905  global        4
-#>  5 ts_1_au… ABB   AB      A      range    0.0966   0.415 0.00312 global        2
-#>  6 ts_1_au… ABC   AB      A      range    0.248    0.492 0.0108  global        2
-#>  7 ts_1_au… ACA   AC      A      range    0.391    0.421 0.0108  global        4
-#>  8 ts_1_au… ADA   AD      A      range    0.571    0.879 0.0305  global        1
-#>  9 ts_1_au… ADB   AD      A      range    0.934    0.571 0.0402  global        4
-#> 10 ts_1_au… ADC   AD      A      range    0.910    0.769 0.0402  global        2
-#> # … with 1,755 more rows, and abbreviated variable names ¹​timeseries_id,
-#> #   ²​pvalue_kstest_logp, ³​kstest_statistic, ⁴​fdr_corrected_pvalue_logp,
-#> #   ⁵​ref_group, ⁶​subject_count
+#> # A tibble: 2,221 × 10
+#>    timeseries_id         site  country region feature pvalue_kstest_logp
+#>    <chr>                 <chr> <chr>   <chr>  <chr>                <dbl>
+#>  1 ts_1_autogen_original AAA   AA      A      range               0.490 
+#>  2 ts_1_autogen_original AAB   AA      A      range               0.0130
+#>  3 ts_1_autogen_original AAC   AA      A      range               0.418 
+#>  4 ts_1_autogen_original AAD   AA      A      range               1.24  
+#>  5 ts_1_autogen_original AAE   AA      A      range               0.374 
+#>  6 ts_1_autogen_original AAF   AA      A      range               0.0324
+#>  7 ts_1_autogen_original AAG   AA      A      range               0.977 
+#>  8 ts_1_autogen_original ABA   AB      A      range               1.17  
+#>  9 ts_1_autogen_original BAA   BA      B      range               0.283 
+#> 10 ts_1_autogen_original BAB   BA      B      range               1.77  
+#> # ℹ 2,211 more rows
+#> # ℹ 4 more variables: kstest_statistic <dbl>, fdr_corrected_pvalue_logp <dbl>,
+#> #   ref_group <chr>, subject_count <int>
 ```
 
 ## Input parameters
 
-The function process_a_study has a number of parameters that need to be
+The function process_a\_study has a number of parameters that need to be
 provided. Some of these are data frames while others are simple
 variables.
 
@@ -207,16 +208,18 @@ provided where needed.
 
 ### timeseries_features_to_calculate
 
-Vector of features to calculate for each time series. The vector must
-contain at least one of the following feature codes:
+Comma-delimited string of time series features to calculate. The list
+must contain at least one of the following feature codes:
 
-| Feature code                | Description                                                      |
+| Feature code                | Description                                                                                                          |
 |------------------------------------|------------------------------------|
-| autocorr                    | Auto-correlation                                                 |
-| average                     | Average value                                                    |
-| own_site_simil_score        | Measure of co-clustering of time series from the same study site |
-| sd                          | Standard deviation                                               |
-| unique_value_count_relative | Number of unique values divided by number of values available    |
+| autocorr                    | Auto-correlation                                                                                                     |
+| average                     | Average value                                                                                                        |
+| own_site_simil_score        | Measure of co-clustering of time series from the same study site                                                     |
+| sd                          | Standard deviation                                                                                                   |
+| unique_value_count_relative | Number of unique values divided by number of values available                                                        |
+| range                       | Maximum difference between two time points in a series                                                               |
+| lof                         | Local Outlier Factor. Values around one are inliers while the larger the value, more of an outlier the timeseries is |
 
 ### default_minimum_timepoints_per_series
 
@@ -228,8 +231,7 @@ time_point_count_min column defined in the parameters df.
 
 Minimum number of eligible subjects for auto-generated time series. This
 value will be used for a parameter if they do not have the
-subject_count_min column defined in the parameters df. The parameter
-has a minimum value of two.
+subject_count_min column defined in the parameters df.
 
 ### default_max_share_missing_timepoints_per_series
 
@@ -254,11 +256,12 @@ Data frame with one row per study subject.
 
 Data frame columns:
 
-| Column name | Data type | Data required | Description                            |
-|-------------|-----------|---------------|----------------------------------------|
-| subject_id  | chr       | Y             | Unique identifier for each subject     |
-| country     | chr       | Y             | Country where the subject is enrolled. |
-| site        | chr       | Y             | Name of the study site.                |
+| Column name | Data type | Data required | Description                                                                                                           |
+|------------------|------------------|------------------|------------------|
+| subject_id  | chr       | Y             | Unique identifier for each subject                                                                                    |
+| country     | chr       | Y             | Country where the subject is enrolled.                                                                                |
+| site        | chr       | Y             | Name of the study site.                                                                                               |
+| region      | chr       | \(Y\)         | Region of the world for the country. Required if the custom reference table has “region” defined for any of the rows. |
 
 ### parameters
 
@@ -268,17 +271,19 @@ measurements done during the course of a study.
 
 Data frame columns:
 
-| Column name                   | Data type | Data required | Description                                                                                                                                       |
+| Column name                      | Data type | Data required | Description                                                                                                                                       |
 |------------------|------------------|------------------|------------------|
-| parameter_id                  | chr       | Y             | Parameter identifier                                                                                                                              |
-| parameter_category_1          | chr       |               | Top level category of the parameter (e.g. LB for a laboratory assay).                                                                             |
-| parameter_category_2          | chr       |               | Second level category of the parameter (e.g. General chemistry for a laboratory assay).                                                           |
-| parameter_category_3          | chr       |               | Third level category of the parameter (e.g. Local lab for a laboratory assay).                                                                    |
-| parameter_name                | chr       | Y             | Parameter name                                                                                                                                    |
-| time_point_count_min          | int       |               | Minimum number of time points required for auto-generated time series. If not provided, global default value is used.                             |
-| subject_count_min             | int       |               | Minimum number of eligible subjects required for auto-generated time series. If not provided, global default value is used. If provided, the value must be at least two.                      |
-| max_share_missing             | float     |               | Maximum number of missing data points an eligible subject can have for auto-generated time series. If not provided, global default value is used. |
-| generate_change_from_baseline | boolean   |               | Whether to also generate baseline-adjusted time series for the parameter. If not provided, global default value is used.                          |
+| parameter_id                     | chr       | Y             | Parameter identifier                                                                                                                              |
+| parameter_category_1             | chr       |               | Top level category of the parameter (e.g. LB for a laboratory assay).                                                                             |
+| parameter_category_2             | chr       |               | Second level category of the parameter (e.g. General chemistry for a laboratory assay).                                                           |
+| parameter_category_3             | chr       |               | Third level category of the parameter (e.g. Local lab for a laboratory assay).                                                                    |
+| parameter_name                   | chr       | Y             | Parameter name                                                                                                                                    |
+| time_point_count_min             | int       |               | Minimum number of time points required for auto-generated time series. If not provided, global default value is used.                             |
+| subject_count_min                | int       |               | Minimum number of eligible subjects required for auto-generated time series. If not provided, global default value is used.                       |
+| max_share_missing                | float     |               | Maximum number of missing data points an eligible subject can have for auto-generated time series. If not provided, global default value is used. |
+| generate_change_from_baseline    | boolean   |               | Whether to also generate baseline-adjusted time series for the parameter. If not provided, global default value is used.                          |
+| timeseries_features_to_calculate | chr       |               | A comma-delimited list of time series features to calculate for the parameter. If not provided, global default value is used.                     |
+| use_only_custom_timeseries       | boolean   |               | Whether to only use the custom timeseries for the parameter (i.e. ignore any autogenerated time series).                                          |
 
 Example for two parameters, one vital sign and one local lab. For any
 time series generated for the vital sign, at least 50 eligible subjects
@@ -298,26 +303,26 @@ point.
 
 Data frame columns:
 
-| Column name      | Data type | Data required | Description                                                                                                            |
+| Column name       | Data type | Data required | Description                                                                                                            |
 |------------------|------------------|------------------|------------------|
-| subject_id       | chr       | Y             | Pointer to the subject identifier in the subjects table.                                                               |
-| parameter_id     | chr       | Y             | Pointer to the parameter identifier in the parameters table.                                                           |
-| timepoint_1_name | chr       | Y             | Name of the top level time point (e.g. Visit 1).                                                                       |
-| timepoint_2_name | chr       |               | Name of the second level time point (e.g. “30 mins after dosing”).                                                     |
-| timepoint_rank   | int       | Y             | Integer for ranking time points into chronological order. Ranking is separate for each parameter.                      |
-| result           | float     | Y             | Numerical result of the parameter.                                                                                     |
-| baseline         | float     |               | Possible baseline value for the parameter and the subject. This is used to calculate change-from-baseline time series. |
+| subject_id        | chr       | Y             | Pointer to the subject identifier in the subjects table.                                                               |
+| parameter_id      | chr       | Y             | Pointer to the parameter identifier in the parameters table.                                                           |
+| timepoint_1\_name | chr       | Y             | Name of the top level time point (e.g. Visit 1).                                                                       |
+| timepoint_2\_name | chr       |               | Name of the second level time point (e.g. “30 mins after dosing”).                                                     |
+| timepoint_rank    | int       | Y             | Integer for ranking time points into chronological order. Ranking is separate for each parameter.                      |
+| result            | float     | Y             | Numerical result of the parameter.                                                                                     |
+| baseline          | float     |               | Possible baseline value for the parameter and the subject. This is used to calculate change-from-baseline time series. |
 
 Example of data contents:
 
-| subject_id | parameter_id  | timepoint_1_name | timepoint_2_name | timepoint_rank | result | baseline |
+| subject_id | parameter_id  | timepoint_1\_name | timepoint_2\_name | timepoint_rank | result | baseline |
 |-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| subj_1     | dummy_param_1 | Visit 1          | pre-dose         | 1              | 72     | 65       |
-| subj_1     | dummy_param_1 | Visit 1          | post-dose        | 2              | 81     | 65       |
-| subj_1     | dummy_param_1 | Visit 2          | NA               | 3              | 69     | 65       |
-| subj_1     | dummy_param_1 | Visit 3          | NA               | 4              | 70     | 65       |
-| subj_1     | dummy_param_2 | Visit 3          | NA               | 1              | 85     | 84       |
-| subj_2     | dummy_param_2 | Visit 3          | NA               | 1              | 102    | 96       |
+| subj_1     | dummy_param_1 | Visit 1           | pre-dose          | 1              | 72     | 65       |
+| subj_1     | dummy_param_1 | Visit 1           | post-dose         | 2              | 81     | 65       |
+| subj_1     | dummy_param_1 | Visit 2           | NA                | 3              | 69     | 65       |
+| subj_1     | dummy_param_1 | Visit 3           | NA                | 4              | 70     | 65       |
+| subj_1     | dummy_param_2 | Visit 3           | NA                | 1              | 85     | 84       |
+| subj_2     | dummy_param_2 | Visit 3           | NA                | 1              | 102    | 96       |
 
 ### custom_timeseries
 
@@ -348,6 +353,23 @@ dummy_param_1. Timepoints are defined with their respective ranks in the
 | timeseries_id | parameter_id  | timepoint_combo |
 |---------------|---------------|-----------------|
 | custom_ts_1   | dummy_param_1 | 1;2;3;4         |
+
+### custom_reference_groups
+
+For some parameters, it might make more sense to compare a site to other
+sites in the same country or region than globally. This can be a case
+for subject weight or height for example where it is better to compare,
+say, the average height or weight of Japanese sites to other East Asian
+sites. If compared globally, most Japanese sites would get flagged since
+in general Japanese are lighter and shorter than people elsewhere.
+
+Data frame columns:
+
+| Column name  | Data type | Data required | Description                                                                                                                                                                             |
+|------------------|------------------|------------------|------------------|
+| parameter_id | chr       | Y             | Pointer to the parameter identifier in the parameters table.                                                                                                                            |
+| feature      | chr       | Y             | Time series feature for which to use the custom reference group.                                                                                                                        |
+| ref_group    | chr       | Y             | “country” if the parameter features should only be compared to sites from the same country, “region” if the comparison should be made to other sites from the same region of the world. |
 
 ## Output data
 
