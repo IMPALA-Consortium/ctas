@@ -546,7 +546,9 @@ calculate_ts_features <- function(this_timeseries_wide, this_baseline, this_time
 
   if(ncol(this_timeseries_wide) > 1 & this_baseline == "original") {
 
-    # Most time series features should only be calculated if more than time points are available
+    # Most time series features should only be calculated if more than time points are available.
+    # Also the following are calculated only for non-baseline adjusted time series as they would
+    # be the same for both non-adjusted and the adjusted which in turn would lead to duplication of results.
 
     if('range' %in% this_timeseries_features_to_calculate) {
       ts_features$range <- apply(this_timeseries_wide, MARGIN = 1, function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE) )
@@ -564,25 +566,14 @@ calculate_ts_features <- function(this_timeseries_wide, this_baseline, this_time
       ts_features$autocorr <- apply(this_timeseries_wide, MARGIN = 1, calculate_autocorrelation)
     }
 
-
-
-  } else if (ncol(this_timeseries_wide) > 1 & this_baseline == "cfb") {
-
-    # For change-from-baseline time series, return average, range and self-similarity to own site features.
-    # Other features would be identical with the time series for original values.
-
-    if('range' %in% this_timeseries_features_to_calculate) {
-      ts_features$range <- apply(this_timeseries_wide, MARGIN = 1, function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE) )
-    }
-
-
-  }
+  } 
 
   # Average is calculated for all kinds of time series
   if('average' %in% this_timeseries_features_to_calculate) {
     ts_features$average <- apply(this_timeseries_wide, MARGIN = 1, mean, na.rm = TRUE)
   }
 
+  # Local-outlier factor should also be calculated for all time series.
   if('lof' %in% this_timeseries_features_to_calculate) {
 
     lof_values_df <- calculate_lof(origvalues_distances)
