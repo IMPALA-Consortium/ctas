@@ -92,7 +92,7 @@ The following gives more details on each parameter. Examples are also provided w
 
 ### timeseries_features_to_calculate
 
-Comma-delimited string of time series features to calculate.
+Semicolon-delimited string of time series features to calculate.
 The list must contain at least one of the following feature codes:
 
 | Feature code | Description |

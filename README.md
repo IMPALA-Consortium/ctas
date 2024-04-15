@@ -29,7 +29,7 @@ Please note that data preparation step is intentionally out-of-scope for
 the package because each user is likely to have their data in a
 different format.
 
-Then the main function (process_a\_study) is called separately for each
+Then the main function (process_a_study) is called separately for each
 study you wish to process. The function returns the results as a list of
 data frames. For details on the output, please see below.
 
@@ -199,7 +199,7 @@ ls_ctas
 
 ## Input parameters
 
-The function process_a\_study has a number of parameters that need to be
+The function process_a_study has a number of parameters that need to be
 provided. Some of these are data frames while others are simple
 variables.
 
@@ -208,8 +208,8 @@ provided where needed.
 
 ### timeseries_features_to_calculate
 
-Comma-delimited string of time series features to calculate. The list
-must contain at least one of the following feature codes:
+Semicolon-delimited string of time series features to calculate. The
+list must contain at least one of the following feature codes:
 
 | Feature code                | Description                                                                                                          |
 |------------------------------------|------------------------------------|
@@ -303,26 +303,26 @@ point.
 
 Data frame columns:
 
-| Column name       | Data type | Data required | Description                                                                                                            |
+| Column name      | Data type | Data required | Description                                                                                                            |
 |------------------|------------------|------------------|------------------|
-| subject_id        | chr       | Y             | Pointer to the subject identifier in the subjects table.                                                               |
-| parameter_id      | chr       | Y             | Pointer to the parameter identifier in the parameters table.                                                           |
-| timepoint_1\_name | chr       | Y             | Name of the top level time point (e.g. Visit 1).                                                                       |
-| timepoint_2\_name | chr       |               | Name of the second level time point (e.g. “30 mins after dosing”).                                                     |
-| timepoint_rank    | int       | Y             | Integer for ranking time points into chronological order. Ranking is separate for each parameter.                      |
-| result            | float     | Y             | Numerical result of the parameter.                                                                                     |
-| baseline          | float     |               | Possible baseline value for the parameter and the subject. This is used to calculate change-from-baseline time series. |
+| subject_id       | chr       | Y             | Pointer to the subject identifier in the subjects table.                                                               |
+| parameter_id     | chr       | Y             | Pointer to the parameter identifier in the parameters table.                                                           |
+| timepoint_1_name | chr       | Y             | Name of the top level time point (e.g. Visit 1).                                                                       |
+| timepoint_2_name | chr       |               | Name of the second level time point (e.g. “30 mins after dosing”).                                                     |
+| timepoint_rank   | int       | Y             | Integer for ranking time points into chronological order. Ranking is separate for each parameter.                      |
+| result           | float     | Y             | Numerical result of the parameter.                                                                                     |
+| baseline         | float     |               | Possible baseline value for the parameter and the subject. This is used to calculate change-from-baseline time series. |
 
 Example of data contents:
 
-| subject_id | parameter_id  | timepoint_1\_name | timepoint_2\_name | timepoint_rank | result | baseline |
+| subject_id | parameter_id  | timepoint_1_name | timepoint_2_name | timepoint_rank | result | baseline |
 |-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| subj_1     | dummy_param_1 | Visit 1           | pre-dose          | 1              | 72     | 65       |
-| subj_1     | dummy_param_1 | Visit 1           | post-dose         | 2              | 81     | 65       |
-| subj_1     | dummy_param_1 | Visit 2           | NA                | 3              | 69     | 65       |
-| subj_1     | dummy_param_1 | Visit 3           | NA                | 4              | 70     | 65       |
-| subj_1     | dummy_param_2 | Visit 3           | NA                | 1              | 85     | 84       |
-| subj_2     | dummy_param_2 | Visit 3           | NA                | 1              | 102    | 96       |
+| subj_1     | dummy_param_1 | Visit 1          | pre-dose         | 1              | 72     | 65       |
+| subj_1     | dummy_param_1 | Visit 1          | post-dose        | 2              | 81     | 65       |
+| subj_1     | dummy_param_1 | Visit 2          | NA               | 3              | 69     | 65       |
+| subj_1     | dummy_param_1 | Visit 3          | NA               | 4              | 70     | 65       |
+| subj_1     | dummy_param_2 | Visit 3          | NA               | 1              | 85     | 84       |
+| subj_2     | dummy_param_2 | Visit 3          | NA               | 1              | 102    | 96       |
 
 ### custom_timeseries
 
