@@ -931,113 +931,144 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
                              default_minimum_timepoints_per_series, default_minimum_subjects_per_series,
                              default_max_share_missing_timepoints_per_series, default_generate_change_from_baseline,
                              autogenerate_timeseries) {
-
-  df_subjects_colnames_expected <- c("country", "subject_id", "site", "region")
-
-  df_parameters_colnames_expected <- c("parameter_id", "parameter_category_1", "parameter_category_2",
-                                       "parameter_category_3", "parameter_name", "time_point_count_min", "subject_count_min", "max_share_missing",
-                                       "generate_change_from_baseline", "timeseries_features_to_calculate", "use_only_custom_timeseries")
-
-  df_data_colnames_expected <- c("subject_id", "parameter_id", "timepoint_1_name", "timepoint_2_name", "timepoint_rank", "result", "baseline")
-
-  df_custom_reference_colnames_expected <- c("parameter_id", "feature", "ref_group")
-
-  df_custom_timeseries_colnames_expected <- c("timeseries_id", "parameter_id", "timepoint_combo")
-
-
-
+  
+  # Create a data frame with expected columns and their data types
+  expected_columns <- data.frame(
+    df_name = c(rep("subjects", 4), 
+                rep("parameters", 11), 
+                rep("data", 7), 
+                rep("custom_reference_groups", 3), 
+                rep("custom_timeseries", 3)),
+    column_name = c("country", "subject_id", "site", "region",
+                    "parameter_id", "parameter_category_1", "parameter_category_2", 
+                    "parameter_category_3", "parameter_name", "time_point_count_min", 
+                    "subject_count_min", "max_share_missing", "generate_change_from_baseline", 
+                    "timeseries_features_to_calculate", "use_only_custom_timeseries",
+                    "subject_id", "parameter_id", "timepoint_1_name", "timepoint_2_name", 
+                    "timepoint_rank", "result", "baseline",
+                    "parameter_id", "feature", "ref_group",
+                    "timeseries_id", "parameter_id", "timepoint_combo"),
+    column_data_type = c("character", "character", "character", "character",
+                         "character", "character", "character", "character", 
+                         "character", "numeric", "numeric", "numeric", 
+                         "logical", "character", "logical",
+                         "character", "character", "character", "character", 
+                         "numeric", "numeric", "numeric",
+                         "character", "character", "character",
+                         "character", "character", "character"),
+    values_expected = c(TRUE, TRUE, TRUE, FALSE,
+                        TRUE, FALSE, FALSE, 
+                        FALSE, TRUE, FALSE, 
+                        FALSE, FALSE, FALSE, 
+                        FALSE, FALSE,
+                        TRUE, TRUE, TRUE, FALSE, 
+                        TRUE, TRUE, FALSE,
+                        TRUE, TRUE, TRUE,
+                        TRUE, TRUE, TRUE)
+  )
+  
+  
+  # List of data frames and their corresponding inputs
+  input_data_frames <- list(subjects = subjects, 
+                            parameters = parameters, 
+                            data = data, 
+                            custom_reference_groups = custom_reference_groups, 
+                            custom_timeseries = custom_timeseries)
+  
+  # Loop through each data frame and check columns and types
+  for (df_name in names(input_data_frames)) {
+    df <- input_data_frames[[df_name]]
+    
+    # Check if the data frame is empty
+    if (nrow(df) == 0) {
+      
+      if(df_name %in% c("custom_reference_groups", "custom_timeseries")) {
+        # Data frames custom_reference_groups, custom_timeseries can be empty. 
+        # In this case, their columns do not have to be checked.
+        
+        next
+        
+      } else {
+        
+        stop(paste("The data frame", df_name, "is empty!"))  
+        
+      }
+      
+      
+    }
+    
+    # Get expected columns for the current data frame
+    expected_for_df <- expected_columns[expected_columns$df_name == df_name, ]
+    
+    # Check for missing columns
+    missing_cols <- setdiff(expected_for_df$column_name, colnames(df))
+    if (length(missing_cols) > 0) {
+      stop(paste("The data frame", df_name, "is missing the following columns:", paste(missing_cols, collapse = ", ")))
+    }
+    
+    # Check for correct data types
+    for (i in 1:nrow(expected_for_df)) {
+      col_name <- expected_for_df$column_name[i]
+      expected_type <- expected_for_df$column_data_type[i]
+      values_expected <- expected_for_df$values_expected[i]
+      
+      # Skip data type test iff the column is not required and all column values are NAs
+      if( all(is.na(df[[col_name]])) & !values_expected ) {
+        
+        next
+        
+      }
+      
+      if (expected_type == "character" && !is.character(df[[col_name]])) {
+        stop(paste("Column", col_name, "in", df_name, "must be of type character!"))
+      } else if (expected_type == "numeric" && !is.numeric(df[[col_name]])) {
+        stop(paste("Column", col_name, "in", df_name, "must be of type numeric!"))
+      } else if (expected_type == "logical" && !is.logical(df[[col_name]])) {
+        stop(paste("Column", col_name, "in", df_name, "must be of type logical!"))
+      }
+    }
+  }
+  
+  
   allowed_timeseries_features <- c('autocorr', 'average', 'own_site_simil_score', 'sd', 'unique_value_count_relative', 'range', 'lof')
-
-
-
+  
   stopifnot("There is no data!" = nrow(data) > 0)
   stopifnot("There are no subjects!" = nrow(subjects) > 0)
-
-  # Check that the input data frames have all the expected columns.
-  stopifnot("The argument df 'subjects' does not have all the expected columns!" = setequal(colnames(subjects), df_subjects_colnames_expected))
-  stopifnot("The argument df 'parameters' does not have all the expected columns!" = setequal(colnames(parameters), df_parameters_colnames_expected))
-  stopifnot("The argument df 'data' does not have all the expected columns!" = setequal(colnames(data), df_data_colnames_expected))
-
-  # And make sure those columns have correct data types. The is_logical test is for columns which
-  # can be left empty and if there are no values, R labels these as "logical".
-
-  # Data frame 'Subjects'
-  stopifnot("Column 'subject_id' in 'subjects' must be a character!" = is.character(subjects$subject_id))
-  stopifnot("Column 'country' in 'subjects' must be a character!" = is.character(subjects$country))
-  stopifnot("Column 'site' in 'subjects' must be a character!" = is.character(subjects$site))
-
-  # Data frame 'Parameters'
-  stopifnot("Column 'parameter_id' in 'parameters' must be a character!" = is.character(parameters$parameter_id))
-  stopifnot("Column 'parameter_category_1' in 'parameters' must be a character!" = is.character(parameters$parameter_category_1))
-  stopifnot("Column 'parameter_category_2' in 'parameters' must be a character!" = is.character(parameters$parameter_category_2) | is.logical(parameters$parameter_category_2))
-  stopifnot("Column 'parameter_category_3' in 'parameters' must be a character!" = is.character(parameters$parameter_category_3) | is.logical(parameters$parameter_category_3))
-  stopifnot("Column 'parameter_name' in 'parameters' must be a character!" = is.character(parameters$parameter_name))
-  stopifnot("Column 'time_point_count_min' in 'parameters' must be numeric!" = is.numeric(parameters$time_point_count_min) | is.logical(parameters$time_point_count_min))
-  stopifnot("Column 'subject_count_min' in 'parameters' must be numeric!" = is.numeric(parameters$subject_count_min) | is.logical(parameters$subject_count_min))
-  stopifnot("Column 'max_share_missing' in 'parameters' must be numeric!" = is.numeric(parameters$max_share_missing) | is.logical(parameters$max_share_missing))
-  stopifnot("Column 'generate_change_from_baseline' in 'parameters' must be logical!" = is.logical(parameters$generate_change_from_baseline))
-  stopifnot("Column 'use_only_custom_timeseries' in 'parameters' must be logical!" = is.logical(parameters$use_only_custom_timeseries))
-
+  
   # Make sure that no parameter has the custom subject_count_min below two.
   params_with_too_small_subject_count_min <- parameters %>%
     filter(.data$subject_count_min < 2) %>%
     pull(.data$parameter_id)
-
+  
   stopifnot("Some parameters' subject_count_min parameter is below two!" = length(params_with_too_small_subject_count_min) == 0)
-
-  # Data frame 'Data'
-  stopifnot("Column 'subject_id' in 'data' must be a character!" = is.character(data$subject_id))
-  stopifnot("Column 'parameter_id' in 'data' must be a character!" = is.character(data$parameter_id))
-  stopifnot("Column 'timepoint_1_name' in 'data' must be a character!" = is.character(data$timepoint_1_name))
-  stopifnot("Column 'timepoint_2_name' in 'data' must be a character!" = is.character(data$timepoint_2_name) | is.logical(data$timepoint_2_name))
-  stopifnot("Column 'timepoint_rank' in 'data' must be numeric!" = is.numeric(data$timepoint_rank))
-  stopifnot("Column 'result' in 'data' must be numeric!" = is.numeric(data$result))
-  stopifnot("Column 'baseline' in 'data' must be numeric!" = is.numeric(data$baseline) | is.logical(data$baseline))
-
-  if(nrow(custom_reference_groups) > 0) {
-
-    stopifnot("The argument df 'custom_reference_groups' does not have all the expected columns!" = setequal(colnames(custom_reference_groups), df_custom_reference_colnames_expected))
-
-  }
-
-  if(nrow(custom_timeseries) > 0) {
-
-    stopifnot("The argument df 'custom_timeseries' does not have all the expected columns!" = setequal(colnames(custom_timeseries), df_custom_timeseries_colnames_expected))
-
-    # Data frame 'custom_timeseries'
-    stopifnot("Column 'timeseries_id' in 'custom_timeseries' must be a character!" = is.character(custom_timeseries$timeseries_id))
-    stopifnot("Column 'parameter_id' in 'custom_timeseries' must be a character!" = is.character(custom_timeseries$parameter_id))
-    stopifnot("Column 'timepoint_combo' in 'custom_timeseries' must be a character!" = is.character(custom_timeseries$timepoint_combo))
-
-  }
-
-
+  
+  
   # Make sure that all feature names to calculate are correct.
-  default_timeseries_features_to_calculate <- str_split(default_timeseries_features_to_calculate, ';')[[1]]
-  stopifnot("The argument 'timeseries_features_to_calculate' contains illegal values!" = all(default_timeseries_features_to_calculate %in% allowed_timeseries_features))
-
+  default_timeseries_features_to_calculate_split <- str_split(default_timeseries_features_to_calculate, ';')[[1]]
+  stopifnot("The argument 'timeseries_features_to_calculate' contains illegal values!" = all(default_timeseries_features_to_calculate_split %in% allowed_timeseries_features))
+  
   # Make sure scalar arguments have correct data types.
   stopifnot("Argument default_minimum_timepoints_per_series is not numeric!" = is.numeric(default_minimum_timepoints_per_series))
   stopifnot("Argument default_minimum_subjects_per_series is not numeric!" = is.numeric(default_minimum_subjects_per_series))
   stopifnot("Argument default_max_share_missing_timepoints_per_series must be between 0 and 1!" = all(!is.na(default_max_share_missing_timepoints_per_series) & default_max_share_missing_timepoints_per_series >= 0 & default_max_share_missing_timepoints_per_series <= 1))
   stopifnot("Argument default_generate_change_from_baseline must be TRUE or FALSE!" = is.logical(default_generate_change_from_baseline))
   stopifnot("Argument autogenerate_timeseries must be TRUE or FALSE!" = is.logical(autogenerate_timeseries))
-
+  
   # Stop if default_minimum_subjects_per_series is less than two.
   stopifnot("Minimum value for default_minimum_subjects_per_series is two!" = default_minimum_subjects_per_series >= 2)
-
+  
   # If the time series should not be auto generated, expect at least one custom timeseries.
   stopifnot("Custom timeseries must be defined if autogenerate_timeseries is set to FALSE!" = ifelse(autogenerate_timeseries, TRUE, nrow(custom_timeseries) > 0))
-
+  
   # Stop if there are replicate subject ids in subjects
   replicate_subject_ids <- subjects %>%
     group_by(.data$subject_id) %>%
     summarise(rowcount = n()) %>%
     filter(.data$rowcount > 1) %>%
     pull(.data$subject_id)
-
+  
   stopifnot("There are replicate subject IDs in the subjects df!" = length(replicate_subject_ids) == 0)
-
+  
 }
 
 
