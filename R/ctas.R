@@ -1032,9 +1032,6 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
   
   allowed_timeseries_features <- c('autocorr', 'average', 'own_site_simil_score', 'sd', 'unique_value_count_relative', 'range', 'lof')
   
-  stopifnot("There is no data!" = nrow(data) > 0)
-  stopifnot("There are no subjects!" = nrow(subjects) > 0)
-  
   # Make sure that no parameter has the custom subject_count_min below two.
   params_with_too_small_subject_count_min <- parameters %>%
     filter(.data$subject_count_min < 2) %>%
