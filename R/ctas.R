@@ -19,6 +19,7 @@
 #' @param default_generate_change_from_baseline If set TRUE, time series and their features are calculate also for change-from-baseline values.
 #' @param autogenerate_timeseries If set to TRUE, automatic definition of time series is used. If set to FALSE, custom_timeseries must have at least one time series defined.
 #' @param optimize_sites_and_patients If set to TRUE, always creates timeseries with as many sites and patients as possible while respecting the other function parameters. Default:FALSE
+#' @param entities_to_calculate_bias_for Vector of values for which to calculate bias scores ("site", "country", "region").
 #' @return List with four data frames. Timeseries: definition of the time series used. Timeseries_features: features calculated from the time series. PCA_coordinates: principal components of individual time series for visualizing similarity. Site_scores: biasness scores for sites.
 #'
 #' @export
@@ -27,7 +28,8 @@
 process_a_study <- function(subjects, parameters, data, custom_timeseries, custom_reference_groups, default_timeseries_features_to_calculate,
                             default_minimum_timepoints_per_series, default_minimum_subjects_per_series,
                             default_max_share_missing_timepoints_per_series, default_generate_change_from_baseline,
-                            autogenerate_timeseries, optimize_sites_and_patients = FALSE) {
+                            autogenerate_timeseries, optimize_sites_and_patients = FALSE,
+                            entities_to_calculate_bias_for = c("site")) {
 
   # Disable confusing "`summarise()` has grouped output by 'XX'. You can override using the `.groups` argument." messages.
   options(dplyr.summarise.inform = FALSE)
@@ -194,25 +196,29 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
     # Process the site scores further only if there is something to process...
 
     tso_site_scores <- tso_site_scores %>%
+      mutate(entity_level = list(.env$entities_to_calculate_bias_for)) %>%
+      unnest(entity_level) %>%
+      filter(entity_level == "site" | (entity_level == "country" & ref_group %in% c("region", "global")) | 
+            (entity_level == "region" & ref_group == "global")) %>%
       rowwise() %>%
-      mutate(site_p_values = list(calculate_site_bias_ts_features(.data$feature, .data$data, .data$ref_group))) %>%
+      mutate(entity_p_values = list(calculate_entity_bias_ts_features(.data$feature, .data$data, .data$ref_group, .data$entity_level))) %>%
       select(-data) %>%
-      unnest("site_p_values") %>%
+      unnest("entity_p_values") %>%
       mutate(pvalue_kstest = as.numeric(.data$pvalue_kstest), kstest_statistic = as.numeric(.data$kstest_statistic)) %>%
       ungroup() %>%
       mutate(fdr_adjusted_pvalue_ks = p.adjust(.data$pvalue_kstest, method = "fdr")) %>% # Correct for multiple testing
       mutate(pvalue_kstest_logp = -log10(.data$pvalue_kstest), fdr_corrected_pvalue_logp = -log10(.data$fdr_adjusted_pvalue_ks)) %>%
       mutate(pvalue_kstest_logp = if_else( is.infinite(.data$pvalue_kstest_logp), 30, .data$pvalue_kstest_logp),
              fdr_corrected_pvalue_logp = if_else( is.infinite(.data$fdr_corrected_pvalue_logp), 30, .data$fdr_corrected_pvalue_logp)) %>%
-      select(c("timeseries_id", "site", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subj_count")) %>%
+      select(c("timeseries_id", "entity", "entity_level", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subj_count")) %>%
       rename(c(subject_count = "subj_count"))
 
   } else {
 
     # Otherwise create an empty data frame.
 
-    tso_site_scores <- data.frame(matrix(ncol = 10, nrow = 0))
-    colnames(tso_site_scores) <- c("timeseries_id", "site", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subject_count")
+    tso_site_scores <- data.frame(matrix(ncol = 11, nrow = 0))
+    colnames(tso_site_scores) <- c("timeseries_id", "entity", "entity_level", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subject_count")
 
   }
 
@@ -224,22 +230,23 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
 
 
 
-#' calculate_site_bias_ts_features
+#' calculate_entity_bias_ts_features
 #'
 #' Performs Kolmogorov-Smirnov (KS) test for a particular parameter and time series feature.
 #'
 #' @param this_feature Type of the time series feature.
 #' @param this_data Feature values for each subject.
-#' @param this_ref_group Reference group for the sites (country, region or global).
-#' @return Data frame with KS p-values for each site.
+#' @param this_ref_group Reference group for the entities (country, region or global).
+#' @param this_entity_level Whether p-values should be calculated for sites, countries or regions.
+#' @return Data frame with KS p-values for each entity.
 #'
 #' @author Pekka Tiikkainen, \email{pekka.tiikkainen@@bayer.com}
-calculate_site_bias_ts_features <- function(this_feature, this_data, this_ref_group) {
+calculate_entity_bias_ts_features <- function(this_feature, this_data, this_ref_group, this_entity_level) {
 
   # Add a tiny random number to each value to avoid problems ks.test has with ties.
-  this_data$value <- this_data$value + rnorm(nrow(this_data), mean = 0, sd = 0.00001)
+  #this_data$value <- this_data$value + rnorm(nrow(this_data), mean = 0, sd = 0.00000001)
 
-  site_pvalues <- data.frame()
+  entity_pvalues <- data.frame()
 
   # Define the hypothesis (i.e. whether we are looking at one-sided or two-sided bias).
   nullhypo_ks <- case_when(
@@ -247,70 +254,96 @@ calculate_site_bias_ts_features <- function(this_feature, this_data, this_ref_gr
     this_feature == "unique_value_count_relative" ~ "greater",
     TRUE ~ "two.sided"
   )
+  
+  if(this_entity_level == "site") {
+    
+    this_data$entity <- this_data$site
+    
+  } else if (this_entity_level == "country") {
+    
+    this_data$entity <- this_data$country
+    
+  } else if (this_entity_level == "region") {
+    
+    this_data$entity <- this_data$region
+    
+  }
+  
+  entity_metadata <- this_data %>%
+    group_by(.data$entity) %>%
+    summarise(region = ifelse(.env$this_entity_level %in% c("site", "country"), first(.data$region), "Not applicable"),
+              country = ifelse(.env$this_entity_level == "site", first(.data$country), "Not applicable"),
+              subj_count = n_distinct(.data$subject_id))
+    
 
-  site_metadata <- this_data %>%
-    group_by(.data$site) %>%
-    summarise(region = first(.data$region), country = first(.data$country), subj_count = n_distinct(.data$subject_id))
 
-  # Put site name and value columns into vectors. This makes the for loop much faster.
-  unique_sites <- unique(this_data$site)
+  # Put entity name and value columns into vectors. This makes the for loop much faster.
+  unique_entities <- unique(this_data$entity)
 
-  sites <- this_data$site
-  countries <- this_data$country
-  regions <- this_data$region
-  values <- this_data$value
-
-  for(this_site in unique_sites) {
-
-    this_site_value_indices <- which(sites == this_site)
-
-    if(this_ref_group == "country") {
-
-      this_country <- filter(site_metadata, .data$site==this_site)$country
-
-      reference_site_value_indices <- setdiff( which(countries == this_country), this_site_value_indices)
-
-
-    } else if (this_ref_group == "region") {
-
-      this_region <- filter(site_metadata, .data$site==this_site)$region
-
-      reference_site_value_indices <- setdiff( which(regions == this_region), this_site_value_indices)
-
-    } else if (this_ref_group == "global") {
-
-      reference_site_value_indices <- which(sites != this_site)
-
+  if( length(unique_entities) > 1 ) {
+    
+    entities <- this_data$entity
+    countries <- this_data$country
+    regions <- this_data$region
+    values <- this_data$value
+  
+    for(this_entity in unique_entities) {
+  
+      this_entity_value_indices <- which(entities == this_entity)
+  
+      if(this_ref_group == "country") {
+  
+        this_country <- filter(entity_metadata, .data$entity==this_entity)$country
+  
+        reference_entity_value_indices <- setdiff( which(countries == this_country), this_entity_value_indices)
+  
+  
+      } else if (this_ref_group == "region") {
+  
+        this_region <- filter(entity_metadata, .data$entity==this_entity)$region
+  
+        reference_entity_value_indices <- setdiff( which(regions == this_region), this_entity_value_indices)
+  
+      } else if (this_ref_group == "global") {
+  
+        reference_entity_value_indices <- which(entities != this_entity)
+  
+      }
+  
+      if (length(reference_entity_value_indices) == 0) next
+  
+      within_set_values <- values[this_entity_value_indices]
+      outside_set_values <- values[reference_entity_value_indices]
+  
+      ks_results <- ks.test(x = within_set_values, y = outside_set_values, alternative = nullhypo_ks)
+  
+      entity_pvalues <- bind_rows(entity_pvalues,
+                                c("entity" = this_entity,
+                                  "pvalue_kstest" = ks_results$p.value, "kstest_statistic" = ks_results$statistic[[1]]))
+  
+  
+  
+    }
+  
+  
+    if( nrow(entity_pvalues) > 0 ) {
+    
+      # Add country name and subject count into the results
+      entity_pvalues <- entity_pvalues %>%
+        left_join(y=entity_metadata, by="entity") %>%
+        mutate(
+          pvalue_kstest = ifelse(
+            is.na(.data$pvalue_kstest) & as.numeric(.data$kstest_statistic) == 1,
+            1e-100,
+            .data$pvalue_kstest
+          )
+        )
+      
     }
 
-    if (length(reference_site_value_indices) == 0) next
-
-    within_set_values <- values[this_site_value_indices]
-    outside_set_values <- values[reference_site_value_indices]
-
-    ks_results <- ks.test(x = within_set_values, y = outside_set_values, alternative = nullhypo_ks)
-
-    site_pvalues <- bind_rows(site_pvalues,
-                              c("site" = this_site,
-                                "pvalue_kstest" = ks_results$p.value, "kstest_statistic" = ks_results$statistic[[1]]))
-
-
-
   }
-
-
-  # Add country name and subject count into the results
-  site_pvalues <- site_pvalues %>%
-    left_join(y=site_metadata, by="site") %>%
-    mutate(
-      pvalue_kstest = ifelse(
-        is.na(.data$pvalue_kstest) & as.numeric(.data$kstest_statistic) == 1,
-        1e-100,
-        .data$pvalue_kstest
-      )
-    )
-
-  return(site_pvalues)
+    
+  return(entity_pvalues)
 
 }
 
