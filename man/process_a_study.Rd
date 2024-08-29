@@ -16,7 +16,8 @@ process_a_study(
   default_max_share_missing_timepoints_per_series,
   default_generate_change_from_baseline,
   autogenerate_timeseries,
-  optimize_sites_and_patients = FALSE
+  optimize_sites_and_patients = FALSE,
+  entities_to_calculate_bias_for = c("site")
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ process_a_study(
 \item{autogenerate_timeseries}{If set to TRUE, automatic definition of time series is used. If set to FALSE, custom_timeseries must have at least one time series defined.}
 
 \item{optimize_sites_and_patients}{If set to TRUE, always creates timeseries with as many sites and patients as possible while respecting the other function parameters. Default:FALSE}
+
+\item{entities_to_calculate_bias_for}{Vector of values for which to calculate bias scores ("site", "country", "region").}
 }
 \value{
 List with four data frames. Timeseries: definition of the time series used. Timeseries_features: features calculated from the time series. PCA_coordinates: principal components of individual time series for visualizing similarity. Site_scores: biasness scores for sites.
