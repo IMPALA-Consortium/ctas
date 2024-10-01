@@ -1,7 +1,7 @@
 Package: ctas
 Type: Package
 Title: The package is used to identify anomalous clinical time series
-Version: 0.2.1
+Version: 0.3.1
 Authors@R: c(
   person("Pekka", "Tiikkainen",
     role = c("aut", "cre"),
@@ -27,7 +27,9 @@ Imports:
     dbscan,
     rlang,
     stringr,
-    tidyr
+    tidyr,
+    lme4,
+    merTools
 Suggests: 
     testthat (>= 3.0.0),
     purrr,
