@@ -182,38 +182,34 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
     unnest("ts_features") %>%
     inner_join(y=subjects, by="subject_id") %>%
     left_join(y=select(parameters, c("parameter_id", "subject_count_min")), by="parameter_id") %>% # Look up minimum subjects expected per parameter.
-    left_join(y=custom_reference_groups, by=c("parameter_id", "feature")) %>% # Look up any site reference groups.
-    mutate(ref_group = ifelse(is.na(.data$ref_group), "global", .data$ref_group)) %>%
-    group_by(.data$timeseries_id, .data$feature, .data$ref_group) %>%
+    group_by(.data$timeseries_id, .data$feature) %>%
+    # Make sure there are at least two sites and enough subjects
     filter( n_distinct(.data$site) >= 2 & n() >= .data$subject_count_min) %>%
+    # There should be fewer sites than subjects
+    filter( n_distinct(.data$site) < n() ) %>%
+    select(-timepoint_combo_subjects) %>%
     nest()
-
-
+  
   if(nrow(tso_site_scores) >= 1) {
-
+    
     # Process the site scores further only if there is something to process...
-
+    
     tso_site_scores <- tso_site_scores %>%
       rowwise() %>%
-      mutate(site_p_values = list(calculate_site_bias_ts_features(.data$feature, .data$data, .data$ref_group))) %>%
+      mutate(mixed_effect_model_results = list(fit_mixed_effects_model(.data$data))) %>%
       select(-data) %>%
-      unnest("site_p_values") %>%
-      mutate(pvalue_kstest = as.numeric(.data$pvalue_kstest), kstest_statistic = as.numeric(.data$kstest_statistic)) %>%
-      ungroup() %>%
-      mutate(fdr_adjusted_pvalue_ks = p.adjust(.data$pvalue_kstest, method = "fdr")) %>% # Correct for multiple testing
-      mutate(pvalue_kstest_logp = -log10(.data$pvalue_kstest), fdr_corrected_pvalue_logp = -log10(.data$fdr_adjusted_pvalue_ks)) %>%
-      mutate(pvalue_kstest_logp = if_else( is.infinite(.data$pvalue_kstest_logp), 30, .data$pvalue_kstest_logp),
-             fdr_corrected_pvalue_logp = if_else( is.infinite(.data$fdr_corrected_pvalue_logp), 30, .data$fdr_corrected_pvalue_logp)) %>%
-      select(c("timeseries_id", "site", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subj_count")) %>%
-      rename(c(subject_count = "subj_count"))
-
+      unnest(mixed_effect_model_results) %>%
+      mutate(is_signal = ifelse(ci95_upper < 0 | ci95_lower > 0, 1, 0)) %>%
+      select(timeseries_id, feature, entity, mean, median, sd, ci95_lower, ci95_upper, is_signal)
+    
+    
   } else {
-
+    
     # Otherwise create an empty data frame.
-
-    tso_site_scores <- data.frame(matrix(ncol = 10, nrow = 0))
-    colnames(tso_site_scores) <- c("timeseries_id", "site", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subject_count")
-
+    
+    tso_site_scores <- data.frame(matrix(ncol = 8, nrow = 0))
+    colnames(tso_site_scores) <- c("timeseries_id", "feature", "entity", "mean", "median", "sd", "ci95_lower", "ci95_upper", "is_signal")
+    
   }
 
   # Combine the four result tables into a list which the function returns.
@@ -1086,4 +1082,45 @@ calculate_autocorrelation <- function(this_timeseries, lag=1) {
 
   return(auto_corr_coeff)
 
+}
+
+#' fit_mixed_effects_model
+#'
+#' Fits a mixed effects model to the data to identify any bias in time series feature bias for sites, countries and regions.
+#'
+#' @param this_data Feature values for each subject.
+#' @return Data frame with mixed effect model results for each entity (site, country and region)
+fit_mixed_effects_model <- function(this_data) {
+  
+  
+  # Fit a mixed-effects model
+  # Here, we assume 'property' is the dependent variable
+  # 'site' is the fixed effect of interest
+  # 'country' and 'region' are random effects
+  
+  if(n_distinct(this_data$country) > 1 & n_distinct(this_data$region) > 1) {
+    
+    model <- lmer(value ~ (1 | region/country/site), data = this_data)  
+    
+  } else if (n_distinct(this_data$country) > 1 & n_distinct(this_data$region) == 1) {
+    
+    model <- lmer(value ~ (1 | country/site), data = this_data)  
+    
+  } else if (n_distinct(this_data$country) == 1 & n_distinct(this_data$region) == 1) {
+    
+    model <- lmer(value ~ (1 | site), data = this_data)
+    
+  }
+  
+  
+  # For each entity, calculate 
+  output <- REsim(model, n.sims=500) %>%
+    rowwise() %>%
+    mutate(entity = str_split(groupID, pattern=":")[[1]][1]) %>%
+    mutate(ci95_upper = median + 1.96 * sd,
+           ci95_lower = median - 1.96 * sd
+    )
+  
+  return(output) 
+  
 }
