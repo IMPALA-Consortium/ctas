@@ -3,6 +3,8 @@
 export(process_a_study)
 import(dplyr)
 importFrom(dbscan,lof)
+importFrom(lme4,lmer)
+importFrom(merTools,REsim)
 importFrom(rlang,.data)
 importFrom(rlang,.env)
 importFrom(stats,cor)
