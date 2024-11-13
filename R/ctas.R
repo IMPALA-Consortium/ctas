@@ -19,6 +19,7 @@
 #' @param default_generate_change_from_baseline If set TRUE, time series and their features are calculate also for change-from-baseline values.
 #' @param autogenerate_timeseries If set to TRUE, automatic definition of time series is used. If set to FALSE, custom_timeseries must have at least one time series defined.
 #' @param optimize_sites_and_patients If set to TRUE, always creates timeseries with as many sites and patients as possible while respecting the other function parameters. Default:FALSE
+#' @param site_scoring_method How to score sites ("ks" = Kolmogorov-Smirnov, "mixedeffects" = mixed effects modelling, "avg_feat_value" = Average site feature value. Default:ks
 #' @return List with four data frames. Timeseries: definition of the time series used. Timeseries_features: features calculated from the time series. PCA_coordinates: principal components of individual time series for visualizing similarity. Site_scores: biasness scores for sites.
 #'
 #' @export
@@ -27,7 +28,8 @@
 process_a_study <- function(subjects, parameters, data, custom_timeseries, custom_reference_groups, default_timeseries_features_to_calculate,
                             default_minimum_timepoints_per_series, default_minimum_subjects_per_series,
                             default_max_share_missing_timepoints_per_series, default_generate_change_from_baseline,
-                            autogenerate_timeseries, optimize_sites_and_patients = FALSE) {
+                            autogenerate_timeseries, optimize_sites_and_patients = FALSE,
+                            site_scoring_method = "ks") {
 
   # Disable confusing "`summarise()` has grouped output by 'XX'. You can override using the `.groups` argument." messages.
   options(dplyr.summarise.inform = FALSE)
@@ -182,33 +184,84 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
     unnest("ts_features") %>%
     inner_join(y=subjects, by="subject_id") %>%
     left_join(y=select(parameters, c("parameter_id", "subject_count_min")), by="parameter_id") %>% # Look up minimum subjects expected per parameter.
-    group_by(.data$timeseries_id, .data$feature) %>%
+    left_join(y=custom_reference_groups, by=c("parameter_id", "feature")) %>% # Look up any site reference groups.
+    mutate(ref_group = ifelse(is.na(.data$ref_group), "global", .data$ref_group)) %>%
+    group_by(.data$timeseries_id, .data$feature, , .data$ref_group) %>%
     # Make sure there are at least two sites and enough subjects
     filter( n_distinct(.data$site) >= 2 & n() >= .data$subject_count_min) %>%
     # There should be fewer sites than subjects
     filter( n_distinct(.data$site) < n() ) %>%
     select(-timepoint_combo_subjects) %>%
-    nest()
+    nest() %>%
+    ungroup()
   
   if(nrow(tso_site_scores) >= 1) {
     
     # Process the site scores further only if there is something to process...
     
-    tso_site_scores <- tso_site_scores %>%
-      rowwise() %>%
-      mutate(mixed_effect_model_results = list(fit_mixed_effects_model(.data$data))) %>%
-      select(-data) %>%
-      unnest(mixed_effect_model_results) %>%
-      mutate(is_signal = ifelse(ci95_upper < 0 | ci95_lower > 0, 1, 0)) %>%
-      select(timeseries_id, feature, entity, mean, median, sd, ci95_lower, ci95_upper, is_signal)
+    if(site_scoring_method == "ks") {
+      
+      tso_site_scores <- tso_site_scores %>%
+        rowwise() %>%
+        mutate(site_p_values = list(calculate_site_bias_ts_features(.data$feature, .data$data, .data$ref_group))) %>%
+        select(-data) %>%
+        unnest("site_p_values") %>%
+        mutate(pvalue_kstest = as.numeric(.data$pvalue_kstest), kstest_statistic = as.numeric(.data$kstest_statistic)) %>%
+        ungroup() %>%
+        mutate(fdr_adjusted_pvalue_ks = p.adjust(.data$pvalue_kstest, method = "fdr")) %>% # Correct for multiple testing
+        mutate(pvalue_kstest_logp = -log10(.data$pvalue_kstest), fdr_corrected_pvalue_logp = -log10(.data$fdr_adjusted_pvalue_ks)) %>%
+        mutate(pvalue_kstest_logp = if_else( is.infinite(.data$pvalue_kstest_logp), 30, .data$pvalue_kstest_logp),
+               fdr_corrected_pvalue_logp = if_else( is.infinite(.data$fdr_corrected_pvalue_logp), 30, .data$fdr_corrected_pvalue_logp)) %>%
+        select(c("timeseries_id", "site", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subj_count")) %>%
+        rename(c(subject_count = "subj_count"))
+      
+    } else if(site_scoring_method == "mixedeffects")  {
+      
+      tso_site_scores <- tso_site_scores %>%
+        rowwise() %>%
+        mutate(mixed_effect_model_results = list(fit_mixed_effects_model(.data$data))) %>%
+        select(-data) %>%
+        unnest(mixed_effect_model_results) %>%
+        mutate(is_signal = ifelse(ci95_upper < 0 | ci95_lower > 0, 1, 0)) %>%
+        select(timeseries_id, feature, entity, mean, median, sd, ci95_lower, ci95_upper, is_signal)
+      
+    } else if(site_scoring_method == "avg_feat_value") {
+      
+      tso_site_scores <- tso_site_scores %>%
+        rowwise() %>%
+        mutate(iqr_signals = list(calculate_simple_site_feature_avgs(.data$data))) %>%
+        select(-data) %>%
+        unnest(iqr_signals) %>%
+        rename(entity = site) %>%
+        select(timeseries_id, feature, entity, is_signal)
+      
+    }
+    
+    
     
     
   } else {
     
     # Otherwise create an empty data frame.
     
-    tso_site_scores <- data.frame(matrix(ncol = 8, nrow = 0))
-    colnames(tso_site_scores) <- c("timeseries_id", "feature", "entity", "mean", "median", "sd", "ci95_lower", "ci95_upper", "is_signal")
+    if(site_scoring_method == "ks") {
+      
+      tso_site_scores <- data.frame(matrix(ncol = 10, nrow = 0))
+      colnames(tso_site_scores) <- c("timeseries_id", "site", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subject_count")
+      
+    } else if(site_scoring_method == "mixedeffects")  {
+      
+      tso_site_scores <- data.frame(matrix(ncol = 8, nrow = 0))
+      colnames(tso_site_scores) <- c("timeseries_id", "feature", "entity", "mean", "median", "sd", "ci95_lower", "ci95_upper", "is_signal")
+      
+      
+    } else if(site_scoring_method == "avg_feat_value") {
+      
+      tso_site_scores <- data.frame(matrix(ncol = 4, nrow = 0))
+      colnames(tso_site_scores) <- c("timeseries_id", "feature", "entity", "is_signal")
+      
+    }
+    
     
   }
 
@@ -1122,5 +1175,30 @@ fit_mixed_effects_model <- function(this_data) {
     )
   
   return(output) 
+  
+}
+
+
+calculate_simple_site_feature_avgs <- function(this_data) {
+  
+  # Calculate the average value per site
+  average_values <- this_data %>%
+    group_by(site) %>%
+    summarise(avg_value = mean(value, na.rm = TRUE))
+  
+  # Calculate the IQR and identify outliers
+  iqr_value <- IQR(average_values$avg_value)
+  q1 <- quantile(average_values$avg_value, 0.25)
+  q3 <- quantile(average_values$avg_value, 0.75)
+  
+  # Define the lower and upper bounds for outliers
+  lower_bound <- q1 - 1.5 * iqr_value
+  upper_bound <- q3 + 1.5 * iqr_value
+  
+  # Identify outlier sites
+  output <- average_values %>%
+    mutate(is_signal = ifelse( avg_value < lower_bound | avg_value > upper_bound, 1, 0))
+  
+  return(output)
   
 }
