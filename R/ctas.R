@@ -222,8 +222,12 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
         mutate(mixed_effect_model_results = list(fit_mixed_effects_model(.data$data))) %>%
         select(-data) %>%
         unnest(mixed_effect_model_results) %>%
-        mutate(is_signal = ifelse(ci95_upper < 0 | ci95_lower > 0, 1, 0)) %>%
-        select(timeseries_id, feature, entity, mean, median, sd, ci95_lower, ci95_upper, is_signal)
+        mutate(z_score = abs(median / sd),
+               p_value = 1 - pnorm(z_score)) %>%
+        ungroup() %>%
+        mutate(fdr_adjusted_pvalue = p.adjust(.data$p_value, method = "fdr")) %>% # Correct for multiple testing
+        mutate(fdr_corrected_pvalue_logp = -log10(.data$fdr_adjusted_pvalue)) %>%
+        select(timeseries_id, feature, entity, mean, median, sd, p_value, fdr_corrected_pvalue_logp)
       
     } else if(site_scoring_method == "avg_feat_value") {
       
@@ -252,7 +256,7 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
     } else if(site_scoring_method == "mixedeffects")  {
       
       tso_site_scores <- data.frame(matrix(ncol = 8, nrow = 0))
-      colnames(tso_site_scores) <- c("timeseries_id", "feature", "entity", "mean", "median", "sd", "ci95_lower", "ci95_upper", "is_signal")
+      colnames(tso_site_scores) <- c("timeseries_id", "feature", "entity", "mean", "median", "sd", "p_value", "fdr_corrected_pvalue_logp")
       
       
     } else if(site_scoring_method == "avg_feat_value") {
