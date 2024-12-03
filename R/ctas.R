@@ -597,29 +597,43 @@ calculate_ts_features <- function(this_timeseries_wide, this_baseline, this_time
 
   ts_features <- data.frame("subject_id" = subj_keys)
 
-  if(ncol(this_timeseries_wide) > 1 & this_baseline == "original") {
 
     # Most time series features should only be calculated if more than time points are available.
     # Also the following are calculated only for non-baseline adjusted time series as they would
     # be the same for both non-adjusted and the adjusted which in turn would lead to duplication of results.
 
-    if('range' %in% this_timeseries_features_to_calculate) {
+  if('range' %in% this_timeseries_features_to_calculate) {
+    if (ncol(this_timeseries_wide) > 1 & this_baseline == "original") {
       ts_features$range <- apply(this_timeseries_wide, MARGIN = 1, function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE) )
+    } else {
+      ts_features$range <- 0
     }
+  }
 
-    if('sd' %in% this_timeseries_features_to_calculate) {
+  if('sd' %in% this_timeseries_features_to_calculate) {
+    if (ncol(this_timeseries_wide) > 1 & this_baseline == "original") {
       ts_features$sd <- apply(this_timeseries_wide, MARGIN = 1, sd, na.rm = TRUE)
+    } else {
+      ts_features$sd <- 0
     }
+  }
 
-    if('unique_value_count_relative' %in% this_timeseries_features_to_calculate) {
+  if('unique_value_count_relative' %in% this_timeseries_features_to_calculate) {
+    if (ncol(this_timeseries_wide) > 1 & this_baseline == "original") {
       ts_features$unique_value_count_relative <- apply(this_timeseries_wide, MARGIN = 1, function(x) n_distinct(x, na.rm = TRUE) / sum(!is.na(x)) )
+    } else {
+      ts_features$unique_value_count_relative <- 1
     }
+  }
 
-    if('autocorr' %in% this_timeseries_features_to_calculate) {
+  if('autocorr' %in% this_timeseries_features_to_calculate) {
+    if (ncol(this_timeseries_wide) > 1 & this_baseline == "original") {
       ts_features$autocorr <- apply(this_timeseries_wide, MARGIN = 1, calculate_autocorrelation)
+    } else {
+      ts_features$autocorr <- 0
     }
-
-  } 
+  }
+     
 
   # Average is calculated for all kinds of time series
   if('average' %in% this_timeseries_features_to_calculate) {
@@ -644,6 +658,20 @@ calculate_ts_features <- function(this_timeseries_wide, this_baseline, this_time
     ts_features <- ts_features %>%
       left_join(y=own_site_similarity_scores, by="subject_id")
 
+  }
+
+  if (ncol(ts_features) <= 1) {
+    browser()
+  }
+
+  all_null <- ts_features %>%
+    select(- subject_id) %>%
+    summarise(across(everything(), ~ all(is.na(.)))) %>%
+    unlist() %>%
+    all()
+
+  if (all_null) {
+    browser()
   }
 
   # Finally pivot the features table into long format
