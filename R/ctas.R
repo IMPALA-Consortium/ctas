@@ -660,20 +660,6 @@ calculate_ts_features <- function(this_timeseries_wide, this_baseline, this_time
 
   }
 
-  if (ncol(ts_features) <= 1) {
-    browser()
-  }
-
-  all_null <- ts_features %>%
-    select(- subject_id) %>%
-    summarise(across(everything(), ~ all(is.na(.)))) %>%
-    unlist() %>%
-    all()
-
-  if (all_null) {
-    browser()
-  }
-
   # Finally pivot the features table into long format
   ts_features <- ts_features %>%
     pivot_longer(cols= - c("subject_id"), names_to="feature", values_to="value", values_drop_na = TRUE)
