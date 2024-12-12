@@ -5,5 +5,8 @@
 #' @importFrom dbscan lof
 #' @importFrom utils head
 #' @import dplyr
+#' @importFrom lme4 lmer
+#' @importFrom merTools REsim
+#' @importFrom stats IQR median pnorm quantile
 #'
 NULL

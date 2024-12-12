@@ -318,3 +318,36 @@ test_that("process_a_study - avoid lof() error - minPts has to be at least 2 and
   expect_true(all(ls_ctas$site_scores$fdr_corrected_pvalue_logp == 0))
 
 })
+
+
+test_that("timeseries length == 1 with subset of features", {
+    data("ctas_data", package = "ctas")
+
+  feats <- c(
+    "autocorr",
+    "sd",
+    "unique_value_count_relative",
+    "range"
+  ) %>%
+    paste(collapse = ";")
+
+  ctas_data$data <- ctas_data$data %>%
+    filter(timepoint_rank == 1)
+
+  ls_ctas <- process_a_study(
+    data = ctas_data$data,
+    subjects = ctas_data$subjects,
+    parameters = ctas_data$parameters,
+    custom_timeseries = ctas_data$custom_timeseries,
+    custom_reference_groups = ctas_data$custom_reference_groups,
+    default_timeseries_features_to_calculate = feats,
+    default_minimum_timepoints_per_series = 1,
+    default_minimum_subjects_per_series = 25,
+    default_max_share_missing_timepoints_per_series = 0.3,
+    default_generate_change_from_baseline = FALSE,
+    autogenerate_timeseries = TRUE
+  )
+
+  expect_true(all(ls_ctas$site_score$fdr_corrected_pvalue_logp < 1))
+
+})

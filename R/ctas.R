@@ -19,6 +19,7 @@
 #' @param default_generate_change_from_baseline If set TRUE, time series and their features are calculate also for change-from-baseline values.
 #' @param autogenerate_timeseries If set to TRUE, automatic definition of time series is used. If set to FALSE, custom_timeseries must have at least one time series defined.
 #' @param optimize_sites_and_patients If set to TRUE, always creates timeseries with as many sites and patients as possible while respecting the other function parameters. Default:FALSE
+#' @param site_scoring_method How to score sites ("ks" = Kolmogorov-Smirnov, "mixedeffects" = mixed effects modelling, "avg_feat_value" = Average site feature value. Default:ks
 #' @return List with four data frames. Timeseries: definition of the time series used. Timeseries_features: features calculated from the time series. PCA_coordinates: principal components of individual time series for visualizing similarity. Site_scores: biasness scores for sites.
 #'
 #' @export
@@ -27,7 +28,8 @@
 process_a_study <- function(subjects, parameters, data, custom_timeseries, custom_reference_groups, default_timeseries_features_to_calculate,
                             default_minimum_timepoints_per_series, default_minimum_subjects_per_series,
                             default_max_share_missing_timepoints_per_series, default_generate_change_from_baseline,
-                            autogenerate_timeseries, optimize_sites_and_patients = FALSE) {
+                            autogenerate_timeseries, optimize_sites_and_patients = FALSE,
+                            site_scoring_method = "ks") {
 
   # Disable confusing "`summarise()` has grouped output by 'XX'. You can override using the `.groups` argument." messages.
   options(dplyr.summarise.inform = FALSE)
@@ -185,34 +187,85 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
     left_join(y=custom_reference_groups, by=c("parameter_id", "feature")) %>% # Look up any site reference groups.
     mutate(ref_group = ifelse(is.na(.data$ref_group), "global", .data$ref_group)) %>%
     group_by(.data$timeseries_id, .data$feature, .data$ref_group) %>%
+    # Make sure there are at least two sites and enough subjects
     filter( n_distinct(.data$site) >= 2 & n() >= .data$subject_count_min) %>%
-    nest()
-
+    # There should be fewer sites than subjects
+    filter( n_distinct(.data$site) < n() ) %>%
+    select(-"timepoint_combo_subjects") %>%
+    nest() %>%
+    ungroup()
 
   if(nrow(tso_site_scores) >= 1) {
 
     # Process the site scores further only if there is something to process...
 
-    tso_site_scores <- tso_site_scores %>%
-      rowwise() %>%
-      mutate(site_p_values = list(calculate_site_bias_ts_features(.data$feature, .data$data, .data$ref_group))) %>%
-      select(-data) %>%
-      unnest("site_p_values") %>%
-      mutate(pvalue_kstest = as.numeric(.data$pvalue_kstest), kstest_statistic = as.numeric(.data$kstest_statistic)) %>%
-      ungroup() %>%
-      mutate(fdr_adjusted_pvalue_ks = p.adjust(.data$pvalue_kstest, method = "fdr")) %>% # Correct for multiple testing
-      mutate(pvalue_kstest_logp = -log10(.data$pvalue_kstest), fdr_corrected_pvalue_logp = -log10(.data$fdr_adjusted_pvalue_ks)) %>%
-      mutate(pvalue_kstest_logp = if_else( is.infinite(.data$pvalue_kstest_logp), 30, .data$pvalue_kstest_logp),
-             fdr_corrected_pvalue_logp = if_else( is.infinite(.data$fdr_corrected_pvalue_logp), 30, .data$fdr_corrected_pvalue_logp)) %>%
-      select(c("timeseries_id", "site", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subj_count")) %>%
-      rename(c(subject_count = "subj_count"))
+    if(site_scoring_method == "ks") {
+
+      tso_site_scores <- tso_site_scores %>%
+        rowwise() %>%
+        mutate(site_p_values = list(calculate_site_bias_ts_features(.data$feature, .data$data, .data$ref_group))) %>%
+        select(-data) %>%
+        unnest("site_p_values") %>%
+        mutate(pvalue_kstest = as.numeric(.data$pvalue_kstest), kstest_statistic = as.numeric(.data$kstest_statistic)) %>%
+        ungroup() %>%
+        mutate(fdr_adjusted_pvalue_ks = p.adjust(.data$pvalue_kstest, method = "fdr")) %>% # Correct for multiple testing
+        mutate(pvalue_kstest_logp = -log10(.data$pvalue_kstest), fdr_corrected_pvalue_logp = -log10(.data$fdr_adjusted_pvalue_ks)) %>%
+        mutate(pvalue_kstest_logp = if_else( is.infinite(.data$pvalue_kstest_logp), 30, .data$pvalue_kstest_logp),
+               fdr_corrected_pvalue_logp = if_else( is.infinite(.data$fdr_corrected_pvalue_logp), 30, .data$fdr_corrected_pvalue_logp)) %>%
+        select(c("timeseries_id", "site", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subj_count")) %>%
+        rename(c(subject_count = "subj_count"))
+
+    } else if(site_scoring_method == "mixedeffects")  {
+
+      tso_site_scores <- tso_site_scores %>%
+        rowwise() %>%
+        mutate(mixed_effect_model_results = list(fit_mixed_effects_model(.data$data))) %>%
+        select(-data) %>%
+        unnest("mixed_effect_model_results") %>%
+        mutate(z_score = abs(.data$median / .data$sd),
+               p_value = 1 - pnorm(.data$z_score)) %>%
+        ungroup() %>%
+        mutate(fdr_adjusted_pvalue = p.adjust(.data$p_value, method = "fdr")) %>% # Correct for multiple testing
+        mutate(fdr_corrected_pvalue_logp = -log10(.data$fdr_adjusted_pvalue)) %>%
+        select(c("timeseries_id", "feature", "entity", "mean", "median", "sd", "p_value", "fdr_corrected_pvalue_logp"))
+
+    } else if(site_scoring_method == "avg_feat_value") {
+
+      tso_site_scores <- tso_site_scores %>%
+        rowwise() %>%
+        mutate(iqr_signals = list(calculate_simple_site_feature_avgs(.data$data))) %>%
+        select(-"data") %>%
+        unnest("iqr_signals") %>%
+        rename(c(entity = "site")) %>%
+        select(c("timeseries_id", "feature", "entity", "is_signal"))
+
+    }
+
+
+
 
   } else {
 
     # Otherwise create an empty data frame.
 
-    tso_site_scores <- data.frame(matrix(ncol = 10, nrow = 0))
-    colnames(tso_site_scores) <- c("timeseries_id", "site", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subject_count")
+    if(site_scoring_method == "ks") {
+
+      tso_site_scores <- data.frame(matrix(ncol = 10, nrow = 0))
+      colnames(tso_site_scores) <- c("timeseries_id", "site", "country", "region", "feature", "pvalue_kstest_logp", "kstest_statistic", "fdr_corrected_pvalue_logp", "ref_group", "subject_count")
+
+    } else if(site_scoring_method == "mixedeffects")  {
+
+      tso_site_scores <- data.frame(matrix(ncol = 8, nrow = 0))
+      colnames(tso_site_scores) <- c("timeseries_id", "feature", "entity", "mean", "median", "sd", "p_value", "fdr_corrected_pvalue_logp")
+
+
+    } else if(site_scoring_method == "avg_feat_value") {
+
+      tso_site_scores <- data.frame(matrix(ncol = 4, nrow = 0))
+      colnames(tso_site_scores) <- c("timeseries_id", "feature", "entity", "is_signal")
+
+    }
+
 
   }
 
@@ -544,29 +597,43 @@ calculate_ts_features <- function(this_timeseries_wide, this_baseline, this_time
 
   ts_features <- data.frame("subject_id" = subj_keys)
 
-  if(ncol(this_timeseries_wide) > 1 & this_baseline == "original") {
 
     # Most time series features should only be calculated if more than time points are available.
     # Also the following are calculated only for non-baseline adjusted time series as they would
     # be the same for both non-adjusted and the adjusted which in turn would lead to duplication of results.
 
-    if('range' %in% this_timeseries_features_to_calculate) {
+  if('range' %in% this_timeseries_features_to_calculate) {
+    if (ncol(this_timeseries_wide) > 1 & this_baseline == "original") {
       ts_features$range <- apply(this_timeseries_wide, MARGIN = 1, function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE) )
+    } else {
+      ts_features$range <- 0
     }
+  }
 
-    if('sd' %in% this_timeseries_features_to_calculate) {
+  if('sd' %in% this_timeseries_features_to_calculate) {
+    if (ncol(this_timeseries_wide) > 1 & this_baseline == "original") {
       ts_features$sd <- apply(this_timeseries_wide, MARGIN = 1, sd, na.rm = TRUE)
+    } else {
+      ts_features$sd <- 0
     }
+  }
 
-    if('unique_value_count_relative' %in% this_timeseries_features_to_calculate) {
+  if('unique_value_count_relative' %in% this_timeseries_features_to_calculate) {
+    if (ncol(this_timeseries_wide) > 1 & this_baseline == "original") {
       ts_features$unique_value_count_relative <- apply(this_timeseries_wide, MARGIN = 1, function(x) n_distinct(x, na.rm = TRUE) / sum(!is.na(x)) )
+    } else {
+      ts_features$unique_value_count_relative <- 1
     }
+  }
 
-    if('autocorr' %in% this_timeseries_features_to_calculate) {
+  if('autocorr' %in% this_timeseries_features_to_calculate) {
+    if (ncol(this_timeseries_wide) > 1 & this_baseline == "original") {
       ts_features$autocorr <- apply(this_timeseries_wide, MARGIN = 1, calculate_autocorrelation)
+    } else {
+      ts_features$autocorr <- 0
     }
+  }
 
-  } 
 
   # Average is calculated for all kinds of time series
   if('average' %in% this_timeseries_features_to_calculate) {
@@ -931,94 +998,94 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
                              default_minimum_timepoints_per_series, default_minimum_subjects_per_series,
                              default_max_share_missing_timepoints_per_series, default_generate_change_from_baseline,
                              autogenerate_timeseries) {
-  
+
   # Create a data frame with expected columns and their data types
   expected_columns <- data.frame(
-    df_name = c(rep("subjects", 4), 
-                rep("parameters", 11), 
-                rep("data", 7), 
-                rep("custom_reference_groups", 3), 
+    df_name = c(rep("subjects", 4),
+                rep("parameters", 11),
+                rep("data", 7),
+                rep("custom_reference_groups", 3),
                 rep("custom_timeseries", 3)),
     column_name = c("country", "subject_id", "site", "region",
-                    "parameter_id", "parameter_category_1", "parameter_category_2", 
-                    "parameter_category_3", "parameter_name", "time_point_count_min", 
-                    "subject_count_min", "max_share_missing", "generate_change_from_baseline", 
+                    "parameter_id", "parameter_category_1", "parameter_category_2",
+                    "parameter_category_3", "parameter_name", "time_point_count_min",
+                    "subject_count_min", "max_share_missing", "generate_change_from_baseline",
                     "timeseries_features_to_calculate", "use_only_custom_timeseries",
-                    "subject_id", "parameter_id", "timepoint_1_name", "timepoint_2_name", 
+                    "subject_id", "parameter_id", "timepoint_1_name", "timepoint_2_name",
                     "timepoint_rank", "result", "baseline",
                     "parameter_id", "feature", "ref_group",
                     "timeseries_id", "parameter_id", "timepoint_combo"),
     column_data_type = c("character", "character", "character", "character",
-                         "character", "character", "character", "character", 
-                         "character", "numeric", "numeric", "numeric", 
+                         "character", "character", "character", "character",
+                         "character", "numeric", "numeric", "numeric",
                          "logical", "character", "logical",
-                         "character", "character", "character", "character", 
+                         "character", "character", "character", "character",
                          "numeric", "numeric", "numeric",
                          "character", "character", "character",
                          "character", "character", "character"),
     values_expected = c(TRUE, TRUE, TRUE, FALSE,
-                        TRUE, FALSE, FALSE, 
-                        FALSE, TRUE, FALSE, 
-                        FALSE, FALSE, FALSE, 
+                        TRUE, FALSE, FALSE,
+                        FALSE, TRUE, FALSE,
+                        FALSE, FALSE, FALSE,
                         FALSE, FALSE,
-                        TRUE, TRUE, TRUE, FALSE, 
+                        TRUE, TRUE, TRUE, FALSE,
                         TRUE, TRUE, FALSE,
                         TRUE, TRUE, TRUE,
                         TRUE, TRUE, TRUE)
   )
-  
-  
+
+
   # List of data frames and their corresponding inputs
-  input_data_frames <- list(subjects = subjects, 
-                            parameters = parameters, 
-                            data = data, 
-                            custom_reference_groups = custom_reference_groups, 
+  input_data_frames <- list(subjects = subjects,
+                            parameters = parameters,
+                            data = data,
+                            custom_reference_groups = custom_reference_groups,
                             custom_timeseries = custom_timeseries)
-  
+
   # Loop through each data frame and check columns and types
   for (df_name in names(input_data_frames)) {
     df <- input_data_frames[[df_name]]
-    
+
     # Check if the data frame is empty
     if (nrow(df) == 0) {
-      
+
       if(df_name %in% c("custom_reference_groups", "custom_timeseries")) {
-        # Data frames custom_reference_groups, custom_timeseries can be empty. 
+        # Data frames custom_reference_groups, custom_timeseries can be empty.
         # In this case, their columns do not have to be checked.
-        
+
         next
-        
+
       } else {
-        
-        stop(paste("The data frame", df_name, "is empty!"))  
-        
+
+        stop(paste("The data frame", df_name, "is empty!"))
+
       }
-      
-      
+
+
     }
-    
+
     # Get expected columns for the current data frame
     expected_for_df <- expected_columns[expected_columns$df_name == df_name, ]
-    
+
     # Check for missing columns
     missing_cols <- setdiff(expected_for_df$column_name, colnames(df))
     if (length(missing_cols) > 0) {
       stop(paste("The data frame", df_name, "is missing the following columns:", paste(missing_cols, collapse = ", ")))
     }
-    
+
     # Check for correct data types
     for (i in 1:nrow(expected_for_df)) {
       col_name <- expected_for_df$column_name[i]
       expected_type <- expected_for_df$column_data_type[i]
       values_expected <- expected_for_df$values_expected[i]
-      
+
       # Skip data type test iff the column is not required and all column values are NAs
       if( all(is.na(df[[col_name]])) & !values_expected ) {
-        
+
         next
-        
+
       }
-      
+
       if (expected_type == "character" && !is.character(df[[col_name]])) {
         stop(paste("Column", col_name, "in", df_name, "must be of type character!"))
       } else if (expected_type == "numeric" && !is.numeric(df[[col_name]])) {
@@ -1028,44 +1095,44 @@ check_input_data <- function(subjects, parameters, data, custom_timeseries, cust
       }
     }
   }
-  
-  
+
+
   allowed_timeseries_features <- c('autocorr', 'average', 'own_site_simil_score', 'sd', 'unique_value_count_relative', 'range', 'lof')
-  
+
   # Make sure that no parameter has the custom subject_count_min below two.
   params_with_too_small_subject_count_min <- parameters %>%
     filter(.data$subject_count_min < 2) %>%
     pull(.data$parameter_id)
-  
+
   stopifnot("Some parameters' subject_count_min parameter is below two!" = length(params_with_too_small_subject_count_min) == 0)
-  
-  
+
+
   # Make sure that all feature names to calculate are correct.
   default_timeseries_features_to_calculate_split <- str_split(default_timeseries_features_to_calculate, ';')[[1]]
   stopifnot("The argument 'timeseries_features_to_calculate' contains illegal values!" = all(default_timeseries_features_to_calculate_split %in% allowed_timeseries_features))
-  
+
   # Make sure scalar arguments have correct data types.
   stopifnot("Argument default_minimum_timepoints_per_series is not numeric!" = is.numeric(default_minimum_timepoints_per_series))
   stopifnot("Argument default_minimum_subjects_per_series is not numeric!" = is.numeric(default_minimum_subjects_per_series))
   stopifnot("Argument default_max_share_missing_timepoints_per_series must be between 0 and 1!" = all(!is.na(default_max_share_missing_timepoints_per_series) & default_max_share_missing_timepoints_per_series >= 0 & default_max_share_missing_timepoints_per_series <= 1))
   stopifnot("Argument default_generate_change_from_baseline must be TRUE or FALSE!" = is.logical(default_generate_change_from_baseline))
   stopifnot("Argument autogenerate_timeseries must be TRUE or FALSE!" = is.logical(autogenerate_timeseries))
-  
+
   # Stop if default_minimum_subjects_per_series is less than two.
   stopifnot("Minimum value for default_minimum_subjects_per_series is two!" = default_minimum_subjects_per_series >= 2)
-  
+
   # If the time series should not be auto generated, expect at least one custom timeseries.
   stopifnot("Custom timeseries must be defined if autogenerate_timeseries is set to FALSE!" = ifelse(autogenerate_timeseries, TRUE, nrow(custom_timeseries) > 0))
-  
+
   # Stop if there are replicate subject ids in subjects
   replicate_subject_ids <- subjects %>%
     group_by(.data$subject_id) %>%
     summarise(rowcount = n()) %>%
     filter(.data$rowcount > 1) %>%
     pull(.data$subject_id)
-  
+
   stopifnot("There are replicate subject IDs in the subjects df!" = length(replicate_subject_ids) == 0)
-  
+
 }
 
 
@@ -1085,5 +1152,73 @@ calculate_autocorrelation <- function(this_timeseries, lag=1) {
                          use = "pairwise.complete.obs")
 
   return(auto_corr_coeff)
+
+}
+
+#' fit_mixed_effects_model
+#'
+#' Fits a mixed effects model to the data to identify any bias in time series feature bias for sites, countries and regions.
+#'
+#' @param this_data Feature values for each subject.
+#' @return Data frame with mixed effect model results for each entity (site, country and region)
+fit_mixed_effects_model <- function(this_data) {
+
+
+  # Fit a mixed-effects model
+  # Here, we assume 'property' is the dependent variable
+  # 'site' is the fixed effect of interest
+  # 'country' and 'region' are random effects
+
+  if(n_distinct(this_data$country) > 1 & n_distinct(this_data$region) > 1) {
+
+    model <- lmer(value ~ (1 | region/country/site), data = this_data)
+
+  } else if (n_distinct(this_data$country) > 1 & n_distinct(this_data$region) == 1) {
+
+    model <- lmer(value ~ (1 | country/site), data = this_data)
+
+  } else if (n_distinct(this_data$country) == 1 & n_distinct(this_data$region) == 1) {
+
+    model <- lmer(value ~ (1 | site), data = this_data)
+
+  }
+
+
+  # For each entity, calculate
+  output <- REsim(model, n.sims=500) %>%
+    rowwise() %>%
+    mutate(entity = str_split(.data$groupID, pattern=":")[[1]][1]) %>%
+    mutate(ci95_upper = median + 1.96 * sd,
+           ci95_lower = median - 1.96 * sd
+    )
+
+  return(output)
+
+}
+
+
+calculate_simple_site_feature_avgs <- function(this_data) {
+
+  # Calculate the average value per site
+  average_values <- this_data %>%
+    group_by(.data$site) %>%
+    summarise(avg_value = mean(.data$value, na.rm = TRUE))
+
+  # Calculate the IQR and identify outliers
+  iqr_value <- IQR(average_values$avg_value)
+  q1 <- quantile(average_values$avg_value, 0.25)
+  q3 <- quantile(average_values$avg_value, 0.75)
+
+  # Define the lower and upper bounds for outliers
+  lower_bound <- q1 - 1.5 * iqr_value
+  upper_bound <- q3 + 1.5 * iqr_value
+
+  # Identify outlier sites
+  output <- average_values %>%
+    mutate(is_signal = ifelse(
+      .data$avg_value < lower_bound | .data$avg_value > upper_bound,
+      1, 0))
+
+  return(output)
 
 }
