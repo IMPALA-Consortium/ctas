@@ -46,7 +46,8 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
            subject_count_min = ifelse(is.na(.data$subject_count_min), .env$default_minimum_subjects_per_series, .data$subject_count_min),
            max_share_missing = ifelse(is.na(.data$max_share_missing), .env$default_max_share_missing_timepoints_per_series, .data$max_share_missing),
            generate_change_from_baseline = ifelse(is.na(.data$generate_change_from_baseline), .env$default_generate_change_from_baseline, .data$generate_change_from_baseline),
-           timeseries_features_to_calculate = ifelse(is.na(.data$timeseries_features_to_calculate), .env$default_timeseries_features_to_calculate, .data$timeseries_features_to_calculate)
+           timeseries_features_to_calculate = ifelse(is.na(.data$timeseries_features_to_calculate), .env$default_timeseries_features_to_calculate, .data$timeseries_features_to_calculate),
+           use_only_custom_timeseries = ifelse(is.na(.data$use_only_custom_timeseries), FALSE, .data$use_only_custom_timeseries)
     )
 
   # This mapping table is used later for mapping parameter-specific time ranks into human-friendly names.
