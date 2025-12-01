@@ -848,7 +848,24 @@ pick_timepoint_combos <- function(dataset, this_time_point_count_min, this_subje
 
   }
 
-  timepoint_ranks <- sort( unique(dataset$timepoint_rank) )
+  visits <- dataset %>%
+    group_by(timepoint_rank) %>%
+    summarise(nr = n()) %>%
+    mutate(score = nr+timepoint_rank)
+
+  patients <- dataset %>%
+    group_by(subject_id) %>%
+    summarise(score = n())
+
+  dataset_score <- dataset %>%
+    left_join(patients %>% select(subject_id, patient_score = score), by = "subject_id") %>%
+    left_join(visits %>% select(timepoint_rank, visit_score = score), by = "timepoint_rank") %>%
+    mutate(score = patient_score + visit_score) %>%
+    select(-patient_score, -visit_score) %>%
+    arrange(desc(timepoint_rank)) %>%
+    arrange(desc(score))
+
+  timepoint_ranks <- unique(dataset_score$timepoint_rank)
 
   if (optimize_sites_and_patients) {
     tp_max_sites_and_subjects <- get_max_sites_and_subjects(timepoint_ranks = timepoint_ranks,
@@ -899,7 +916,7 @@ pick_timepoint_combos <- function(dataset, this_time_point_count_min, this_subje
              this_last_visit_index == tp_max_sites_and_subjects)
         ) {
 
-          timepoint_combos_to_return <- append(timepoint_combos_to_return, paste(this_ts_timepoints, collapse=";"))
+          timepoint_combos_to_return <- append(timepoint_combos_to_return, paste(sort(this_ts_timepoints), collapse=";"))
           subject_ids_to_return <- append(subject_ids_to_return, paste(timeseries_subjects, collapse=";"))
 
           prev_accepted_timeseries_subj_count <- num_subjects_in_timeseries
