@@ -15,6 +15,7 @@ pick_timepoint_combos(
 )
 }
 \arguments{
+\item{autogenerate_timeseries_type}{Defines the type of timeseries to be generated.}
 \item{dataset}{Description of parameter x.}
 
 \item{this_time_point_count_min}{Minimum number of time points a time series must have.}
