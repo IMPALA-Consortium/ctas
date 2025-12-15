@@ -5,6 +5,7 @@
 \title{pick_timepoint_combos}
 \usage{
 pick_timepoint_combos(
+autogenerate_timeseries_type,
   dataset,
   this_time_point_count_min,
   this_subject_count_min,
