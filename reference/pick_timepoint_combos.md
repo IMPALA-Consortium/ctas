@@ -1,0 +1,63 @@
+# pick_timepoint_combos
+
+Autogenerates one or more time series for the parameter.
+
+## Usage
+
+``` r
+pick_timepoint_combos(
+autogenerate_timeseries_type,
+  dataset,
+  this_time_point_count_min,
+  this_subject_count_min,
+  this_max_share_missing,
+  this_baseline,
+  subjects,
+  optimize_sites_and_patients
+)
+```
+
+## Arguments
+
+- autogenerate_timeseries_type:
+
+  Defines the type of timeseries to be generated.
+
+- dataset:
+
+  Description of parameter x.
+
+- this_time_point_count_min:
+
+  Minimum number of time points a time series must have.
+
+- this_subject_count_min:
+
+  Minimum number of subjects per time series.
+
+- this_max_share_missing:
+
+  Maximum share of missing measuremnents a subject can have.
+
+- this_baseline:
+
+  Whether the time series is for actual measurements or
+  change-from-baseline values.
+
+- subjects:
+
+  Data frame with one row per study subject.
+
+- optimize_sites_and_patients:
+
+  If set to TRUE, always creates timeseries with as many sites and
+  patients as possible while respecting the other function parameters.
+  Default:FALSE
+
+## Value
+
+Data frame with one or more time series for the parameter.
+
+## Author
+
+Pekka Tiikkainen, <pekka.tiikkainen@bayer.com>
