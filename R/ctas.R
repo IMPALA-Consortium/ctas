@@ -32,10 +32,10 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
                             site_scoring_method = "ks") {
 
   # check selected option for auto-timeseries generation
-  if (.env$autogenerate_timeseries==TRUE){
+  if (autogenerate_timeseries==TRUE){
     autogenerate_timeseries_type <- "consecutive"
-  } else if(.env$autogenerate_timeseries %in% c("consecutive","adaptive")){
-    autogenerate_timeseries_type <- .env$autogenerate_timeseries
+  } else if(autogenerate_timeseries %in% c("consecutive","adaptive")){
+    autogenerate_timeseries_type <- autogenerate_timeseries
     autogenerate_timeseries <- TRUE
   }
 
@@ -856,9 +856,9 @@ pick_timepoint_combos <- function(autogenerate_timeseries_type, dataset, this_ti
       filter(.data$has_baseline_value == "Yes")
 
   }
-  if(.env$autogenerate_timeseries_type=="consecutive"){
+  if(autogenerate_timeseries_type=="consecutive"){
     timepoint_ranks <- sort(unique(dataset$timepoint_rank))
-  }else if(.env$autogenerate_timeseries_type=="adaptive"){
+  }else if(autogenerate_timeseries_type=="adaptive"){
     visits <- dataset %>%
       group_by(.data$timepoint_rank) %>%
       summarise(nr = n()) %>%
