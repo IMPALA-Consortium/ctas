@@ -32,10 +32,10 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
                             site_scoring_method = "ks") {
 
   # check selected option for auto-timeseries generation
-  if (autogenerate_timeseries==TRUE){
+  if (.env$autogenerate_timeseries==TRUE){
     autogenerate_timeseries_type <- "consecutive"
-  } else if(autogenerate_timeseries %in% c("consecutive","adaptive")){
-    autogenerate_timeseries_type <- autogenerate_timeseries
+  } else if(.env$autogenerate_timeseries %in% c("consecutive","adaptive")){
+    autogenerate_timeseries_type <- .env$autogenerate_timeseries
     autogenerate_timeseries <- TRUE
   }
 
@@ -90,7 +90,7 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
       mutate(baseline = ifelse(.data$generate_change_from_baseline == TRUE, list(c("original", "cfb")), "original")) %>%
       unnest("baseline") %>%
       rowwise() %>%
-      mutate(output = list(pick_timepoint_combos(autogenerate_timeseries_type, .data$dataset, .data$time_point_count_min, .data$subject_count_min, .data$max_share_missing, .data$baseline, .env$subjects, .env$optimize_sites_and_patients))) %>%
+      mutate(output = list(pick_timepoint_combos(.env$autogenerate_timeseries_type, .data$dataset, .data$time_point_count_min, .data$subject_count_min, .data$max_share_missing, .data$baseline, .env$subjects, .env$optimize_sites_and_patients))) %>%
       unnest("output") %>%
       ungroup() %>%
       mutate(timeseries_id = paste0('ts_', row_number(), '_autogen')) %>%
@@ -856,25 +856,25 @@ pick_timepoint_combos <- function(autogenerate_timeseries_type, dataset, this_ti
       filter(.data$has_baseline_value == "Yes")
 
   }
-  if(autogenerate_timeseries_type=="consecutive"){
+  if(.env$autogenerate_timeseries_type=="consecutive"){
     timepoint_ranks <- sort(unique(dataset$timepoint_rank))
-  }else if(autogenerate_timeseries_type=="adaptive"){
+  }else if(.env$autogenerate_timeseries_type=="adaptive"){
     visits <- dataset %>%
-      group_by(timepoint_rank) %>%
+      group_by(.data$timepoint_rank) %>%
       summarise(nr = n()) %>%
-      mutate(score = nr+timepoint_rank)
+      mutate(score = .data$nr+.data$timepoint_rank)
 
     patients <- dataset %>%
-      group_by(subject_id) %>%
+      group_by(.data$subject_id) %>%
       summarise(score = n())
 
     dataset_score <- dataset %>%
-      left_join(patients %>% select(subject_id, patient_score = score), by = "subject_id") %>%
-      left_join(visits %>% select(timepoint_rank, visit_score = score), by = "timepoint_rank") %>%
-      mutate(score = patient_score + visit_score) %>%
-      select(-patient_score, -visit_score) %>%
-      arrange(desc(timepoint_rank)) %>%
-      arrange(desc(score))
+      left_join(patients %>% select(.data$subject_id, patient_score = .data$score), by = "subject_id") %>%
+      left_join(visits %>% select(.data$timepoint_rank, visit_score = .data$score), by = "timepoint_rank") %>%
+      mutate(score = .data$patient_score + .data$visit_score) %>%
+      select(-.data$patient_score, -.data$visit_score) %>%
+      arrange(desc(.data$timepoint_rank)) %>%
+      arrange(desc(.data$score))
 
     timepoint_ranks <- unique(dataset_score$timepoint_rank)
   }
