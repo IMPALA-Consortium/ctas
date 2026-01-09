@@ -17,7 +17,8 @@ process_a_study(
   default_generate_change_from_baseline,
   autogenerate_timeseries,
   optimize_sites_and_patients = FALSE,
-  site_scoring_method = "ks"
+  site_scoring_method = "ks",
+  padjust_method = "fdr"
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ process_a_study(
 \item{optimize_sites_and_patients}{If set to TRUE, always creates timeseries with as many sites and patients as possible while respecting the other function parameters. Default:FALSE}
 
 \item{site_scoring_method}{How to score sites ("ks" = Kolmogorov-Smirnov, "mixedeffects" = mixed effects modelling, "avg_feat_value" = Average site feature value. Default:ks}
+
+\item{padjust_method}{parameter passed to [p.adjust()] method parameter}
 }
 \value{
 List with four data frames. Timeseries: definition of the time series used. Timeseries_features: features calculated from the time series. PCA_coordinates: principal components of individual time series for visualizing similarity. Site_scores: biasness scores for sites.
