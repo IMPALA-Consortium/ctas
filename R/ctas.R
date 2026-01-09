@@ -20,7 +20,7 @@
 #' @param autogenerate_timeseries If set to TRUE, automatic definition of time series is used. If set to FALSE, custom_timeseries must have at least one time series defined.
 #' @param optimize_sites_and_patients If set to TRUE, always creates timeseries with as many sites and patients as possible while respecting the other function parameters. Default:FALSE
 #' @param site_scoring_method How to score sites ("ks" = Kolmogorov-Smirnov, "mixedeffects" = mixed effects modelling, "avg_feat_value" = Average site feature value. Default:ks
-#' @param padjust_method parameter passed to [p.adjust()] method parameter
+#' @param padjust_method parameter passed to [p.adjust()] method parameter, Default: "fdr"
 #' @return List with four data frames. Timeseries: definition of the time series used. Timeseries_features: features calculated from the time series. PCA_coordinates: principal components of individual time series for visualizing similarity. Site_scores: biasness scores for sites.
 #'
 #' @export

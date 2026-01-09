@@ -48,7 +48,7 @@ process_a_study(
 
 \item{site_scoring_method}{How to score sites ("ks" = Kolmogorov-Smirnov, "mixedeffects" = mixed effects modelling, "avg_feat_value" = Average site feature value. Default:ks}
 
-\item{padjust_method}{parameter passed to [p.adjust()] method parameter}
+\item{padjust_method}{parameter passed to \code{\link[=p.adjust]{p.adjust()}} method parameter, Default: "fdr"}
 }
 \value{
 List with four data frames. Timeseries: definition of the time series used. Timeseries_features: features calculated from the time series. PCA_coordinates: principal components of individual time series for visualizing similarity. Site_scores: biasness scores for sites.
