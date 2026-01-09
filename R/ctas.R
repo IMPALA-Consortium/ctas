@@ -20,6 +20,7 @@
 #' @param autogenerate_timeseries If set to TRUE, automatic definition of time series is used. If set to FALSE, custom_timeseries must have at least one time series defined.
 #' @param optimize_sites_and_patients If set to TRUE, always creates timeseries with as many sites and patients as possible while respecting the other function parameters. Default:FALSE
 #' @param site_scoring_method How to score sites ("ks" = Kolmogorov-Smirnov, "mixedeffects" = mixed effects modelling, "avg_feat_value" = Average site feature value. Default:ks
+#' @param padjust_method parameter passed to [p.adjust()] method parameter, Default: "fdr"
 #' @return List with four data frames. Timeseries: definition of the time series used. Timeseries_features: features calculated from the time series. PCA_coordinates: principal components of individual time series for visualizing similarity. Site_scores: biasness scores for sites.
 #'
 #' @export
@@ -29,7 +30,8 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
                             default_minimum_timepoints_per_series, default_minimum_subjects_per_series,
                             default_max_share_missing_timepoints_per_series, default_generate_change_from_baseline,
                             autogenerate_timeseries, optimize_sites_and_patients = FALSE,
-                            site_scoring_method = "ks") {
+                            site_scoring_method = "ks",
+                            padjust_method = "fdr") {
 
   # check selected option for auto-timeseries generation
   if (autogenerate_timeseries==TRUE){
@@ -217,7 +219,7 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
         unnest("site_p_values") %>%
         mutate(pvalue_kstest = as.numeric(.data$pvalue_kstest), kstest_statistic = as.numeric(.data$kstest_statistic)) %>%
         ungroup() %>%
-        mutate(fdr_adjusted_pvalue_ks = p.adjust(.data$pvalue_kstest, method = "fdr")) %>% # Correct for multiple testing
+        mutate(fdr_adjusted_pvalue_ks = p.adjust(.data$pvalue_kstest, method = padjust_method)) %>% # Correct for multiple testing
         mutate(pvalue_kstest_logp = -log10(.data$pvalue_kstest), fdr_corrected_pvalue_logp = -log10(.data$fdr_adjusted_pvalue_ks)) %>%
         mutate(pvalue_kstest_logp = if_else( is.infinite(.data$pvalue_kstest_logp), 30, .data$pvalue_kstest_logp),
                fdr_corrected_pvalue_logp = if_else( is.infinite(.data$fdr_corrected_pvalue_logp), 30, .data$fdr_corrected_pvalue_logp)) %>%
@@ -234,7 +236,7 @@ process_a_study <- function(subjects, parameters, data, custom_timeseries, custo
         mutate(z_score = abs(.data$median / .data$sd),
                p_value = 1 - pnorm(.data$z_score)) %>%
         ungroup() %>%
-        mutate(fdr_adjusted_pvalue = p.adjust(.data$p_value, method = "fdr")) %>% # Correct for multiple testing
+        mutate(fdr_adjusted_pvalue = p.adjust(.data$p_value, method = padjust_method)) %>% # Correct for multiple testing
         mutate(fdr_corrected_pvalue_logp = -log10(.data$fdr_adjusted_pvalue)) %>%
         select(c("timeseries_id", "feature", "entity", "mean", "median", "sd", "p_value", "fdr_corrected_pvalue_logp"))
 

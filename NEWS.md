@@ -1,3 +1,7 @@
+# ctas 0.4.0
+- expose p.adjust() method parameter
+- new (optional) adaptive auto time series generation method
+
 # ctas 0.3.0
 * implemented new site scoring methods: 
   - "mixedeffects" = mixed effects modelling
