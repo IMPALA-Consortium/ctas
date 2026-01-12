@@ -19,7 +19,8 @@ process_a_study(
   default_generate_change_from_baseline,
   autogenerate_timeseries,
   optimize_sites_and_patients = FALSE,
-  site_scoring_method = "ks"
+  site_scoring_method = "ks",
+  padjust_method = "fdr"
 )
 ```
 
@@ -87,6 +88,12 @@ process_a_study(
   How to score sites ("ks" = Kolmogorov-Smirnov, "mixedeffects" = mixed
   effects modelling, "avg_feat_value" = Average site feature value.
   Default:ks
+
+- padjust_method:
+
+  parameter passed to
+  [`p.adjust()`](https://rdrr.io/r/stats/p.adjust.html) method
+  parameter, Default: "fdr"
 
 ## Value
 
