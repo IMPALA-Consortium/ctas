@@ -863,18 +863,32 @@ pick_timepoint_combos <- function(autogenerate_timeseries_type, dataset, this_ti
   }else if(autogenerate_timeseries_type=="adaptive"){
     visits <- dataset %>%
       group_by(.data$timepoint_rank) %>%
-      summarise(nr = n()) %>%
-      mutate(score = .data$nr+.data$timepoint_rank)
+      summarise(nr_patients = n()) %>%
+      mutate(
+        timepoint_rank_percentile = .data$timepoint_rank / max(.data$timepoint_rank),
+        nr_patients_percentile = .data$nr_patients / max(.data$nr_patients)
+      )
 
     patients <- dataset %>%
       group_by(.data$subject_id) %>%
-      summarise(score = n())
+      summarise(nr_visits = n())
 
     dataset_score <- dataset %>%
-      left_join(patients %>% select(.data$subject_id, patient_score = .data$score), by = "subject_id") %>%
-      left_join(visits %>% select(.data$timepoint_rank, visit_score = .data$score), by = "timepoint_rank") %>%
-      mutate(score = .data$patient_score + .data$visit_score) %>%
-      select(-.data$patient_score, -.data$visit_score) %>%
+      left_join(patients %>% select(.data$subject_id, .data$nr_visits), by = "subject_id") %>%
+      group_by(.data$timepoint_rank) %>%
+      summarise(nr_patient_consistency = sum(.data$nr_visits)) %>%
+      left_join(
+        visits %>% select(
+          .data$timepoint_rank,
+          .data$nr_patients_percentile,
+          .data$timepoint_rank_percentile
+        ),
+        by = "timepoint_rank"
+      ) %>%
+      mutate(
+        nr_patient_consistency_percentile = .data$nr_patient_consistency / max(.data$nr_patient_consistency),
+        score = .data$nr_patient_consistency_percentile + .data$nr_patients_percentile + .data$timepoint_rank_percentile
+      ) %>%
       arrange(desc(.data$timepoint_rank)) %>%
       arrange(desc(.data$score))
 
