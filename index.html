@@ -240,36 +240,36 @@
 <col width="50%">
 <col width="50%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Feature code</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>autocorr</td>
 <td>Auto-correlation</td>
 </tr>
-<tr class="even">
+<tr>
 <td>average</td>
 <td>Average value</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>own_site_simil_score</td>
 <td>Measure of co-clustering of time series from the same study site</td>
 </tr>
-<tr class="even">
+<tr>
 <td>sd</td>
 <td>Standard deviation</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>unique_value_count_relative</td>
 <td>Number of unique values divided by number of values available</td>
 </tr>
-<tr class="even">
+<tr>
 <td>range</td>
 <td>Maximum difference between two time points in a series</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>lof</td>
 <td>Local Outlier Factor. Values around one are inliers while the larger the value, more of an outlier the timeseries is</td>
 </tr>
@@ -313,32 +313,32 @@
 <col width="25%">
 <col width="25%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Column name</th>
 <th>Data type</th>
 <th>Data required</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>subject_id</td>
 <td>chr</td>
 <td>Y</td>
 <td>Unique identifier for each subject</td>
 </tr>
-<tr class="even">
+<tr>
 <td>country</td>
 <td>chr</td>
 <td>Y</td>
 <td>Country where the subject is enrolled.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>site</td>
 <td>chr</td>
 <td>Y</td>
 <td>Name of the study site.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>region</td>
 <td>chr</td>
 <td>(Y)</td>
@@ -359,74 +359,74 @@
 <col width="25%">
 <col width="25%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Column name</th>
 <th>Data type</th>
 <th>Data required</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>parameter_id</td>
 <td>chr</td>
 <td>Y</td>
 <td>Parameter identifier</td>
 </tr>
-<tr class="even">
+<tr>
 <td>parameter_category_1</td>
 <td>chr</td>
 <td></td>
 <td>Top level category of the parameter (e.g. LB for a laboratory assay).</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>parameter_category_2</td>
 <td>chr</td>
 <td></td>
 <td>Second level category of the parameter (e.g. General chemistry for a laboratory assay).</td>
 </tr>
-<tr class="even">
+<tr>
 <td>parameter_category_3</td>
 <td>chr</td>
 <td></td>
 <td>Third level category of the parameter (e.g. Local lab for a laboratory assay).</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>parameter_name</td>
 <td>chr</td>
 <td>Y</td>
 <td>Parameter name</td>
 </tr>
-<tr class="even">
+<tr>
 <td>time_point_count_min</td>
 <td>int</td>
 <td></td>
 <td>Minimum number of time points required for auto-generated time series. If not provided, global default value is used.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>subject_count_min</td>
 <td>int</td>
 <td></td>
 <td>Minimum number of eligible subjects required for auto-generated time series. If not provided, global default value is used.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>max_share_missing</td>
 <td>float</td>
 <td></td>
 <td>Maximum number of missing data points an eligible subject can have for auto-generated time series. If not provided, global default value is used.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>generate_change_from_baseline</td>
 <td>boolean</td>
 <td></td>
 <td>Whether to also generate baseline-adjusted time series for the parameter. If not provided, global default value is used.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>timeseries_features_to_calculate</td>
 <td>chr</td>
 <td></td>
 <td>A comma-delimited list of time series features to calculate for the parameter. If not provided, global default value is used.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>use_only_custom_timeseries</td>
 <td>boolean</td>
 <td></td>
@@ -447,7 +447,7 @@
 <col width="11%">
 <col width="11%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>parameter_id</th>
 <th>parameter_category_1</th>
 <th>parameter_category_2</th>
@@ -459,7 +459,7 @@
 <th>generate_change_from_baseline</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>dummy_param_1</td>
 <td>VS</td>
 <td>NA</td>
@@ -470,7 +470,7 @@
 <td></td>
 <td></td>
 </tr>
-<tr class="even">
+<tr>
 <td>dummy_param_2</td>
 <td>LB</td>
 <td>General chemistry</td>
@@ -496,50 +496,50 @@
 <col width="25%">
 <col width="25%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Column name</th>
 <th>Data type</th>
 <th>Data required</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>subject_id</td>
 <td>chr</td>
 <td>Y</td>
 <td>Pointer to the subject identifier in the subjects table.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>parameter_id</td>
 <td>chr</td>
 <td>Y</td>
 <td>Pointer to the parameter identifier in the parameters table.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>timepoint_1_name</td>
 <td>chr</td>
 <td>Y</td>
 <td>Name of the top level time point (e.g. Visit 1).</td>
 </tr>
-<tr class="even">
+<tr>
 <td>timepoint_2_name</td>
 <td>chr</td>
 <td></td>
 <td>Name of the second level time point (e.g. “30 mins after dosing”).</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>timepoint_rank</td>
 <td>int</td>
 <td>Y</td>
 <td>Integer for ranking time points into chronological order. Ranking is separate for each parameter.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>result</td>
 <td>float</td>
 <td>Y</td>
 <td>Numerical result of the parameter.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>baseline</td>
 <td>float</td>
 <td></td>
@@ -558,7 +558,7 @@
 <col width="14%">
 <col width="14%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>subject_id</th>
 <th>parameter_id</th>
 <th>timepoint_1_name</th>
@@ -568,7 +568,7 @@
 <th>baseline</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>subj_1</td>
 <td>dummy_param_1</td>
 <td>Visit 1</td>
@@ -577,7 +577,7 @@
 <td>72</td>
 <td>65</td>
 </tr>
-<tr class="even">
+<tr>
 <td>subj_1</td>
 <td>dummy_param_1</td>
 <td>Visit 1</td>
@@ -586,7 +586,7 @@
 <td>81</td>
 <td>65</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>subj_1</td>
 <td>dummy_param_1</td>
 <td>Visit 2</td>
@@ -595,7 +595,7 @@
 <td>69</td>
 <td>65</td>
 </tr>
-<tr class="even">
+<tr>
 <td>subj_1</td>
 <td>dummy_param_1</td>
 <td>Visit 3</td>
@@ -604,7 +604,7 @@
 <td>70</td>
 <td>65</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>subj_1</td>
 <td>dummy_param_2</td>
 <td>Visit 3</td>
@@ -613,7 +613,7 @@
 <td>85</td>
 <td>84</td>
 </tr>
-<tr class="even">
+<tr>
 <td>subj_2</td>
 <td>dummy_param_2</td>
 <td>Visit 3</td>
@@ -639,26 +639,26 @@
 <col width="25%">
 <col width="25%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Column name</th>
 <th>Data type</th>
 <th>Data required</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>timeseries_id</td>
 <td>chr</td>
 <td>Y</td>
 <td>Identifier for the the custom time series.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>parameter_id</td>
 <td>chr</td>
 <td>Y</td>
 <td>Pointer to the parameter identifier in the parameters table.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>timepoint_combo</td>
 <td>chr</td>
 <td>Y</td>
@@ -668,12 +668,12 @@
 </table>
 <p>In the example below, a custom time series has been defined for dummy_param_1. Timepoints are defined with their respective ranks in the <em>data</em> df.</p>
 <table class="table">
-<thead><tr class="header">
+<thead><tr>
 <th>timeseries_id</th>
 <th>parameter_id</th>
 <th>timepoint_combo</th>
 </tr></thead>
-<tbody><tr class="odd">
+<tbody><tr>
 <td>custom_ts_1</td>
 <td>dummy_param_1</td>
 <td>1;2;3;4</td>
@@ -692,26 +692,26 @@
 <col width="25%">
 <col width="25%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Column name</th>
 <th>Data type</th>
 <th>Data required</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>parameter_id</td>
 <td>chr</td>
 <td>Y</td>
 <td>Pointer to the parameter identifier in the parameters table.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>feature</td>
 <td>chr</td>
 <td>Y</td>
 <td>Time series feature for which to use the custom reference group.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>ref_group</td>
 <td>chr</td>
 <td>Y</td>
@@ -736,38 +736,38 @@
 <col width="33%">
 <col width="33%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Column name</th>
 <th>Data type</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>timeseries_id</td>
 <td>chr</td>
 <td>Unique identifier for the time series.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>parameter_id</td>
 <td>chr</td>
 <td>The parameter the time series is for.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>baseline</td>
 <td>chr</td>
 <td>Whether the time series values are original measurements or baseline-adjusted.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>timepoint_combo</td>
 <td>chr</td>
 <td>Ranks of the time points that constitute the time series. Semicolon delimited string.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>timepoint_combo_readable</td>
 <td>chr</td>
 <td>Names of the time points that constitute the time series. Semicolon-delimited string.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>timepoint_count</td>
 <td>int</td>
 <td>Number of timepoints in the time series.</td>
@@ -786,28 +786,28 @@
 <col width="33%">
 <col width="33%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Column name</th>
 <th>Data type</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>timeseries_id</td>
 <td>chr</td>
 <td>Unique identifier of the time series. Points to the timeseries table.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>subject_id</td>
 <td>chr</td>
 <td>Subject ID pointing to the input df subjects.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>feature</td>
 <td>chr</td>
 <td>Feature code.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>feature_value</td>
 <td>float</td>
 <td>Feature value.</td>
@@ -826,28 +826,28 @@
 <col width="33%">
 <col width="33%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Column name</th>
 <th>Data type</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>timeseries_id</td>
 <td>chr</td>
 <td>Unique identifier of the time series. Points to the timeseries table.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>subject_id</td>
 <td>chr</td>
 <td>Subject ID pointing to the input df subjects.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>pc1</td>
 <td>float</td>
 <td>The first principal component.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>pc2</td>
 <td>float</td>
 <td>The second principal component.</td>
@@ -866,53 +866,53 @@
 <col width="33%">
 <col width="33%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Column name</th>
 <th>Data type</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>timeseries_id</td>
 <td>chr</td>
 <td>Unique identifier of the time series. Points to the timeseries table.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>site</td>
 <td>chr</td>
 <td>Study site for which the score has been calculated.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>country</td>
 <td>chr</td>
 <td>Site’s country.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>feature</td>
 <td>chr</td>
 <td>Time series feature the score is for.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>pvalue_kstest_logp</td>
 <td>float</td>
 <td>Negative logarithm of the raw p-value.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>kstest_statistic</td>
 <td>float</td>
 <td>Test statistic of the Kolmogorov-Smirnov test.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>fdr_corrected_pvalue_logp</td>
 <td>float</td>
 <td>Site score: negative logarithm of the multiple testing corrected p-value. FDR (False Discovery Rate) is used for correction.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>reference_group</td>
 <td>chr</td>
 <td>Reference group for the site. “All” means that the site has been compared to all sites in the study.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>subject_count</td>
 <td>int</td>
 <td>Number of site subjects who are eligible for the time series.</td>
