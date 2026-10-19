@@ -303,7 +303,11 @@ calculate_site_bias_ts_features <- function(this_feature, this_data, this_ref_gr
   # Add a tiny random number to each value to avoid problems ks.test has with ties.
   this_data$value <- this_data$value + rnorm(nrow(this_data), mean = 0, sd = 0.00001)
 
-  site_pvalues <- data.frame()
+  site_pvalues <- data.frame(
+    site = character(),
+    pvalue_kstest = character(),
+    kstest_statistic = character()
+  )
 
   # Define the hypothesis (i.e. whether we are looking at one-sided or two-sided bias).
   nullhypo_ks <- case_when(
@@ -367,9 +371,9 @@ calculate_site_bias_ts_features <- function(this_feature, this_data, this_ref_gr
   site_pvalues <- site_pvalues %>%
     left_join(y=site_metadata, by="site") %>%
     mutate(
-      pvalue_kstest = ifelse(
+      pvalue_kstest = if_else(
         is.na(.data$pvalue_kstest) & as.numeric(.data$kstest_statistic) == 1,
-        1e-100,
+        "1e-100",
         .data$pvalue_kstest
       )
     )
